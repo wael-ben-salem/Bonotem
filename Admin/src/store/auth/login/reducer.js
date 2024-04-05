@@ -1,49 +1,63 @@
 import {
-  LOGIN_USER,
   LOGIN_SUCCESS,
   LOGOUT_USER,
   LOGOUT_USER_SUCCESS,
   API_ERROR,
 } from "./actionTypes";
 
-const initialState = {
-  error: "",
-  loading: false,
+const authState = {
+  isLoggedIn: false,
+  user: {
+  
+    status: null,
+    username: "",
+    token: "",
+    message: "",
+    role: ""
+
+  },
 };
 
-const login = (state = initialState, action) => {
+const login = (state = authState, action) => {
   switch (action.type) {
-    case LOGIN_USER:
-      state = {
-        ...state,
-        loading: true,
-      };
-      break;
     case LOGIN_SUCCESS:
-      state = {
-        ...state,
-        loading: false,
-      };
-      break;
+     
+    return  {
+      loading: true,
+      user: action.payload,
+     
+    };
+    
+      
+      
     case LOGOUT_USER:
-      state = { ...state, isUserLogout: false };
-      break;
+
+    return  {
+      ...state,
+            isUserLogout: false      
+    };
+        
+     
     case LOGOUT_USER_SUCCESS:
-      state = { ...state, isUserLogout: true };
-      break;
+      return  {
+        ...state,
+              isUserLogout: true      
+      };
     case API_ERROR:
-      state = {
+      return  {
         ...state,
         error: action.payload,
         loading: false,
-        isUserLogout: false,
+        isUserLogout: false,     
       };
-      break;
+     
     default:
-      state = { ...state };
-      break;
+      return state;
   }
-  return state;
+ 
 };
 
 export default login;
+
+
+

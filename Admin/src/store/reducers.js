@@ -11,7 +11,8 @@ import forgetPassword from "./auth/forgetpwd/reducer";
 import login from "./auth/login/reducer";
 import profile from "./auth/profile/reducer";
 import account from "./auth/register/reducer";
-
+import gitUserReducer from "../features/gitUserSlice"; // Import your gitUserReducer from its file
+import AdminTable from "./auth/Tables/reducer";
 const rootReducer = combineReducers({
   // public
   Layout,
@@ -20,6 +21,9 @@ const rootReducer = combineReducers({
   login,
   profile,
   account,
+  gitUser: gitUserReducer, // Assign gitUserReducer to the key 'gitUser'
+  AdminTable
+  
 });
 
 export default rootReducer;

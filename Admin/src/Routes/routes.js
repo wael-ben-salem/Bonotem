@@ -3,6 +3,9 @@ import { Navigate } from "react-router-dom";
 
 //Dashboard
 import Dashboard from "../Pages/Dashboard";
+//Admin-Dashboard
+import AdminDashboard from "../Pages/AdminDashboard";
+
 
 // Import Planning
 import Planning from "../Pages/Personnels et Planning";
@@ -51,6 +54,7 @@ import FormWizard from "../Pages/Forms/FormWizard";
 // Import Tables
 import BasicTable from "../Pages/Tables/BasicTable.js";
 import ListJs from "../Pages/Tables/ListTables/ListTables";
+import AdminList from "../Pages/Tables/ListTables/AdminListTables.js"
 import DataTable from "../Pages/Tables/DataTables/DataTables";
 
 
@@ -71,6 +75,7 @@ import GoogleMap from "../Pages/Maps/GoogleMap";
 const authProtectedRoutes = [
   //dashboard
   { path: "/dashboard", component: <Dashboard /> },
+  //Admin-dashboard
 
   // Calender
   { path: "/planning", component: <Planning /> },
@@ -130,6 +135,26 @@ const authProtectedRoutes = [
   },
 ];
 
+const authAdminProtectedRoutes = [
+  //Admin-dashboard
+  { path: "/admindashboard", component: <AdminDashboard /> },
+  { path: "/tables-adminlistjs", component: <AdminList /> },
+
+  
+];
+
+
+
+
+
+
+
+
+
+
+
+
+
 const publicRoutes = [
 
   // Authentication Page
@@ -151,4 +176,4 @@ const publicRoutes = [
   { path: "/pages-comingsoon", component: <ComingSoon /> },
 ];
 
-export { authProtectedRoutes, publicRoutes };
+export { authProtectedRoutes, publicRoutes ,authAdminProtectedRoutes };

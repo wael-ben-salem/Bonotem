@@ -6,6 +6,7 @@ import './assets/scss/theme.scss';
 
 // Fake Backend 
 import fakeBackend from "./helpers/AuthType/fakeBackend";
+import axios from "axios";
 
 // Activating fake backend
 fakeBackend();
@@ -13,6 +14,7 @@ fakeBackend();
 // Firebase
 // Import Firebase Configuration file
 // import { initFirebaseBackend } from "./helpers/firebase_helper"
+axios.defaults.baseURL="http://localhost:8000/api";
 
 // const firebaseConfig = {
 //   apiKey: process.env.REACT_APP_APIKEY,
