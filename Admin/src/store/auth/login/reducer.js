@@ -1,12 +1,15 @@
 import {
-  LOGIN_SUCCESS,
+  
+  LOGINUSER_SUCCESS,
+  LOGINADMIN_SUCCESS,
   LOGOUT_USER,
   LOGOUT_USER_SUCCESS,
   API_ERROR,
 } from "./actionTypes";
 
 const authState = {
-  isLoggedIn: false,
+  error:null,
+  loading: false,
   user: {
   
     status: null,
@@ -20,7 +23,14 @@ const authState = {
 
 const login = (state = authState, action) => {
   switch (action.type) {
-    case LOGIN_SUCCESS:
+    case LOGINUSER_SUCCESS:
+     
+    return  {
+      loading: true,
+      user: action.payload,
+     
+    };
+    case LOGINADMIN_SUCCESS:
      
     return  {
       loading: true,
@@ -48,7 +58,7 @@ const login = (state = authState, action) => {
         ...state,
         error: action.payload,
         loading: false,
-        isUserLogout: false,     
+        isUserLogout: false, 
       };
      
     default:

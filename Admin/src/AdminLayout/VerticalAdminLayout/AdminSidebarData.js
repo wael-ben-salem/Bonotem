@@ -2,12 +2,14 @@ const AdminSidebarData = [
     {
         label: "Menu",
         isMainMenu: true,
+        color: "white",
+
     },
     {
         label: "Liste",
         icon: "bx bx-line-chart-down",
         subItem: [
-        { sublabel: "Marchandises", link: "/tables-adminlistjs" },
+        { sublabel: "Liste des utilisateurs", link: "/tables-adminlistjs" },
         ],
 
     },

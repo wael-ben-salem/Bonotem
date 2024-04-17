@@ -11,18 +11,31 @@ import forgetPassword from "./auth/forgetpwd/reducer";
 import login from "./auth/login/reducer";
 import profile from "./auth/profile/reducer";
 import account from "./auth/register/reducer";
-import gitUserReducer from "../features/gitUserSlice"; // Import your gitUserReducer from its file
+import gitUserReducer from "./user/gitUserSlice"; // Import your gitUserReducer from its file
+import gitPackagingReducer from "./Packagings/gitPackagingSlice"; 
+import gitPackagingCategorieReducer from "./Packagings/gitPackagingCategorie"; 
+import gitCategorieReducer from "./categorie/gitCategorySlice";
+import gitProduitReducer from "./produit/gitProduitSlice";
+import gitIngredientReducer from "./ingredient/GitIngredientSlice";
+
 import AdminTable from "./auth/Tables/reducer";
 const rootReducer = combineReducers({
   // public
   Layout,
+   
   calendar,
   forgetPassword,
   login,
   profile,
   account,
+  gitPackaging: gitPackagingReducer,
+  gitPackagingCategorie: gitPackagingCategorieReducer,
+  gitCategory: gitCategorieReducer,
+  gitProduit:gitProduitReducer,
+  gitIngredient:gitIngredientReducer,
+
   gitUser: gitUserReducer, // Assign gitUserReducer to the key 'gitUser'
-  AdminTable
+  AdminTable,
   
 });
 

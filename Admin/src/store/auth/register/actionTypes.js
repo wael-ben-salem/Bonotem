@@ -1,3 +1,11 @@
-export const REGISTER_USER = "register_user"
-export const REGISTER_USER_SUCCESSFUL = "register_user_successfull"
-export const REGISTER_USER_FAILED = "register_user_failed"
+
+export const REGISTER_USER = 'REGISTER_USER';
+export const REGISTER_USER_SUCCESSFUL = 'REGISTER_USER_SUCCESSFUL';
+export const REGISTER_USER_FAILED = 'REGISTER_USER_FAILED';
+export const REGISTER_USER_REQUEST = 'REGISTER_USER_REQUEST';
+
+export const API_ERROR = 'API_ERROR';
+
+
+
+

@@ -10,13 +10,16 @@ import AdminDashboard from "../Pages/AdminDashboard";
 // Import Planning
 import Planning from "../Pages/Personnels et Planning";
 // Import Catégorie
-import Categorie from "../Pages/Categorie";
-import Produit from "../Pages/Produit";
+import Categorie from "../Pages/Categorie/CategoryListTable.js";
+import Produit from "../Pages/Produit/ProduitListTable.js";
+import Packagings from "../Pages/Packagings";
+import PackagingsCategorie from "../Pages/PackagingsCategorie";
+
 // Import E-mail
 import Inbox from "../Pages/E-mail/Inbox";
 import ReadEmail from "../Pages/E-mail/ReadEmail";
 import EmailCompose from "../Pages/E-mail/EmailCompose";
-import Ingredient from "../Pages/Ingredient";
+import Ingredient from "../Pages/Ingredient/IngredientListTable.js";
 // Import Authentication pages
 import Login from "../Pages/Authentication/Login";
 import ForgetPasswordPage from "../Pages/Authentication/ForgetPassword";
@@ -75,15 +78,29 @@ import GoogleMap from "../Pages/Maps/GoogleMap";
 const authProtectedRoutes = [
   //dashboard
   { path: "/dashboard", component: <Dashboard /> },
-  //Admin-dashboard
+
+
+
+
+
+
+// Packagings_categorie
+{ path: "/PackagingsCategorie", component: <PackagingsCategorie /> },
+
+
+// Packagings
+{ path: "/Packagings", component: <Packagings /> },
+
 
   // Calender
   { path: "/planning", component: <Planning /> },
+
+  
    // Catégorie
     { path: "/categorie", component: <Categorie /> },
      // Produit
- { path: "/produit", component: <Produit /> },
-  // Profile
+     { path: "/produit", component: <Produit /> },
+     // Profile
   { path: "/userprofile", component: <UserProfile /> },
  { path: "/ingredient", component: <Ingredient /> },
   // E-mail
@@ -131,7 +148,7 @@ const authProtectedRoutes = [
   {
     path: "/",
     exact: true,
-    component: <Navigate to="/dashboard" />,
+    component: <Navigate to="/login"/>,
   },
 ];
 

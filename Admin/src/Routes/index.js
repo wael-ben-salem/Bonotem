@@ -14,8 +14,7 @@ import AdminHorizontalLayout from "../AdminLayout/HorizontalAdminLayout/index";
 import AdminVerticalLayout from "../AdminLayout/VerticalAdminLayout/index";
 
 import HorizontalLayout from "../Layout/HorizontalLayout/index";
-import { AuthProtected } from "./AuthProtected";
-import {AuthAdminProtected} from "./AuthAdminProtected";
+import { AuthProtected ,AuthAdminProtected } from "./AuthProtected";
 import { authProtectedRoutes,authAdminProtectedRoutes, publicRoutes } from "./routes";
 
 const getLayout = (layoutType) => {

@@ -28,6 +28,51 @@ export const updateUser = createAsyncThunk(
 );
 
 
+export const getUserDetails = createAsyncThunk(
+  "gitUser/getUserDetails",
+  async (userId) => {
+    try {
+      const response = await axios.get(`/user/${userId}`);
+      console.log("API response:", response);
+      return response.data.users;
+    } catch (error) {
+      console.error("API error:", error);
+      throw error;
+    }
+  }
+);
+
+
+
+
+export const deleteUser = createAsyncThunk(
+  "gitUser/deleteUser",
+  async (userId) => {
+    try {
+      const response = await axios.delete(`/deleteuser/${userId}`);
+      console.log("API response:", response);
+      return userId; // Return the ID of the deleted user
+    } catch (error) {
+      console.error("API error:", error);
+      throw error;
+    }
+  }
+);
+
+
+
+export const addUser = createAsyncThunk("gitUser/addUser", async (userData) => {
+  try {
+    const response = await axios.post("/adduser", userData);
+    console.log("API response:", response);
+    return response.data; // Assuming the API returns the added user data
+  } catch (error) {
+    console.error("API error:", error);
+    throw error;
+  }
+});
+
+
 
 
 
@@ -77,9 +122,38 @@ export const gitUserSlice = createSlice({
       .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+      })
+      .addCase(deleteUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        // Remove the deleted user from the state
+        state.users = state.users.filter(user => user.id !== action.payload);
+        console.log("User deleted:", action.payload);
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+      })
+      .addCase(addUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        // Optionally, you can update state with the newly added user
+       
+        console.log("User added:", action.payload);
+      })
+      .addCase(addUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });
 
-export const { addUser, clearUsers } = gitUserSlice.actions;
 export default gitUserSlice.reducer;

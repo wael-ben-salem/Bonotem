@@ -18,12 +18,12 @@ import { GoogleLogin } from "react-google-login";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
 
 // actions
-import { LoginAuthAction, socialLogin } from "../../store/actions";
+import { LoginAuthAction, socialLogin, loginSuccess } from "../../store/actions";
 
 //Import config
 import { facebook, google } from "../../config";
 
-const Login = ({ login }) => {
+const Login = ({ login , user }) => {
   document.title = "Login | Upzet - React Admin & Dashboard Template";
   const dispatch = useDispatch();
   const history = useNavigate();
@@ -81,6 +81,27 @@ const Login = ({ login }) => {
       document.body.className = "";
     };
   }, []);
+  useEffect(() => {
+    document.body.className = "bg-pattern";
+  
+    const authUser = localStorage.getItem("authUser");
+  if (authUser) {
+    const userData = JSON.parse(authUser);
+    dispatch(loginSuccess(userData)); // Dispatch action to set user data in Redux store
+    // Redirect to dashboard or admin dashboard based on role
+    if (userData.role === "admin") {
+      history("/admindashboard");
+    } else if (userData.role === "restaurateur") {
+      history("/dashboard");
+    }
+  }
+
+  
+    return function cleanup() {
+      document.body.className = "";
+    };
+  },);
+  
 
   return (
     <React.Fragment>

@@ -1,16 +1,24 @@
 import React from "react";
 import { Navigate, Route } from "react-router-dom";
-
 import { useProfile } from "../Hooks/UserHooks";
 
 const AuthProtected = (props) => {
   const { userProfile, loading } = useProfile();
 
-  /*
-    redirect is un-auth access protected routes via url
-    */
+  if (!userProfile || loading || userProfile.role !== "restaurateur") {
+    return (
+      <Navigate to={{ pathname: "/login", state: { from: props.location } }} />
+    );
+  }
 
-  if (!userProfile && loading) {
+  return <>{props.children}</>;
+};
+
+const AuthAdminProtected = (props) => {
+  const { userProfile, loading } = useProfile();
+
+  if (!userProfile || loading || userProfile.role !== "admin") {
+    // Redirect user to login if not logged in, still loading profile, or not an admin
     return (
       <Navigate to={{ pathname: "/login", state: { from: props.location } }} />
     );
@@ -24,10 +32,10 @@ const AccessRoute = ({ component: Component, ...rest }) => {
     <Route
       {...rest}
       render={props => {
-        return (<> <Component {...props} /> </>);
+        return <Component {...props} />;
       }}
     />
   );
 };
 
-export { AuthProtected, AccessRoute };
+export { AuthProtected, AuthAdminProtected, AccessRoute };
