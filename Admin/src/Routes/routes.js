@@ -3,17 +3,23 @@ import { Navigate } from "react-router-dom";
 
 //Dashboard
 import Dashboard from "../Pages/Dashboard";
+//Admin-Dashboard
+import AdminDashboard from "../Pages/AdminDashboard";
+
 
 // Import Planning
 import Planning from "../Pages/Personnels et Planning";
 // Import Catégorie
-import Categorie from "../Pages/Categorie";
-import Produit from "../Pages/Produit";
+import Categorie from "../Pages/Categorie/CategoryListTable.js";
+import Produit from "../Pages/Produit/ProduitListTable.js";
+import Packagings from "../Pages/Packagings";
+import PackagingsCategorie from "../Pages/PackagingsCategorie";
+
 // Import E-mail
 import Inbox from "../Pages/E-mail/Inbox";
 import ReadEmail from "../Pages/E-mail/ReadEmail";
 import EmailCompose from "../Pages/E-mail/EmailCompose";
-import Ingredient from "../Pages/Ingredient";
+import Ingredient from "../Pages/Ingredient/IngredientListTable.js";
 // Import Authentication pages
 import Login from "../Pages/Authentication/Login";
 import ForgetPasswordPage from "../Pages/Authentication/ForgetPassword";
@@ -51,6 +57,7 @@ import FormWizard from "../Pages/Forms/FormWizard";
 // Import Tables
 import BasicTable from "../Pages/Tables/BasicTable.js";
 import ListJs from "../Pages/Tables/ListTables/ListTables";
+import AdminList from "../Pages/Tables/ListTables/AdminListTables.js"
 import DataTable from "../Pages/Tables/DataTables/DataTables";
 
 
@@ -72,13 +79,28 @@ const authProtectedRoutes = [
   //dashboard
   { path: "/dashboard", component: <Dashboard /> },
 
+
+
+
+
+
+// Packagings_categorie
+{ path: "/PackagingsCategorie", component: <PackagingsCategorie /> },
+
+
+// Packagings
+{ path: "/Packagings", component: <Packagings /> },
+
+
   // Calender
   { path: "/planning", component: <Planning /> },
+
+  
    // Catégorie
     { path: "/categorie", component: <Categorie /> },
      // Produit
- { path: "/produit", component: <Produit /> },
-  // Profile
+     { path: "/produit", component: <Produit /> },
+     // Profile
   { path: "/userprofile", component: <UserProfile /> },
  { path: "/ingredient", component: <Ingredient /> },
   // E-mail
@@ -126,9 +148,29 @@ const authProtectedRoutes = [
   {
     path: "/",
     exact: true,
-    component: <Navigate to="/dashboard" />,
+    component: <Navigate to="/login"/>,
   },
 ];
+
+const authAdminProtectedRoutes = [
+  //Admin-dashboard
+  { path: "/admindashboard", component: <AdminDashboard /> },
+  { path: "/tables-adminlistjs", component: <AdminList /> },
+
+  
+];
+
+
+
+
+
+
+
+
+
+
+
+
 
 const publicRoutes = [
 
@@ -151,4 +193,4 @@ const publicRoutes = [
   { path: "/pages-comingsoon", component: <ComingSoon /> },
 ];
 
-export { authProtectedRoutes, publicRoutes };
+export { authProtectedRoutes, publicRoutes ,authAdminProtectedRoutes };

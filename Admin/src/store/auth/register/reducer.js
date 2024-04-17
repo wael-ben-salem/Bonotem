@@ -1,46 +1,33 @@
 import {
-  REGISTER_USER,
   REGISTER_USER_SUCCESSFUL,
   REGISTER_USER_FAILED,
-} from "./actionTypes"
+} from "./actionTypes";
 
 const initialState = {
-  registrationError: null,
-  message: null,
-  loading: false,
   user: null,
-}
+  registrationError:null,
+  error: null
+};
 
+// Reducer function
 const account = (state = initialState, action) => {
   switch (action.type) {
-    case REGISTER_USER:
-      state = {
-        ...state,
-        loading: true,
-        registrationError: null,
-      }
-      break
     case REGISTER_USER_SUCCESSFUL:
-      state = {
+      return {
         ...state,
-        loading: false,
-        user: action.payload,
-        registrationError: null,
-      }
-      break
+        user: action.payload, // Assuming payload contains user data
+        error: null // Reset error to null on successful registration
+      };
     case REGISTER_USER_FAILED:
-      state = {
+      return {
         ...state,
-        user: null,
-        loading: false,
-        registrationError: action.payload,
-      }
-      break
+        error: action.payload ,// Set error message from payload
+        registrationError:true
+      };
     default:
-      state = { ...state }
-      break
+      return state;
   }
-  return state
-}
+};
+
 
 export default account;

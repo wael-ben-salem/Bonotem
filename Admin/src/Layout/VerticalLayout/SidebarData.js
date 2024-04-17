@@ -23,10 +23,14 @@ const SidebarData = [
             label: "Production",
             icon:   "bx bx-barcode",
             subItem: [
-                  { sublabel: "Ingrédients", link: "/ingredient" },
-                   { sublabel: "Ingrédients Composés", link: "/ingredientCompose" },
-                   { sublabel: "Catégories", link: "/categorie" },
-                   { sublabel: "Packagings", link: "/packaging" },
+                { sublabel: "Ingrédients", link: "/ingredient" },
+                { sublabel: "Ingrédients Composés", link: "/ingredientCompose" },
+                { sublabel: "Catégories", link: "/categorie" },
+                { sublabel: "Packagings", link: "/packaging" },
+                   { sublabel: "Packagings", link: "/packagings" },
+                    { sublabel: "Packagings_categorie", link: "/PackagingsCategorie" },
+
+                   
 
             ],
         },

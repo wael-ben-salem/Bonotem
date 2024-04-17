@@ -17,8 +17,8 @@ const Error404 = () => {
                                         <h1 className="display-2 error-text fw-bold">4<i className="ri-ghost-smile-fill align-bottom text-primary mx-1"></i>4</h1>
                                     </div>
                                     <div>
-                                        <h4 className="text-uppercase mt-4">Sorry, page not found</h4>
-                                        <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque</p>
+                                        <h4 className="text-uppercase mt-4">Désolé, Page introuvable</h4>
+                                        <p>votre abonnement est épuisé, réessayez ultérieurement ou contactez le service</p>
                                         <div className="mt-4">
                                             <Link to="/" className="btn btn-primary">Back to Home<i className="ri-arrow-right-line align-bottom ms-2"></i></Link>
                                         </div>
