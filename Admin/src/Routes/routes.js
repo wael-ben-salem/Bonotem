@@ -5,12 +5,19 @@ import { Navigate } from "react-router-dom";
 import Dashboard from "../Pages/Dashboard";
 //Admin-Dashboard
 import AdminDashboard from "../Pages/AdminDashboard";
+import Testexample from "../Pages/Test/test";
+
+
+import IngredientCompose from "../Pages/Ingredient/IngredientComposeListTable";
 
 
 // Import Planning
 import Planning from "../Pages/Personnels et Planning";
 // Import Catégorie
 import Categorie from "../Pages/Categorie/CategoryListTable.js";
+import MarchandiseIngredient from  "../Pages/Marchandise/MarchandiseIngredientListTable.js";
+import MarchandisePackaging from  "../Pages/Marchandise/MarchandisePackagingListTable.js";
+
 import Produit from "../Pages/Produit/ProduitListTable.js";
 import Packagings from "../Pages/Packagings";
 import PackagingsCategorie from "../Pages/PackagingsCategorie";
@@ -73,13 +80,20 @@ import IconBoxicons from "../Pages/Icons/IconBoxicons"
 // Import Map Pages
 import VectorMaps from "../Pages/Maps/VectorMap";
 import GoogleMap from "../Pages/Maps/GoogleMap";
+import FournisseurListTable from "../Pages/Fournisseur/FournisseurListTable";
 
 
 const authProtectedRoutes = [
   //dashboard
   { path: "/dashboard", component: <Dashboard /> },
+  { path: "/marchandise-Ingredient", component: <MarchandiseIngredient /> },
+  { path: "/marchandise-Packaging", component: <MarchandisePackaging /> },
+
+  { path: "/ingredientCompose", component: <IngredientCompose /> },
+  { path: "/Fournisseur", component: <FournisseurListTable /> },
 
 
+  
 
 
 
@@ -161,6 +175,15 @@ const authAdminProtectedRoutes = [
 ];
 
 
+const authManagerProtectedRoutes = [
+  { path: "/test", component: <Testexample /> },
+
+  //Admin-dashboard
+  
+  
+];
+
+
 
 
 
@@ -193,4 +216,4 @@ const publicRoutes = [
   { path: "/pages-comingsoon", component: <ComingSoon /> },
 ];
 
-export { authProtectedRoutes, publicRoutes ,authAdminProtectedRoutes };
+export { authProtectedRoutes, publicRoutes ,authManagerProtectedRoutes,authAdminProtectedRoutes };

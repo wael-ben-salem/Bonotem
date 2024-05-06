@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () => {
+export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIngCompose", async () => {
     try {
-      const response = await axios.get("/categorie");
+      const response = await axios.get("/ingredientsCompose");
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -17,11 +17,11 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
   });
 
 
-  export const updateCategorie = createAsyncThunk(
-    "gitCategorie/updateCategorie",
-    async ({ id, categorieData }) => {
+  export const updateIngCompose = createAsyncThunk(
+    "gitIngredientCompose/updateIngCompose",
+    async ({ id ,formData,insertedProduitIngredient }) => {
         try {
-            const response = await axios.post(`/categori/${id}`, categorieData);
+            const response = await axios.post(`/ingredientsCompose/${id}` ,formData,insertedProduitIngredient );
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -32,13 +32,13 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
   );
 
 
-  export const getCategorieeDetails = createAsyncThunk(
-    "gitCategorie/getPackaging_categorieDetails",
-    async (categorieId) => {
+  export const getIngComposeDetails = createAsyncThunk(
+    "gitIngredientCompose/getIngComposeDetails",
+    async (ingComposeId) => {
       try {
-        const response = await axios.get(`/categorie/${categorieId}`);
+        const response = await axios.get(`/ingredientsCompose/${ingComposeId}`);
         console.log("API response:", response);
-        return response;
+        return response.ingredientcomposes;
       } catch (error) {
         console.error("API error:", error);
         throw error;
@@ -46,13 +46,13 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
     }
   );
 
-  export const deleteCategorie = createAsyncThunk(
-    "gitCategorie/deletePackaging_categorie",
-    async (categorieId) => {
+  export const deleteIngCompose = createAsyncThunk(
+    "gitIngredientCompose/deleteIngCompose",
+    async (ingComposeId) => {
       try {
-        const response = await axios.delete(`/categorie/${categorieId}`);
+        const response = await axios.delete(`/produit/${ingComposeId}`);
         console.log("API response:", response);
-        return categorieId; // Return the ID of the deleted user
+        return ingComposeId; // Return the ID of the deleted user
       } catch (error) {
         console.error("API error:", error);
         throw error;
@@ -63,62 +63,64 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
   
 
 
-  export const addCategorie = createAsyncThunk("gitCategorie/addPackaging_categorie", async (newCategorieData) => {
+  export const addIngCompose = createAsyncThunk("gitIngredientCompose/addIngCompose", async (newIngComposeData,insertedProduitIngredient,rejectWithValue) => {
     try {
-      const response = await axios.post("/categori", newCategorieData);
+      const response = await axios.post("/ingredientsCompose", newIngComposeData,insertedProduitIngredient,rejectWithValue);
       console.log("API response:", response);
-      return response; // Assuming the API returns the added user data
+      return response; // Assuming the API returns the added product data
     } catch (error) {
-      console.error("API error:", error);
-      throw error;
+        console.error("API error:", error);
+        return rejectWithValue(error.response); // Return error data
     }
   });
+ 
+
+
+  
   
 
-  export const gitCategorieSlice = createSlice({
-    name: "gitCategorie",
+  export const gitIngredientComposeSlice = createSlice({
+    name: "gitIngredientComposeSlice",
     initialState: {
-        categories: [],
+        ingredientcomposes: [],
       loading: false,
       error: null,
       Success: false, // Add this state for success message
-      errorMessage: "", // Add a state to store error message
+          errorMessage: "", // Add a state to store error message
 
 
     },
     reducers: {
       // Define your additional reducers here
-      addPackaging: (state, action) => {
-        state.packagings_categorie.push(action.payload);
+      addProduit: (state, action) => {
+        state.ingredientcompose.push(action.payload);
       },
-      clearPackaging: (state) => {
-        state.categories = [];
+      clearProduit: (state) => {
+        state.ingredientcompose = [];
       },
       // Add more reducers as needed
     },
     extraReducers: (builder) => {
       builder
-        .addCase(getAllData.pending, (state) => {
+        .addCase(getAllIngCompose.pending, (state) => {
           state.loading = true;
           state.error = null;
         })
-        .addCase(getAllData.fulfilled, (state, action) => {
+        .addCase(getAllIngCompose.fulfilled, (state, action) => {
           state.loading = false;
-          state.categories = action.payload; // Update users array
+          state.ingredientcomposes = action.payload; // Update users array
           state.error = null;
           console.log("Fulfilled payload:", action.payload); // Log fulfilled payload
         })
-        .addCase(getAllData.rejected, (state, action) => {
+        .addCase(getAllIngCompose.rejected, (state, action) => {
           state.loading = false;
           state.error = action.error.message;
         })
-        .addCase(updateCategorie.pending, (state) => {
+        .addCase(updateIngCompose.pending, (state) => {
           state.loading = true;
           state.error = null;
-          state.errorMessage = "";
-
         })
-        .addCase(updateCategorie.fulfilled, (state, action) => {
+        .addCase(updateIngCompose.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
           if (action.payload.validation_errors) {
@@ -130,28 +132,18 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
               state.Success = false; // Hide success message after 3 seconds
             }, 3000);
           }
-          // You may want to update the state accordingly here
         })
-        .addCase(updateCategorie.rejected, (state, action) => {
+        .addCase(updateIngCompose.rejected, (state, action) => {
           state.loading = false;
-          if (action.payload && action.payload.validation_errors) {
-            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
-
-          } else {
-         state.errorMessage = "An error occurred. Please try again.";
-
-          }
+          state.error = action.error.message;
         })
-        .addCase(deleteCategorie.pending, (state) => {
+        .addCase(deleteIngCompose.pending, (state) => {
           state.loading = true;
           state.error = null;
-          state.erroredMessage = "";
-
         })
-        .addCase(deleteCategorie.fulfilled, (state, action) => {
+        .addCase(deleteIngCompose.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
-          // Remove the deleted user from the state
           if (action.payload.validation_errors) {
             // If validation errors present, set error message accordingly
             state.errorMessage = "Object.values(action.payload.validation_errors)[0][0]";
@@ -162,23 +154,17 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
             }, 3000);
           }
         })
-        .addCase(deleteCategorie.rejected, (state, action) => {
+        .addCase(deleteIngCompose.rejected, (state, action) => {
           state.loading = false;
-          if (action.payload && action.payload.validation_errors) {
-            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
-
-          } else {
-         state.errorMessage = "An error occurred. Please try again.";
-
-          }
+          state.error = action.error.message;
         })
-        .addCase(addCategorie.pending, (state) => {
+        .addCase(addIngCompose.pending, (state) => {
           state.loading = true;
           state.error = null;
-          state.errorMessage = ""; // Reset error message
+                  state.errorMessage = ""; // Reset error message
 
         })
-        .addCase(addCategorie.fulfilled, (state, action) => {
+        .addCase(addIngCompose.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
           
@@ -192,18 +178,23 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
             }, 3000);
-          }        })
-        .addCase(addCategorie.rejected, (state, action) => {
-          state.loading = false;
-          state.error = action.error.message;
-          if (action.payload.validation_errors) {
-            // If validation errors present, set error message accordingly
-            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
-          } else {
-            state.errorMessage = "An error occurred. Please try again."; // Generic error message
           }
+        })
+        .addCase(addIngCompose.rejected, (state, action) => {
+          state.loading = false;
+        state.error = action.payload;
+ if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.errorMessage = "An error occurred. Please try again."; // Generic error message
+        }
+
+
+
+
         });
     },
   });
 
-  export default gitCategorieSlice.reducer;
+  export default gitIngredientComposeSlice.reducer;

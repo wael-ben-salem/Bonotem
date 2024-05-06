@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+
 import {
   Button,
   Card,
   CardBody,
+  Alert,
   CardHeader,
   Col,
   Container,
@@ -16,8 +20,8 @@ import {
 } from "reactstrap";
 
 import {
-  getAllData,
-  updateIngredient,
+    getAllDataIngredient,
+    updateingredient,
   deleteIngredient,
   addIngredient,
 } from "../../store/ingredient/GitIngredientSlice";
@@ -28,8 +32,17 @@ const IngredientTables = () => {
   const [modal_list, setmodal_list] = useState(false);
   const [editIngredient, setEditIngredient] = useState(null);
   const [editedName, setEditedName] = useState("");
-  const [editedUnit, setEditedUnit] = useState("");
-  const [editedIdFournisseur, setEditedIdFournisseur] = useState("");
+  const [editedPhoto, setEditedPhoto] = useState(""); // Store the file itself, initialize as null
+
+  const [modal_confirm_edit, setModalConfirmEdit] = useState(false);
+  const [modal_confirm_add, setModalConfirmAdd] = useState(false);
+  const { Success, errorMessage } = useSelector(state => ({
+    Success: state.gitIngredient.Success,
+    errorMessage: state.gitIngredient.errorMessage,
+    
+  }));
+  const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
+
 
   const [modal_show, setModalShow] = useState(false);
   const [selectedIngredient, setSelectedIngredient] = useState(null);
@@ -39,11 +52,52 @@ const IngredientTables = () => {
     name_ingredient: "",
     unit_measure: "",
     id_fournisseur: "",
+    photo: null, // Store the file itself, initialize as null
+
   });
 
+  const [hoverShow, setHoverShow] = useState(false);
+    const [hoverEdit, setHoverEdit] = useState(false);
+    const [hoverRemove, setHoverRemove] = useState(false);
+    const [hover, setHover] = useState(false);
+
+
+  
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 4;
+
+  // Calcul du nombre total de pages
+  const totalPages = Math.ceil(ingredients.length / itemsPerPage);
+
+  // Fonction pour diviser les éléments en pages
+  const paginateIngredient = () => {
+      const startIndex = currentPage * itemsPerPage;
+      const endIndex = startIndex + itemsPerPage;
+      return ingredients.slice(startIndex, endIndex);
+  };
+
+  // Fonction pour changer de page
+  const changePage = (page) => {
+      setCurrentPage(page);
+  };
+  
+
   useEffect(() => {
-    dispatch(getAllData());
+    dispatch(getAllDataIngredient());
   }, [dispatch]);
+
+
+  useEffect(() => {
+    if (Success) {
+
+    setShowSuccessMessage(true);
+    setTimeout(() => {
+        setShowSuccessMessage(false);
+        window.location.reload()
+
+    }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }
+}, [Success]);
 
   const toggleAddIngredientModal = () => {
     setModalAddIngredient(!modalAddIngredient);
@@ -61,6 +115,17 @@ const IngredientTables = () => {
     toggleModal(modal_show, setModalShow);
   };
 
+  const toggleConfirmAdd = () => {
+    setModalConfirmAdd(!modal_confirm_add);
+}
+
+
+const toggleConfirmEdit = () => {
+    setModalConfirmEdit(!modal_confirm_edit);
+}
+
+
+
   /*const toggleShowModal = () => {
         setModalShow(!modal_show);
     }*/
@@ -71,58 +136,84 @@ const IngredientTables = () => {
   };
 
   const handleRemove = () => {
-    dispatch(deleteIngredient(selectedIngredient.id_ingredient));
-    toggleDeleteModal();
+    dispatch(deleteIngredient(selectedIngredient.id));
+    setTimeout(() => {
+        toggleDeleteModal();
+
+        window.location.reload();
+
+    },  4000); 
   };
 
   const openEditModal = (ingredient) => {
     setEditIngredient(ingredient);
     setEditedName(ingredient.name_ingredient);
-    setEditedUnit(ingredient.unit_measure);
-    setEditedIdFournisseur(ingredient.id_fournisseur);
+    setEditedPhoto(ingredient.photo); 
+    setSelectedIngredient(ingredient);
+
     toggleListModal();
   };
 
   const handleUpdate = () => {
-    const updatedIngredient = {
-        name_ingredient: editedName,
-        unit_measure: editedUnit,
-        id_fournisseur: editedIdFournisseur,
-    };
-    if (!editIngredient.id_ingredient) {
-        console.error("No ID found for the ingredient, cannot update");
-        return;  
-    }
-    dispatch(updateIngredient({
-        id: editIngredient.id_ingredient, 
-        ingredientData: updatedIngredient,
+   
+    const formData = new FormData();
+    formData.append('id', editIngredient.id);
+    formData.append('name_ingredient', editedName);
+    formData.append('photo', editedPhoto); // Append the file to the form data
+
+    
+    dispatch(updateingredient({
+        id: editIngredient.id, 
+        ingredientData: formData,
     }));
-    toggleListModal();
+    setEditIngredient({
+      name_ingredient: '',
+      photo: null,
+  });
+    setTimeout(() => {
+        toggleListModal();
+        toggleConfirmEdit();
+
+        window.location.reload();
+
+    },  4000); 
 };
 
   const toggleModal = (modal, setModal) => setModal(!modal);
 
   const handleAddIngredient = () => {
+    const formData = new FormData();
+
+    formData.append('id', editIngredient.id);
+    formData.append('name_ingredient', editedName);
+    formData.append('photo', editedPhoto); // Append the file to the form data
+
     dispatch(addIngredient(newIngredientData));
     setNewIngredientData({
       name_ingredient: "",
-      unit_measure: "",
-      id_fournisseur: "",
+      photo: null,
+
     });
-    toggleAddIngredientModal();
+    setTimeout(() => {
+        toggleAddIngredientModal();
+        toggleConfirmAdd();
+
+        window.location.reload();
+
+    },  4000); 
   };
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Tables" breadcrumbItem="Listjs" />
+          <Breadcrumbs title="Tables" breadcrumbItem="Ingredients" />
 
           <Row>
             <Col lg={12}>
               <Card>
                 <CardHeader>
-                  <h4 className="card-title mb-0">Gestion Ingredients</h4>
+                  <h4 className="card-title mb-0">Gestion des Ingredients</h4>
                 </CardHeader>
 
                 <CardBody>
@@ -130,14 +221,14 @@ const IngredientTables = () => {
                     <Row className="g-4 mb-3">
                       <Col className="col-sm-auto">
                         <div className="d-flex gap-1">
-                          <Button
-                            className="btn btn-sm btn-info"
-                            onClick={toggleAddIngredientModal}
-                            id="create-btn"
-                          >
-                            <i className="ri-add-line align-bottom me-1"></i>{" "}
-                            Ajouter Ingrédient
-                          </Button>
+                        <Button  color="soft-info" className="btn btn-sm btn-info" onClick={toggleAddIngredientModal}
+                                                                                                    onMouseEnter={() => setHover(true)}
+                                                                                                      onMouseLeave={() => setHover(false)}
+                                                                                                        id="create-btn">
+                                                                                                        <i className={hover ? "ri-add-fill align-bottom me-1" : "ri-add-line align-bottom me-1"}></i>
+                                                                                                        {/* {hover ? "Ajouter" : ""} */}
+
+                                                                                                  </Button>
                         </div>
                       </Col>
                       <Col className="col-sm">
@@ -174,23 +265,30 @@ const IngredientTables = () => {
                               Id
                             </th>
                             <th className="sort" data-sort="User-name">
-                              Ingredient
+                              Nom Ingredient
                             </th>
-                            <th className="sort" data-sort="User-email">
-                              Unite Mesure
+                            <th className="sort" data-sort="Categorie-photo">photo</th>
+
+                            <th class="d-flex align-items-end flex-column" data-sort="action" >
+                            <div class="d-flex flex-row-reverse">
+  <div class="p-2"></div>
+  <div class="p-0.5"></div>
+
+
+  <div class="p-2"></div>
+  <div class="p-2"></div>
+  <div class="p-2"></div>
+  <div class="p-2"></div>
+  <div class="p-2">Action</div>
+</div>
                             </th>
-                            <th className="sort" data-sort="User-adresse">
-                              Id Fournisseur
-                            </th>
-                            <th className="sort" data-sort="action">
-                              Action
-                            </th>
+
                           </tr>
                         </thead>
                         <tbody className="list form-check-all">
-                          {ingredients && ingredients.length > 0 ? (
-                            ingredients.map((ingredient) => (
-                              <tr key={ingredient.id_ingredient}>
+                          {paginateIngredient().length > 0 ? (
+        paginateIngredient().map((ingredient, index) => (
+                              <tr key={ingredient.id}>
                                 <th
                                   scope="row"
                                   onClick={() => openShowModal(ingredient)}
@@ -205,51 +303,63 @@ const IngredientTables = () => {
                                   </div>
                                 </th>
                                 <td onClick={() => openShowModal(ingredient)}>
-                                  {ingredient.id_ingredient}
+                                  {ingredient.id}
                                 </td>
                                 <td onClick={() => openShowModal(ingredient)}>
                                   {ingredient.name_ingredient}
                                 </td>
                                 <td onClick={() => openShowModal(ingredient)}>
-                                  {ingredient.unit_measure}
+                                  {ingredient.photo ? (
+                                    <img
+                                    src={`${ingredient.photo.replace('ingredients', '')}`} // Remove the 'categories' prefix
+                                    alt={ingredient.name}
+                                      style={{ width: "50px", height: "50px" }}
+                                    />
+                                  ) : (
+                                    "No photo"
+                                  )}
                                 </td>
-                                <td onClick={() => openShowModal(ingredient)}>
-                                  {ingredient.id_fournisseur}
-                                </td>
+                                
                                 <td>
-                                  <div className="d-flex gap-2">
-                                    <div className="show">
-                                      <button
-                                        className="btn btn-sm btn-dark show-item-btn"
-                                        onClick={() =>
-                                          openShowModal(ingredient)
-                                        }
-                                      >
-                                        Detail
-                                      </button>
-                                    </div>
-                                    <div className="edit">
-                                      <button
-                                        className="btn btn-sm btn-success edit-item-btn"
-                                        onClick={() =>
-                                          openEditModal(ingredient)
-                                        }
-                                      >
-                                        Modifier
-                                      </button>
-                                    </div>
-                                    <div className="remove">
-                                      <button
-                                        className="btn btn-sm btn-danger remove-item-btn"
-                                        onClick={() => {
-                                          openDeleteModal(ingredient);
-                                        }}
-                                      >
-                                        Supprimer
-                                      </button>
-                                    </div>
-                                  </div>
-                                </td>
+                <div className="d-flex justify-content-end">
+
+                    <div className=" d-flex gap-4">
+                        <Button
+                            color="soft-dark"
+                            size="sm"
+                            className="show-item-btn"
+                            onClick={() => openShowModal(ingredient)}
+                            onMouseEnter={() => setHoverShow(true)}
+                            onMouseLeave={() => setHoverShow(false)}
+                        >
+                            <FontAwesomeIcon icon={faEye} />
+                            {/* {hoverShow ? " Consulter" : ""} */}
+                        </Button>
+                        <Button
+                            color="soft-success"
+                            size="sm"
+                            className="edit-item-btn"
+                            onClick={() => openEditModal(ingredient)}
+                            onMouseEnter={() => setHoverEdit(true)}
+                            onMouseLeave={() => setHoverEdit(false)}
+                        >
+                            <FontAwesomeIcon icon={faEdit} />
+                            {/* {hoverEdit ? " Modifier" : ""} */}
+                        </Button>
+                        <Button
+                            color="soft-danger"
+                            size="sm"
+                            className="remove-item-btn"
+                            onClick={() => openDeleteModal(ingredient)}
+                            onMouseEnter={() => setHoverRemove(true)}
+                            onMouseLeave={() => setHoverRemove(false)}
+                        >
+                            <FontAwesomeIcon icon={faTrashAlt} />
+                            {/* {hoverRemove ? " Supprimer" : ""} */}
+                        </Button>
+                    </div>
+                    </div>
+                </td>
                               </tr>
                             ))
                           ) : (
@@ -259,6 +369,15 @@ const IngredientTables = () => {
                           )}
                         </tbody>
                       </table>
+                       {/* Pagination */}
+<ul className="pagination">
+    {/* Générer les boutons de pagination */}
+    {Array.from({ length: Math.ceil(totalPages) }, (_, index) => (
+        <li key={index} className={`page-item ${currentPage === index ? 'active' : ''}`}>
+            <button className="page-link" onClick={() => changePage(index)}>{index + 1}</button>
+        </li>
+    ))}
+</ul>
                     </div>
                   </div>
                 </CardBody>
@@ -280,7 +399,7 @@ const IngredientTables = () => {
           <form className="tablelist-form">
             <div className="mb-3">
               <label htmlFor="name-field" className="form-label">
-                Name
+                Nom Ingredient
               </label>
               <input
                 type="text"
@@ -298,43 +417,17 @@ const IngredientTables = () => {
               />
             </div>
             <div className="mb-3">
-              <label htmlFor="unit-field" className="form-label">
-                Unit mesure
-              </label>
-              <input
-                type="text"
-                id="unit-field"
-                className="form-control"
-                placeholder="Enter unite mesure"
-                value={newIngredientData.unit_measure}
-                onChange={(e) =>
-                  setNewIngredientData({
-                    ...newIngredientData,
-                    unit_measure: e.target.value,
-                  })
-                }
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="fournisseur-field" className="form-label">
-                Id fournisseur
-              </label>
-              <input
-                type="text"
-                id="fournisseur-field"
-                className="form-control"
-                placeholder="Enter Id fournisseur"
-                value={newIngredientData.id_fournisseur}
-                onChange={(e) =>
-                  setNewIngredientData({
-                    ...newIngredientData,
-                    id_fournisseur: e.target.value,
-                  })
-                }
-                required
-              />
-            </div>
+                                                <label htmlFor="photo-field" className="form-label">
+                                                  Photo
+                                                </label>
+                                                <input
+                                                  type="file"
+                                                  id="photo-field"
+                                                  className="form-control"
+                                                  onChange={(e) => setNewIngredientData({ ...newIngredientData, photo: e.target.files[0] })} // Handle file selection
+                                                  name="photo"
+                                                />
+                                              </div>
           </form>
         </ModalBody>
         <ModalFooter>
@@ -346,9 +439,8 @@ const IngredientTables = () => {
             >
               Annuler
             </Button>
-            <Button type="button" color="primary" onClick={handleAddIngredient}>
-              Enregistrer
-            </Button>
+            <button type="button" className="btn btn-primary" onClick={toggleConfirmAdd}>Ajouter</button>
+
           </div>
         </ModalFooter>
       </Modal>
@@ -367,7 +459,7 @@ const IngredientTables = () => {
           <ModalBody>
             <div className="mb-3">
               <label htmlFor="username-field" className="form-label">
-                Ingredient{" "}
+                Nom Ingredient{" "}
               </label>
               <input
                 type="text"
@@ -379,82 +471,147 @@ const IngredientTables = () => {
                 required
               />
             </div>
+            <div className="mb-3 row align-items-center">
+    <div className="col-md-9">
+        <label htmlFor="photo-field" className="form-label">Photo</label>
+        <input
+            type="file"
+            id="photo-field"
+            className="form-control"
+            onChange={(e) => setEditedPhoto(e.target.files[0])}
+            name="photo"
+        />
+    </div>
+    <div className="col-md-2    ">
+        {selectedIngredient && selectedIngredient.photo && (
+                <img
+                    src={`${selectedIngredient.photo.replace('ingredients', '')}`}
+                    alt={selectedIngredient.name}
+                    style={{ width: "50px", height: "50px" }}
+                />
+        )}
+    </div>
+</div>
 
-            <div className="mb-3">
-              <label htmlFor="email-field" className="form-label">
-                Unite Mesure
-              </label>
-              <input
-                type="text"
-                id="unit-field"
-                className="form-control"
-                placeholder="Enter Unit"
-                value={editedUnit}
-                onChange={(e) => setEditedUnit(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="mb-3">
-              <label htmlFor="fournisseur-field" className="form-label">
-                Id Fournisseur
-              </label>
-              <input
-                type="text"
-                id="fournisseur-field"
-                className="form-control"
-                placeholder="Enter Id Fournnisseur"
-                value={editedIdFournisseur}
-                onChange={(e) => setEditedIdFournisseur(e.target.value)}
-                required
-              />
-            </div>
+          
           </ModalBody>
           <ModalFooter>
             <Button color="secondary" onClick={toggleListModal}>
               Annuler
             </Button>
-            <Button color="primary" onClick={handleUpdate}>
-              Mattre a jour
-            </Button>
+            <button type="button" className="btn btn-primary" onClick={toggleConfirmEdit}>Mettre à jour</button>
+
           </ModalFooter>
         </form>
       </Modal>
-      <Modal
-        isOpen={modal_show}
+
+
+
+
+
+
+
+ {/* Show Modal */}
+ <Modal  isOpen={modal_show}
         toggle={() => toggleModal(modal_show, setModalShow)}
-        centered
-      >
-        <ModalHeader toggle={() => toggleModal(modal_show, setModalShow)}>
-          {" "}
-          Details
-        </ModalHeader>
-        <ModalBody>
-          {selectedIngredient && (
-            <>
-              <p>
-                <strong>Ingredient:</strong>{" "}
-                {selectedIngredient.name_ingredient}
-              </p>
-              <p>
-                <strong>Unit Measure:</strong> {selectedIngredient.unit_measure}
-              </p>
-              <p>
-                <strong>Fournisseur ID:</strong>{" "}
-                {selectedIngredient.id_fournisseur}
-              </p>
-            </>
-          )}
-        </ModalBody>
-        <ModalFooter>
-          <Button
-            color="secondary"
-            onClick={() => toggleModal(modal_show, setModalShow)}
-          >
-            Fermer
-          </Button>
-        </ModalFooter>
-      </Modal>
+        centered>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel"  toggle={() => toggleModal(modal_show, setModalShow)}>Detail Marchandise</ModalHeader>
+                <ModalBody>
+                    {selectedIngredient && (
+                        <form className="tablelist-form">
+                            <div className="mb-3">
+                                <label htmlFor="name_ingredient-field" className="form-label">Nom Ingredient</label>
+                                <input type="text" id="name_ingredient-field" className="form-control"value={selectedIngredient.name_ingredient} readOnly />
+                            </div>
+                            <div className="d-flex flex-column align-items-center" style={{ border: '2px solid rgba(0, 0, 0, 0.15)', padding: '10px', borderRadius: '8px' }}>
+        <img
+            src={`${selectedIngredient.photo.replace('ingredients', '')}`} // Remove the 'categories' prefix
+            alt={selectedIngredient.name}
+            style={{ width: "50px", height: "50px" }}
+            className="mb-3"
+        />
+        <p className="mb-0">{selectedIngredient.name}</p>
+    </div>
+                            
+
+                            
+                           
+                        </form>
+                    )}
+                </ModalBody>
+                <ModalFooter>
+                    <div className="hstack gap-2 justify-content-end">
+                        <button type="button" className="btn btn-light" onClick={() => toggleModal(modal_show, setModalShow)}>Fermer</button>
+                        
+                    </div>
+                </ModalFooter>
+            </Modal>
+
+
+            
+
+            {/* confirm add Modal */}
+
+            <Modal isOpen={modal_confirm_add} toggle={toggleConfirmAdd} centered>
+                <ModalHeader className="bg-light p-3" toggle={toggleConfirmAdd}>Confirmer l'ajout</ModalHeader>
+
+                {showSuccessMessage && Success ? (
+
+                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                                    Ingredient ajoutée avec succès                                    
+                                    </Alert>
+                                                                ) : null}
+    
+
+{errorMessage && <div className="alert alert-danger"  style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite, Ressayez ultirierement</div>}
+
+                <ModalBody>
+                    
+                        <p>Êtes-vous sûr de vouloir ajouter cette Ingredient </p>
+                   
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="secondary" onClick={toggleConfirmAdd}>Retour</Button>
+                    <Button color="primary" onClick={handleAddIngredient}>Confirmer</Button>
+                </ModalFooter>
+            </Modal>
+
+
+
+
+
+
+
+
+
+             {/* confirm edit Modal */}
+
+ <Modal isOpen={modal_confirm_edit} toggle={toggleConfirmEdit} centered>
+                <ModalHeader className="bg-light p-3" toggle={toggleConfirmEdit}>Confirmer la modification</ModalHeader>
+                {showSuccessMessage && Success ? (
+                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                                    Ingredient modifiée avec succès
+                                    </Alert>
+                                    
+                                ) : null}
+
+{errorMessage && <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite,Ressayez ultirierement</div>}
+
+                <ModalBody>
+                    
+                        <p>Êtes-vous sûr de vouloir editer cette Ingredient </p>
+                    
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="secondary" onClick={toggleConfirmEdit}>Retour</Button>
+                    <Button color="primary" onClick={handleUpdate}>Modifier</Button>
+                </ModalFooter>
+            </Modal>
+
+
+
+
+
 
       {/* Suppression Modal */}
       <Modal isOpen={modal_delete} toggle={toggleDeleteModal} centered>
@@ -462,6 +619,15 @@ const IngredientTables = () => {
           Confirm Deletion
         </ModalHeader>
         <ModalBody>
+        {showSuccessMessage && Success ? (
+                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                                    Ingredient Supprimée avec succès
+                                    </Alert>
+                                    
+                                ) : null}
+
+{errorMessage && <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite,Ressayez ultirierement</div>}
+
           {selectedIngredient && (
             <p>
               Voulez vous supprimer ingredient{" "}

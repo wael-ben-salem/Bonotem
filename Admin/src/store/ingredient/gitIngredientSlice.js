@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Action
-export const getAllData = createAsyncThunk("gitIngredient/getAllData", async () => {
+export const getAllDataIngredient = createAsyncThunk("gitIngredient/getAllData", async () => {
   try {
     const response = await axios.get("/ingredients");
     console.log("API response:", response);
@@ -13,13 +13,13 @@ export const getAllData = createAsyncThunk("gitIngredient/getAllData", async () 
   }
 });
 
-export const updateIngredient = createAsyncThunk(
+export const updateingredient = createAsyncThunk(
   "gitIngredient/updateIngredient",
   async ({ id, ingredientData }) => {
       try {
-          const response = await axios.put(`/ingredients/${id}`, ingredientData);
+          const response = await axios.post(`/ingredients/${id}`, ingredientData);
           console.log("API response:", response);
-          return response.data; 
+          return response; 
       } catch (error) {
           console.error("API error:", error);
           throw error;
@@ -61,11 +61,11 @@ export const deleteIngredient = createAsyncThunk(
 
 
 
-export const addIngredient = createAsyncThunk("gitIngredient/addIngredient", async (ingredientData) => {
+export const addIngredient = createAsyncThunk("gitIngredient/addIngredient", async (formData) => {
   try {
-    const response = await axios.post("/ingredients", ingredientData);
+    const response = await axios.post("/ingredients", formData);
     console.log("API response:", response);
-    return response.data; 
+    return response; 
   } catch (error) {
     console.error("API error:", error);
     throw error;
@@ -82,6 +82,9 @@ export const gitIngredientSlice = createSlice({
     ingredients: [],
     loading: false,
     error: null,
+    Success: false, // Add this state for success message
+     errorMessage: "", // Add a state to store error message
+
   },
   reducers: {
     
@@ -95,60 +98,111 @@ export const gitIngredientSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(getAllData.pending, (state) => {
+      .addCase(getAllDataIngredient.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(getAllData.fulfilled, (state, action) => {
+      .addCase(getAllDataIngredient.fulfilled, (state, action) => {
         state.loading = false;
         state.ingredients = action.payload;
         state.error = null;
         console.log("Fulfilled payload:", action.payload); 
       })
-      .addCase(getAllData.rejected, (state, action) => {
+      .addCase(getAllDataIngredient.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      .addCase(updateIngredient.pending, (state) => {
+      .addCase(updateingredient.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.errorMessage = "";
       })
-      .addCase(updateIngredient.fulfilled, (state, action) => {
+      .addCase(updateingredient.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        console.log("Ingredient updated:", action.payload);
-       
-      })
-      .addCase(updateIngredient.rejected, (state, action) => {
+          state.error = null;
+          
+          // Optionally, you can update state with the newly added user
+         
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+          } else {
+            state.Success = true; // Set showSuccessMessage to true
+            setTimeout(() => {
+              state.Success = false; // Hide success message after 3 seconds
+            }, 3000);}
+          })
+      .addCase(updateingredient.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
-      })
+          if (action.payload && action.payload.validation_errors) {
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+
+          } else {
+         state.errorMessage = "An error occurred. Please try again.";
+
+          }
+        })
       .addCase(deleteIngredient.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.erroredMessage = "";
       })
       .addCase(deleteIngredient.fulfilled, (state, action) => {
         state.loading = false;
-        state.error = null;
-        state.ingredients = state.ingredients.filter(ingredient => ingredient.id !== action.payload);
-        console.log("Ingredient deleted:", action.payload);
-      })
+          state.error = null;
+          
+          // Optionally, you can update state with the newly added user
+         
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+          } else {
+            state.Success = true; // Set showSuccessMessage to true
+            setTimeout(() => {
+              state.Success = false; // Hide success message after 3 seconds
+            }, 3000);
+          }    
+        })
       .addCase(deleteIngredient.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
-      })
+          if (action.payload && action.payload.validation_errors) {
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+
+          } else {
+         state.errorMessage = "An error occurred. Please try again.";
+
+          }
+        })
       .addCase(addIngredient.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.errorMessage = ""; // Reset error message
+
       })
       .addCase(addIngredient.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log("Ingredient added:", action.payload);
-      })
+        
+        // Optionally, you can update state with the newly added user
+       
+        if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.Success = true; // Set showSuccessMessage to true
+          setTimeout(() => {
+            state.Success= false; // Hide success message after 3 seconds
+          }, 3000);
+        }        })
       .addCase(addIngredient.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        if (action.payload && action.payload.validation_errors) {
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+
+        } else {
+       state.errorMessage = "An error occurred. Please try again.";
+
+        }
       });
   },
 });

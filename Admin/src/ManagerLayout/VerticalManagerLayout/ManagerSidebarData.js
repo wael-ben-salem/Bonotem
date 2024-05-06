@@ -1,49 +1,39 @@
-const SidebarData = [
+const AdminSidebarData = [
     {
         label: "Menu",
         isMainMenu: true,
+        color: "white",
+
     },
     {
-        label: "Dashboard",
+        label: "assalem alaykom",
         icon: "bx bx-line-chart-down",
-        url: "/dashboard",
+        subItem: [
+        { sublabel: "Liste des utilisateurs", link: "/tables-adminlistjs" },
+        ],
 
     },
-    {
-        label: "Personnels et Planning",
-        icon: "mdi mdi-calendar-outline",
+    // {
+    //     label: "Personnels et Planning",
+    //     icon: "mdi mdi-calendar-outline",
 
-               subItem: [
-                    { sublabel: "Planning", link: "/planning" },
-                    { sublabel: "Type de Personnels", link: "/personnel" },
+    //            subItem: [
+    //                 { sublabel: "Planning", link: "/planning" },
+    //                 { sublabel: "Type de Personnels", link: "/personnel" },
 
-                ],
-    },
-    {
-            label: "Production",
-            icon:   "bx bx-barcode",
-            subItem: [
-                { sublabel: "Ingrédients", link: "/ingredient" },
-                { sublabel: "Packagings", link: "/packagings" },
-                { sublabel: "Ingrédients Composés", link: "/ingredientCompose" },
-                { sublabel: "Catégories", link: "/categorie" },
-                { sublabel: "Packagings_categorie", link: "/PackagingsCategorie" },
+    //             ],
+    // },
+    // {
+    //         label: "Production",
+    //         icon:   "bx bx-barcode",
+    //         subItem: [
+    //               { sublabel: "Ingrédients", link: "/ingredient" },
+    //                { sublabel: "Ingrédients Composés", link: "/ingredientCompose" },
+    //                { sublabel: "Catégories", link: "/categorie" },
+    //                { sublabel: "Packagings", link: "/packaging" },
 
-                   
-
-            ],
-        },
-        {
-            label: "Marchandise",
-            icon: "ri-table-2",
-            subItem: [
-                { sublabel: "Ingrédients", link: "/marchandise-Ingredient" },
-                { sublabel: "Packagings", link: "/marchandise-Packaging" },
-
-                   
-
-            ],
-        },
+    //         ],
+    //     },
 
   /*  {
         label: "Email",
@@ -113,15 +103,15 @@ const SidebarData = [
         ],
     },*/
 
-    {
-        label: "Cartes et Produits",
-        icon:   "bx bx-barcode",
-        subItem: [
+    // {
+    //     label: "Cartes et Produits",
+    //     icon:   "bx bx-barcode",
+    //     subItem: [
            
-            { sublabel: "Produits", link: "/produit" },
-            { sublabel: "Cartes", link: "/carte" },
-        ],
-    },
+    //         { sublabel: "Produits", link: "/produit" },
+    //         { sublabel: "Cartes", link: "/carte" },
+    //     ],
+    // },
 
    /* {
         label: "Forms",
@@ -149,41 +139,32 @@ const SidebarData = [
             { sublabel: "React Datatables", link: "/table-datatables" },
         ],
     },*/
-     {
-                label: "Ventes",
+    //  {
+    //             label: "Ventes",
 
-                      icon: "fas fa-chart-line",
-                      url: "/vente",
+    //                   icon: "fas fa-chart-line",
+    //                   url: "/vente",
 
-            },
-    {
-            label: "Dépenses",
-            icon: "ri-bar-chart-line",
-            subItem: [
-                { sublabel: "Apex Charts", link: "/chart-apexcharts" },
-                { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
-                { sublabel: "Re Charts", link: "/chart-floatcharts" },
-                { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
-                { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
-            ],
-        },
-        {
-                label: "Fournisseurs",
-                icon: "ri-table-2",
-                subItem: [
-                    { sublabel: "Unités", link: "/tables-basic" },
-                    { sublabel: "Marchandises", link: "/tables-listjs" },
-                    { sublabel: "Références/Marques", link: "/table-datatables" },
-                    { sublabel: "Fournisseur", link: "/Fournisseur" },
-
-                ],
-            },
-            {
-                label: "Fournisseurs",
-                icon: "ri-table-2",
-                link: "/Fournisseur"
-                
-            },
+    //         },
+    // {
+    //         label: "Dépenses",
+    //         icon: "ri-bar-chart-line",
+    //         subItem: [
+    //             { sublabel: "Apex Charts", link: "/chart-apexcharts" },
+    //             { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
+    //             { sublabel: "Re Charts", link: "/chart-floatcharts" },
+    //             { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
+    //             { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
+    //         ],
+    //     },
+        // {
+        //         label: "Fournisseurs",
+        //         icon: "ri-table-2",
+        //         subItem: [
+        //             { sublabel: "Unités", link: "/tables-basic" },
+        //             { sublabel: "Références/Marques", link: "/table-datatables" },
+        //         ],
+        //     },
    /* {
         label: "Charts",
         icon: "ri-bar-chart-line",
@@ -215,4 +196,4 @@ const SidebarData = [
     },*/
 
 ]
-export default SidebarData;
+export default AdminSidebarData;

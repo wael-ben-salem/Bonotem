@@ -17,8 +17,19 @@ import gitPackagingCategorieReducer from "./Packagings/gitPackagingCategorie";
 import gitCategorieReducer from "./categorie/gitCategorySlice";
 import gitProduitReducer from "./produit/gitProduitSlice";
 import gitIngredientReducer from "./ingredient/GitIngredientSlice";
+import gitUniteReducer from "./Unite/gitUniteSlice";
+import gitMarchandiseReducer from "./marchandise/gitMarchandiseSlice";
+import gitFournisseurReducer from "./fournisseur/gitFournisseurSlice";
+import gitIngredientComposeReducer from "./ingredient/GitIngredientComposerSlice";
+
 
 import AdminTable from "./auth/Tables/reducer";
+
+
+
+
+
+
 const rootReducer = combineReducers({
   // public
   Layout,
@@ -33,6 +44,12 @@ const rootReducer = combineReducers({
   gitCategory: gitCategorieReducer,
   gitProduit:gitProduitReducer,
   gitIngredient:gitIngredientReducer,
+  gitUnite:gitUniteReducer,
+  gitMarchandise:gitMarchandiseReducer,
+  gitFournisseur:gitFournisseurReducer,
+  gitIngredientCompose:gitIngredientComposeReducer,
+
+
 
   gitUser: gitUserReducer, // Assign gitUserReducer to the key 'gitUser'
   AdminTable,

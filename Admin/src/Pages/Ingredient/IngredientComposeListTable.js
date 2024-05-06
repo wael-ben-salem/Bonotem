@@ -4,21 +4,25 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Card, CardBody,Alert, CardHeader, Col, Container,  Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
 
 import Breadcrumbs from "../../components/Common/Breadcrumb";
-import { addCategorie, deleteCategorie, getAllData, getCategorieeDetails, updateCategorie } from '../../store/categorie/gitCategorySlice';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { addIngCompose, deleteIngCompose, getAllIngCompose, updateIngCompose } from '../../store/ingredient/GitIngredientComposerSlice';
+import { getAllDataIngredient } from '../../store/ingredient/GitIngredientSlice';
 
 
 
 
 
-const CategoryTables = () => {
+const IngredientComposeListTable = () => {
     
 
     const dispatch = useDispatch();
-    const categories = useSelector(state => state.gitCategory.categories);
+    const ingredients = useSelector(state => state.gitIngredient.ingredients);
+    const ingredientcomposes = useSelector(state => state.gitIngredientCompose.ingredientcomposes);
 
+    
+    
 
 
 
@@ -31,8 +35,8 @@ const CategoryTables = () => {
     const [modal_confirm_edit, setModalConfirmEdit] = useState(false);
     const [modal_confirm_add, setModalConfirmAdd] = useState(false);
     const { Success, errorMessage } = useSelector(state => ({
-      Success: state.gitCategory.Success,
-      errorMessage: state.gitCategory.errorMessage,
+      Success: state.gitIngredientCompose.Success,
+      errorMessage: state.gitIngredientCompose.errorMessage,
       
     }));
     const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
@@ -45,20 +49,23 @@ const CategoryTables = () => {
 
 
     const [modal_list, setmodal_list] = useState(false);
-    const [editCategorie, setEditCategorie] = useState(null);
-    const [editedNameCategorie, setEditedNameCategorie] = useState('');
-    const [editedDescriptionCategorie, setEditedDescriptionCategorie] = useState('');
+    const [editingredientcompose, setEditingredientcompose] = useState(null);
+    const [editedNameingredientcompose, setEditedNameingredientcompose] = useState('');
+    const [editedName, setEditedName] = useState('');
+
     const [editedPhoto, setEditedPhoto] = useState(""); // Store the file itself, initialize as null
-    
+    const [editedQuantite, setEditedQuantite] = useState(null);
+    const [editedPhotoIngredient, setEditedPhotoIngredient] = useState(""); // Store the file itself, initialize as null
+    const [selectedIngredient, setSelectedIngredient] = useState(null); // State to store selected 
+
     const [modal_show, setModalShow] = useState(false); // State for Show Modal
-    const [selectedCategorie, setSelectedCategorie] = useState(null); // State to store selected 
+    const [selectedingredientcompose, setSelectedingredientcompose] = useState(null); // State to store selected 
     const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
     const [modalAddCategorie, setModalAddCategorie] = useState(false);
     
     
-    const [newCategorieData, setNewCategorieData] = useState({
-        name: '',
-        description: '',
+    const [newIngComposeData, setNewIngComposeData] = useState({
+        name_ingredient_compose: '',
         photo: null, // Store the file itself, initialize as null
         
        
@@ -69,13 +76,13 @@ const CategoryTables = () => {
         const itemsPerPage = 4;
     
         // Calcul du nombre total de pages
-        const totalPages = Math.ceil(categories.length / itemsPerPage);
+        const totalPages = Math.ceil(ingredientcomposes.length / itemsPerPage);
     
         // Fonction pour diviser les éléments en pages
-        const paginateCategories = () => {
+        const paginateingredientcomposes = () => {
             const startIndex = currentPage * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            return categories.slice(startIndex, endIndex);
+            return ingredientcomposes.slice(startIndex, endIndex);
         };
     
         // Fonction pour changer de page
@@ -86,7 +93,8 @@ const CategoryTables = () => {
 //
     
     useEffect(() => {
-        dispatch(getAllData());
+        dispatch(getAllIngCompose());
+        dispatch(getAllDataIngredient())
     }, [dispatch]);
 
 
@@ -141,13 +149,13 @@ const CategoryTables = () => {
     
     
     
-    const openDeleteModal = (categorie) => {
-        setSelectedCategorie(categorie);
+    const openDeleteModal = (ingredientcompose) => {
+        setSelectedingredientcompose(ingredientcompose);
     toggleDeleteModal(); // Open the delete modal
     }
 
     const handleRemove = () => {
-        dispatch(deleteCategorie(selectedCategorie.id)); // Dispatch deleteUser action with the selected user's ID
+        dispatch(deleteIngCompose(selectedingredientcompose.id)); // Dispatch deleteUser action with the selected user's ID
         setTimeout(() => {
             toggleDeleteModal();
     
@@ -160,50 +168,82 @@ const CategoryTables = () => {
 
 
 
-    const openEditModal = (categories) => {
-        setEditCategorie(categories);
-        setEditedNameCategorie(categories.name);
-        setEditedDescriptionCategorie(categories.description);
-        setEditedPhoto(categories.photo); 
-        setSelectedCategorie(categories);
-
+    const openEditModal = (ingredientcomposes) => {
+        setEditingredientcompose(ingredientcomposes);
+        setEditedName(ingredientcomposes.name_ingredient_compose);
+        setEditedPhoto(editedPhoto); 
+        setSelectedingredientcompose(ingredientcomposes);
+        if (ingredientcomposes.ingredients.length > 0) {
+            const ingredient = ingredientcomposes.ingredients[0];
+            setEditedNameingredientcompose(ingredient.pivot.id_ingredient);
+            setEditedQuantite(ingredient.pivot.quantite);
+            setEditedPhotoIngredient(ingredient.photo);
+        }
+        
+        
         
         toggleListModal();
 
     };
 
     const handleUpdate = () => {
+        const selectedIngredientId = editedNameingredientcompose;
+        const quantity = editedQuantite;
+        const photoIngredient = editedPhotoIngredient;
+
+
+        if (!selectedIngredientId || !quantity  || !photoIngredient) {
+            return;
+        }
+
+        const insertedProduitIngredient = {
+            id: editingredientcompose ? editingredientcompose.id : null,
+            name_ingredient_compose:editedName,
+            ingredientsComposes: [
+            {
+                id_ingredient: selectedIngredientId,
+                quantite: quantity,
+            }
+        ]
+           
+        };
+        
+        // Append each ingredient separately to formData
         const formData = new FormData();
-        formData.append('id', editCategorie.id);
-        formData.append('name', editedNameCategorie);
+        formData.append('id', editingredientcompose.id);
 
-        formData.append('description', editedDescriptionCategorie);
+        formData.append('name_ingredient_compose', editedName);
         formData.append('photo', editedPhoto); // Append the file to the form data
+        insertedProduitIngredient.ingredientsComposes.forEach((ingredient, index) => {
+            formData.append(`ingredientsComposes[${index}][id_ingredient]`, ingredient.id_ingredient);
+            formData.append(`ingredientsComposes[${index}][quantite]`, ingredient.quantite);
 
-        dispatch(updateCategorie({ id: editCategorie.id, categorieData: formData }));
+        });
+
+
+        
+       
+        dispatch(updateIngCompose({ id: editingredientcompose.id, formData ,insertedProduitIngredient}));
 
         
         // Reset the state
-        setEditCategorie({
-            name: '',
-            description: '',
+        setNewIngComposeData({
+            name_ingredient_compose: '',
             photo: null,
+            selectedIngredientId:'',
+            quantity:''
         });
-        setTimeout(() => {
-            toggleListModal();
-            toggleConfirmEdit();
-    
-            window.location.reload();
-    
-        },  4000); 
+        
+        toggleListModal();
+        toggleConfirmEdit();
     };
 
    
 
    
-const openShowModal = (categorie) => {
-    setSelectedCategorie(categorie);
-    dispatch(getCategorieeDetails(categorie.id)); // Fetch user details when the Show button is clicked
+const openShowModal = (ingredientcompose) => {
+    setSelectedingredientcompose(ingredientcompose);
+    dispatch(getAllIngCompose(ingredientcompose.id)); // Fetch user details when the Show button is clicked
     toggleShowModal();
 }
 
@@ -213,26 +253,47 @@ const openShowModal = (categorie) => {
 
 
 const handleAddCategorie = () => {
+    const selectedIngredientId = editedNameingredientcompose;
+    const quantity = editedQuantite;
+
+
+
+    if (!selectedIngredientId || !quantity  ) {
+        return;
+    }
+   
+
+    const insertedProduitIngredient = {
+        id: editingredientcompose ? editingredientcompose.id : null,
+        ingredientsComposes: [
+        {
+            id_ingredient: selectedIngredientId,
+            quantite: quantity,
+        }
+    ]
+       
+    };
+
+
     const formData = new FormData();
-    formData.append('name', newCategorieData.name);
-    formData.append('description', newCategorieData.description);
-    formData.append('photo', newCategorieData.photo); // Append the file to the form data
+    formData.append('name_ingredient_compose', newIngComposeData.name_ingredient_compose);
+    formData.append('photo', newIngComposeData.photo); // Append the file to the form data
+    insertedProduitIngredient.ingredientsComposes.forEach((ingredient, index) => {
+        formData.append(`ingredientsComposes[${index}][id_ingredient]`, ingredient.id_ingredient);
+        formData.append(`ingredientsComposes[${index}][quantite]`, ingredient.quantite);
+    });
     
-    dispatch(addCategorie(formData)); // Pass the formData to your addCategorie action
+    dispatch(addIngCompose(formData)); // Pass the formData to your addCategorie action
     
     // Reset the state
-    setNewCategorieData({
-        name: '',
-        description: '',
+    setNewIngComposeData({
+        name_ingredient_compose: '',
         photo: null,
+        selectedIngredientId:'',
+        quantity:''
     });
-    setTimeout(() => {
-        toggleAddCategorieModal();
-        toggleConfirmAdd();
-
-        window.location.reload();
-
-    },  4000); 
+    toggleAddCategorieModal();
+    toggleConfirmAdd();
 };
 
 
@@ -250,7 +311,7 @@ return(
                         <Col lg={12}>
                             <Card>
                                 <CardHeader>
-                                    <h4 className="card-title mb-0">Gérer les Categories</h4>
+                                    <h4 className="card-title mb-0">Gérer les Ingredient Composés</h4>
                                 </CardHeader>
 
                                 <CardBody>
@@ -290,35 +351,57 @@ return(
                                                             </div>
                                                         </th>
                                                         <th className="sort" data-sort="Categorie-Id">ID</th>
-                                                        <th className="sort" data-sort="Categorie-name">Nom Categorie</th>
-                                                        <th className="sort" data-sort="Categorie-description">description</th>
+                                                        <th className="sort" data-sort="Categorie-name">Nom Ingredient Composé</th>
                                                         <th className="sort" data-sort="Categorie-photo">photo</th>
+                                                        <th className="sort" data-sort="Categorie-photo">Nom Ingredient</th>
+                                                        <th className="sort" data-sort="Categorie-photo">photo</th>
+                                                        <th className="sort" data-sort="Categorie-photo">Quantite</th>
+
+
                                                         
                                                         <th className="sort" data-sort="action">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="list form-check-all">
-                                                {paginateCategories().length > 0 ? (
-                                                     paginateCategories().map(categorie => (
-                                                            <tr key={categorie.id} >
+                                                {paginateingredientcomposes().length > 0 ? (
+                                                     paginateingredientcomposes().map(ingredientcompose => (
+                                                            <tr key={ingredientcompose.id} >
                                                                 <th scope="row" >
                                                                     <div className="form-check">
-                                                                        <input className="form-check-input"onClick={() => openShowModal(categorie)}  type="checkbox" name="chk_child" value="option1" />
+                                                                        <input className="form-check-input"onClick={() => openShowModal(ingredientcompose)}  type="checkbox" name="chk_child" value="option1" />
                                                                     </div>
                                                                 </th>
-                                                                <td onClick={() => openShowModal(categorie)}>{categorie.id}</td>
-                                                                <td onClick={() => openShowModal(categorie)}>{categorie.name}</td>
-                                                                <td onClick={() => openShowModal(categorie)}>{categorie.description }</td>
-                                                                <td onClick={() => openShowModal(categorie)}>
-                                  {categorie.photo ? (
+                                                                <td onClick={() => openShowModal(ingredientcompose)}>{ingredientcompose.id}</td>
+                                                                <td onClick={() => openShowModal(ingredientcompose)}>{ingredientcompose.name_ingredient_compose}</td>
+                                                                <td onClick={() => openShowModal(ingredientcompose)}>
+                                  {ingredientcompose.photo ? (
                                     <img
-                                    src={`${categorie.photo.replace('categories', '')}`} // Remove the 'categories' prefix
-                                    alt={categorie.name}
+                                    src={`${ingredientcompose.photo.replace('ingredientscompose', '')}`} // Remove the 'categories' prefix
+                                    alt={ingredientcompose.name_ingredient_compose}
                                       style={{ width: "50px", height: "50px" }}
                                     />
                                   ) : (
                                     "No photo"
                                   )}
+                                </td>
+                                <td onClick={() => openShowModal(ingredientcompose)}>
+                                {ingredientcompose.ingredients && ingredientcompose.ingredients.length > 0 ? ingredientcompose.ingredients[0].name_ingredient : 'No'}
+                                </td>
+                                <td onClick={() => openShowModal(ingredientcompose)}>
+  {ingredientcompose.ingredients && ingredientcompose.ingredients.length > 0 ? 
+    ingredientcompose.ingredients[0].photo ? (
+      <img
+        src={ingredientcompose.ingredients[0].photo.replace('ingredients', '')} // Remove the 'ingredients' prefix
+        alt={ingredientcompose.ingredients[0].name_ingredient}
+        style={{ width: "50px", height: "50px" }}
+      />
+    ) : (
+      "No photo"
+    )
+  : 'No'}
+</td>
+<td onClick={() => openShowModal(ingredientcompose)}>
+                                {ingredientcompose.ingredients && ingredientcompose.ingredients.length > 0 ? ingredientcompose.ingredients[0].pivot.quantite : 'No'}
                                 </td>
                                                                 
                                                                 
@@ -328,7 +411,7 @@ return(
                                                             color="soft-dark"
                                                             size="sm"
                                                             className="show-item-btn"
-                                                            onClick={() => openShowModal(categorie)}
+                                                            onClick={() => openShowModal(ingredientcompose)}
                                                             onMouseEnter={() => setHoverShow(true)}
                                                             onMouseLeave={() => setHoverShow(false)}
                                                         >
@@ -339,7 +422,7 @@ return(
                                                             color="soft-success"
                                                             size="sm"
                                                             className="edit-item-btn"
-                                                            onClick={() => openEditModal(categorie)}
+                                                            onClick={() => openEditModal(ingredientcompose)}
                                                             onMouseEnter={() => setHoverEdit(true)}
                                                             onMouseLeave={() => setHoverEdit(false)}
                                                         >
@@ -350,7 +433,7 @@ return(
                                                             color="soft-danger"
                                                             size="sm"
                                                             className="remove-item-btn"
-                                                            onClick={() => openDeleteModal(categorie)}
+                                                            onClick={() => openDeleteModal(ingredientcompose)}
                                                             onMouseEnter={() => setHoverRemove(true)}
                                                             onMouseLeave={() => setHoverRemove(false)}
                                                         >
@@ -364,7 +447,7 @@ return(
                                                     )
                                                         : 
                                                     (
-                                                        <tr><td colSpan="7">Pas de Catégories pour le moment</td></tr>
+                                                        <tr><td colSpan="7">Pas de Ingreidient Composé pour le moment</td></tr>
                                                     )}
                                                 </tbody>
                                             </table>
@@ -393,13 +476,10 @@ return(
                                         <ModalBody>
                                             <form className="tablelist-form">
                                                 <div className="mb-3">
-                                                    <label htmlFor="name-field" className="form-label">Nom Categorie</label>
-                                                    <input type="text" id="naem-field" className="form-control" placeholder="Enter Name" value={newCategorieData.name} onChange={(e) => setNewCategorieData({ ...newCategorieData, name: e.target.value })} required />
+                                                    <label htmlFor="name-field" className="form-label">Nom Ingredient Composé</label>
+                                                    <input type="text" id="naem-field" className="form-control" placeholder="Enter Name" value={newIngComposeData.name_ingredient_compose} onChange={(e) => setNewIngComposeData({ ...newIngComposeData, name_ingredient_compose: e.target.value })} required />
                                                 </div>
-                                                <div className="mb-3">
-                                                    <label htmlFor="description-field" className="form-label">Description</label>
-                                                    <input type="text" id="description-field" className="form-control" placeholder="Enter La description" value={newCategorieData.description} onChange={(e) => setNewCategorieData({ ...newCategorieData, description: e.target.value })} required />
-                                                </div>
+                                                
                                                 <div className="mb-3">
                                                 <label htmlFor="photo-field" className="form-label">
                                                   Photo
@@ -408,10 +488,31 @@ return(
                                                   type="file"
                                                   id="photo-field"
                                                   className="form-control"
-                                                  onChange={(e) => setNewCategorieData({ ...newCategorieData, photo: e.target.files[0] })} // Handle file selection
+                                                  onChange={(e) => setNewIngComposeData({ ...newIngComposeData, photo: e.target.files[0] })} // Handle file selection
                                                   name="photo"
                                                 />
                                               </div>
+                                              <div className="mb-3">
+                <label htmlFor="name_ingredient-field" className="form-label">Ingredient:</label>
+                <select
+                    id="name_ingredient-field"
+                    className="form-control"
+                    value={editedNameingredientcompose}
+                    onChange={(e) => setEditedNameingredientcompose(e.target.value)}
+                >
+                    <option value="">Sélectionner des ingredients</option>
+                    {ingredients.map((ingredient) => (
+                        <option key={ingredient.id} value={ingredient.id}>
+                            {ingredient.name_ingredient}
+                        </option>
+                    ))}
+                </select>
+            </div>
+
+                        <div className="mb-3">
+                            <label htmlFor="quantite-field" className="form-label">Quantite</label>
+                            <input type="text" id="quantite-field" className="form-control" placeholder="Enter la marge" value={editedQuantite} onChange={(e) => setEditedQuantite(e.target.value)} required />
+                        </div>   
                                                
                                                 
                                                 
@@ -434,24 +535,28 @@ return(
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Packaging </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Ingredient Composé </ModalHeader>
+                <div className="d-flex flex-column align-items-center" >
+        {selectedingredientcompose && selectedingredientcompose.photo && (
+                <img
+                    src={`${selectedingredientcompose.photo.replace('ingredientscompose', '')}`}
+                    alt={selectedingredientcompose.name_ingredient_compose}
+                    style={{ width: "50px", height: "50px" ,marginTop:"3px" }}
+                />
+        )}
+    </div>
                 <form className="tablelist-form">
                     <ModalBody>
                         <div className="mb-3">
-                            <label htmlFor="name-field" className="form-label">Nom Description</label>
-                            <input type="text" id="name-field" className="form-control" placeholder="Entrer Nom" value={editedNameCategorie} onChange={(e) => setEditedNameCategorie(e.target.value)} required />
+                            <label htmlFor="name-field" className="form-label">Nom </label>
+                            <input type="text" id="name-field" className="form-control" placeholder="Entrer Nom" value={editedName} onChange={(e) => setEditedName(e.target.value)} required />
                         </div>
 
-                        <div className="mb-3">
-                            <label htmlFor="description-field" className="form-label">Description</label>
-                            <input type="text" id="description-field" className="form-control" placeholder="Enter la description" value={editedDescriptionCategorie} onChange={(e) => setEditedDescriptionCategorie(e.target.value)} required />
-                        </div>
-
+                        
 
                        
                        
-                      <div className="mb-3 row align-items-center">
-    <div className="col-md-9">
+                        <div className="col-md-9">
         <label htmlFor="photo-field" className="form-label">Photo</label>
         <input
             type="file"
@@ -461,16 +566,86 @@ return(
             name="photo"
         />
     </div>
-    <div className="col-md-2    ">
-        {selectedCategorie && selectedCategorie.photo && (
+<div className="mb-3">
+                <label htmlFor="categorie-field" className="form-label">Ingredient:</label>
+<div className="row">
+  <div className="col-md-9">
+    <select
+      id="ingredient-field"
+      className="form-control"
+      value={editedNameingredientcompose}
+      onChange={(e) => {
+        setEditedNameingredientcompose(e.target.value);
+        const selected = ingredients.find(ingredient => ingredient.id === parseInt(e.target.value));
+        setSelectedIngredient(selected);
+      }}
+    >
+      <option value="">Sélectionner un ingrédient</option>
+      {ingredients.map((ingredient) => (
+        <option key={ingredient.id} value={ingredient.id}>
+          {ingredient.name_ingredient}
+        </option>
+      ))}
+    </select>
+  </div>
+  
+</div>
+
+            </div>
+            <div className="mb-3">
+                            <label htmlFor="quantite-field" className="form-label">Quantite</label>
+                            <input type="text" id="quantite-field" className="form-control" placeholder="Enter la marge" value={editedQuantite} onChange={(e) => setEditedQuantite(e.target.value)} required />
+             </div>
+             <div className="d-flex flex-column align-items-center" style={{ border: '2px solid rgba(0, 0, 0, 0.15)', padding: '10px', borderRadius: '8px' }}>
+             <div class="d-flex justify-content-between">
+    {editedPhotoIngredient ? (
+
+        <div className="d-flex align-items-center">
+            <img
+                src={editedPhotoIngredient.replace('ingredients', '')}
+                alt={setEditedNameingredientcompose.name_ingredient}
+                style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "18px" }}
+                className="align-self-center"
+            />
+        </div>
+         ) : (
+            <div  style={{  marginRight: "30px" , marginTop:"20px"}}>No photo</div>
+        )}
+        <span style={{ fontWeight: "bold", marginLeft: "10px" ,marginTop:"20px"}}>➔</span>
+
+        
+        {selectedIngredient && selectedIngredient.photo ? (
+            <div className="d-flex align-items-center">
                 <img
-                    src={`${selectedCategorie.photo.replace('categories', '')}`}
-                    alt={selectedCategorie.name}
-                    style={{ width: "50px", height: "50px" }}
+                    src={selectedIngredient.photo.replace('ingredients', '')}
+                    alt={selectedIngredient.name_ingredient}
+                    style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
+                    className="align-self-center"
                 />
+            </div>
+        ) : (
+            <div style={{ marginLeft: "30px" , marginTop:"20px"}}>No photo</div>
         )}
     </div>
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+             
+            
+
+
+
 </div>
+
+
 
                         
 
@@ -562,6 +737,7 @@ return(
 
 
 
+             {/* Show Modal */}
 
 
 
@@ -569,26 +745,55 @@ return(
    
     <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
     <ModalBody>
-        {selectedCategorie && (
+    <div className="d-flex flex-column align-items-center" >
+        {selectedingredientcompose && selectedingredientcompose.photo && (
+                <img
+                    src={`${selectedingredientcompose.photo.replace('ingredientscompose', '')}`}
+                    alt={selectedingredientcompose.name_ingredient_compose}
+                    style={{ width: "50px", height: "50px" ,marginTop:"3px" }}
+                />
+        )}
+    </div>
+        {selectedingredientcompose && (
             <form className="tablelist-form">
                 <div className="mb-3">
-                    <label htmlFor="nom-field" className="form-label">Nom Description</label>
-                    <input type="text" id="name_packaging-field" className="form-control" value={selectedCategorie.name} readOnly />
+                    <label htmlFor="nom-field" className="form-label">Nom </label>
+                    <input type="text" id="name_packaging-field" className="form-control" value={selectedingredientcompose.name_ingredient_compose} readOnly />
                 </div>
-                <div className="mb-3">
-                    <label htmlFor="description-field" className="form-label">Description</label>
-                    <input type="text" id="description-field" className="form-control" value={selectedCategorie.description} readOnly />
-                </div>
-                
-                <div className="d-flex flex-column align-items-center" style={{ border: '2px solid rgba(0, 0, 0, 0.15)', padding: '10px', borderRadius: '8px' }}>
-        <img
-            src={`${selectedCategorie.photo.replace('categories', '')}`} // Remove the 'categories' prefix
-            alt={selectedCategorie.name}
-            style={{ width: "50px", height: "50px" }}
-            className="mb-3"
-        />
-        <p className="mb-0">{selectedCategorie.name}</p>
+                <div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between' }}>
+    {selectedingredientcompose.ingredients && selectedingredientcompose.ingredients.length > 0 && (
+        <div style={{ marginRight: '10px' }}>
+            <label htmlFor="ingredient-field" className="form-label">Ingrédient</label>
+            <input type="text" id="ingredient-field" className="form-control" value={selectedingredientcompose.ingredients[0].name_ingredient} readOnly />
+        </div>
+    )}
+
+{selectedingredientcompose.ingredients && selectedingredientcompose.ingredients.length > 0 && selectedingredientcompose.ingredients[0].pivot.quantite && (
+        <div style={{ marginRight: '10px' }}>
+            <label htmlFor="quantite-field" className="form-label">Quantite</label>
+            <input type="text" id="quantite-field" className="form-control" value={selectedingredientcompose.ingredients[0].pivot.quantite} readOnly />
+        </div>
+    )}
+    
+</div>
+<div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between' }}>
+    
+<div className="d-flex flex-column align-items-center" style={{ border: '2px solid rgba(0, 0, 0, 0.15)', padding: '10px', borderRadius: '8px'}}>
+
+    {selectedingredientcompose.ingredients && selectedingredientcompose.ingredients.length > 0 && selectedingredientcompose.ingredients[0].photo && (
+        <div>
+            <img
+                src={selectedingredientcompose.ingredients[0].photo.replace('ingredients', '')} // Remove the 'ingredients' prefix
+                alt={selectedingredientcompose.ingredients[0].name_ingredient}
+                style={{ width: "50px", height: "50px"}} // Adjust size as needed
+            />
+        </div>
+    )}
     </div>
+    </div>
+                
+                
+                
             </form>
         )}
     </ModalBody>
@@ -621,8 +826,8 @@ return(
 
 
 
-                    {selectedCategorie && (
-                        <p>Êtes-vous sûr de vouloir supprimer l'utilisateur {selectedCategorie.name}?</p>
+                    {selectedingredientcompose && (
+                        <p>Êtes-vous sûr de vouloir supprimer l'utilisateur {selectedingredientcompose.name_ingredient_compose}?</p>
                     )}
                 </ModalBody>
                 <ModalFooter>
@@ -676,4 +881,4 @@ return(
     
    
 
-export default CategoryTables;
+export default IngredientComposeListTable;
