@@ -10,18 +10,15 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-
-
     {
-        Schema::create('categories', function (Blueprint $table) {
+        Schema::create('cartes', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-
-            $table->string('description')->nullable();
-            $table->string('photo')->nullable();
+            $table->unsignedBigInteger('id_produit');
+            $table->foreign('id_produit')->references('id')->on('produits')->onDelete('cascade');
+            $table->unsignedBigInteger('id_categorie');
+            $table->float('prix');
             $table->timestamps();
         });
-
     }
 
     /**
@@ -29,7 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-
-        Schema::dropIfExists('categories');
+        Schema::dropIfExists('cartes');
     }
 };

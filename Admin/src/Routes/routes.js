@@ -81,6 +81,7 @@ import IconBoxicons from "../Pages/Icons/IconBoxicons"
 import VectorMaps from "../Pages/Maps/VectorMap";
 import GoogleMap from "../Pages/Maps/GoogleMap";
 import FournisseurListTable from "../Pages/Fournisseur/FournisseurListTable";
+import CartesListTable from "../Pages/Carte/CarteListTable";
 
 
 const authProtectedRoutes = [
@@ -91,6 +92,7 @@ const authProtectedRoutes = [
 
   { path: "/ingredientCompose", component: <IngredientCompose /> },
   { path: "/Fournisseur", component: <FournisseurListTable /> },
+  { path: "/carte", component: <CartesListTable /> },
 
 
   

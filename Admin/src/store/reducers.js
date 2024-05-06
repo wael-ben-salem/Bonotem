@@ -21,6 +21,7 @@ import gitUniteReducer from "./Unite/gitUniteSlice";
 import gitMarchandiseReducer from "./marchandise/gitMarchandiseSlice";
 import gitFournisseurReducer from "./fournisseur/gitFournisseurSlice";
 import gitIngredientComposeReducer from "./ingredient/GitIngredientComposerSlice";
+import gitCarteReducer from "./carte/gitCarteSlice";
 
 
 import AdminTable from "./auth/Tables/reducer";
@@ -48,6 +49,7 @@ const rootReducer = combineReducers({
   gitMarchandise:gitMarchandiseReducer,
   gitFournisseur:gitFournisseurReducer,
   gitIngredientCompose:gitIngredientComposeReducer,
+  gitCarte:gitCarteReducer,
 
 
 

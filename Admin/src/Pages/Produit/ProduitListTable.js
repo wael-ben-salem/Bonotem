@@ -676,10 +676,9 @@ return(
   </div>
   
 </div>
-
-
-
             </div>
+
+
             <div className="mb-3">
                             <label htmlFor="quantite-field" className="form-label">Quantite</label>
                             <input type="text" id="quantite-field" className="form-control" placeholder="Enter la marge" value={editedQuantite} onChange={(e) => setEditedQuantite(e.target.value)} required />

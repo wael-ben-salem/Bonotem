@@ -15,7 +15,7 @@ return new class extends Migration
                 $table->id();
                 $table->unsignedBigInteger('id_produit');
                 $table->unsignedBigInteger('id_packaging');
-                $table->int('nombre_package', 8, 2);
+                $table->integer('nombre_package');
 
 
                 $table->timestamps();

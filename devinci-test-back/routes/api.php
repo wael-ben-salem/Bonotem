@@ -2,7 +2,7 @@
 
 
 use App\Http\Controllers\API\User\RoleController;
-use App\Http\Controllers\CarteController;
+use App\Http\Controllers\CartesController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\IngredientComposeController;
@@ -98,12 +98,7 @@ Route::get('/categorie/{id}',[CategorieController::class,'showCategorie']);
 Route::post('/categori/{id}', [CategorieController::class, 'updateCategorie']);
 Route::delete('/categorie/{id}', [CategorieController::class, 'deleteCategorie']);
 
-//Carte
-Route::delete('/carte/{id}', [CarteController::class, 'destroy']);
-Route::post('/carte', [CarteController::class, 'store']);
-Route::get('/carte',[CarteController::class,'index']);
-Route::get('/carte/{id}',[CarteController::class,'show']);
-Route::put('/carte/{id}',[CarteController::class,'update']);
+
 
 //ingredient
 Route::delete('/ingredients/{id}', [IngredientController::class, 'destroy']);
@@ -150,3 +145,13 @@ Route::put('/marchandiseIngredient/{id}',[MarchandiseController::class,'updateIn
 Route::get('/marchandise',[MarchandiseController::class,'marchandise']);
 Route::delete('/marchandise/{id}', [MarchandiseController::class, 'destroy']);
 Route::get('/marchandise/{id}',[MarchandiseController::class,'showMarchandise']);
+
+
+//Cartes
+Route::post('/cartes', [CartesController::class, 'store']);
+Route::get('/cartes', [CartesController::class, 'cartes']);
+Route::delete('/cartes/{id}', [CartesController::class, 'destroy']);
+Route::get('/cartes/{id}', [CartesController::class, 'show']);
+Route::put('/cartes/{id}', [CartesController::class, 'update']);
+
+
