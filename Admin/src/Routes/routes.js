@@ -8,7 +8,12 @@ import AdminDashboard from "../Pages/AdminDashboard";
 
 
 // Import Planning
-import Planning from "../Pages/Personnels et Planning";
+
+import Planning from "../Pages/Planning/PlanningListTable.js";
+// Import Personnel
+import Personnel from "../Pages/Personnel/PersonnelListTable.js";
+// Import Planning
+//import Planning from "../Pages/Planning/PlanningListTable.js";
 // Import Catégorie
 import Categorie from "../Pages/Categorie/CategoryListTable.js";
 import Produit from "../Pages/Produit/ProduitListTable.js";
@@ -95,7 +100,8 @@ const authProtectedRoutes = [
   // Calender
   { path: "/planning", component: <Planning /> },
 
-  
+   // Calender
+   { path: "/personnel", component: <Personnel/> },
    // Catégorie
     { path: "/categorie", component: <Categorie /> },
      // Produit

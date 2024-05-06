@@ -6,7 +6,8 @@ import { Button, Card, CardBody, CardHeader, Col, Container,  Modal, ModalBody, 
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { addProduit, deleteProduit, getProduitDetails, updateProduit,getAllProduit } from '../../store/produit/gitProduitSlice';
 import { getAllData} from '../../store/categorie/gitCategorySlice';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 
 
 
@@ -25,11 +26,11 @@ const CategoryTables = () => {
     const [editProduit, setEditProduit] = useState(null);
     const [editedNameProduit, setEditedNameProduit] = useState('');
     const [editedMargeProduit, setEditedMargeProduit] = useState('');
-    const [editedIdCategorieProduit, setEditedIdCategorieProduit] = useState(null); // Store the file itself, initialize as null
+    const [editedIdCategorieProduit, setEditedIdCategorieProduit] = useState(null);
     
-    const [modal_show, setModalShow] = useState(false); // State for Show Modal
-    const [selectedProduit, setSelectedProduit] = useState(null); // State to store selected 
-    const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
+    const [modal_show, setModalShow] = useState(false); 
+    const [selectedProduit, setSelectedProduit] = useState(null); 
+    const [modal_delete, setModalDelete] = useState(false); 
     const [modalAddProduit, setModalAddProduit] = useState(false);
 
     
@@ -42,8 +43,11 @@ const CategoryTables = () => {
     });
     
 
-//
-    
+
+const [hover, setHover] = useState(false);
+const [hoverShow, setHoverShow] = useState(false);
+   const [hoverEdit, setHoverEdit] = useState(false);
+   const [hoverRemove, setHoverRemove] = useState(false); 
     useEffect(() => {
         dispatch(getAllProduit());
         dispatch(getAllData());
@@ -75,16 +79,13 @@ const CategoryTables = () => {
     
     const openDeleteModal = (produit) => {
         setSelectedProduit(produit);
-    toggleDeleteModal(); // Open the delete modal
+    toggleDeleteModal(); 
     }
 
     const handleRemove = () => {
-        dispatch(deleteProduit(selectedProduit.id)); // Dispatch deleteUser action with the selected user's ID
+        dispatch(deleteProduit(selectedProduit.id)); 
         toggleDeleteModal();
     }
-
-
-
 
 
     const openEditModal = (produits) => {
@@ -160,24 +161,25 @@ return(
                         <Col lg={12}>
                             <Card>
                                 <CardHeader>
-                                    <h4 className="card-title mb-0">Gérer les Produits</h4>
+                                    <h4 className="card-title mb-0">Gérer Produit</h4>
                                 </CardHeader>
-
                                 <CardBody>
                                     <div id="customerList">
                                         <Row className="g-4 mb-3">
-                                            <Col className="col-sm-auto">
-                                                <div className="d-flex gap-1">
-                                                <Button color="success" className="add-btn"  onClick={toggleAddProduitModal} id="create-btn"><i className="ri-add-line align-bottom me-1"></i> Ajouter</Button>
-                                                
-                                                    <Button color="soft-danger">
-                                                        {/* onClick="deleteMultiple()" */}
-                                                        <i className="ri-delete-bin-2-line"></i>
-                                                    </Button>
-                                                </div>
-                                                
+                                          <div className="d-flex gap-1">
 
-                                            </Col>
+                                           <Button  color="soft-info" className="btn btn-sm btn-info" onClick={toggleAddProduitModal}
+                                                onMouseEnter={() => setHover(true)}
+                                                  onMouseLeave={() => setHover(false)}
+                                                    id="create-btn">
+                                                    <i className={hover ? "ri-add-fill align-bottom me-1" : "ri-add-line align-bottom me-1"}></i>
+                                                    {hover ? "Ajouter" : ""}
+
+                                              </Button>
+
+
+                                              </div>
+
                                             <Col className="col-sm">
                                                 <div className="d-flex justify-content-sm-end">
                                                     <div className="search-box ms-2">
@@ -200,7 +202,7 @@ return(
                                                         <th className="sort" data-sort="Produit-Id">ID</th>
                                                         <th className="sort" data-sort="Produit-name_produit">Nom Produit</th>
                                                         <th className="sort" data-sort="Produit-marge">Marge</th>
-                                                        <th className="sort" data-sort="Produit-id_categorie">Name categorie</th>
+                                                        <th className="sort" data-sort="Produit-id_categorie">Nom categorie</th>
                                                         
                                                         <th className="sort" data-sort="action">Action</th>
                                                     </tr>
@@ -224,22 +226,48 @@ return(
                                                                 
                                                                 
                                                                 <td>
-                                                                    <div className="d-flex gap-2">
-                                                                        <div className="show">
-                                                                            <button className="btn btn-sm btn-dark show-item-btn" onClick={() => openShowModal(produit)}>Details</button>
-                                                                        </div>
-                                                                        <div className="edit">
-                                                                            <button className="btn btn-sm btn-success edit-item-btn" onClick={() => openEditModal(produit)}>Modifier</button>
-                                                                        </div>
-                                                                        <div className="remove">
-                                                                            <button className="btn btn-sm btn-danger remove-item-btn"onClick={() => { openDeleteModal(produit); }} >Supprimer</button>
-                                                                        </div>
+                                                             <div className=" d-flex  gap-4">
+
+                                                                         <Button
+                                                                            color="soft-dark"
+                                                                            size="sm"
+                                                                            className="show-item-btn"
+                                                                            onClick={() => openShowModal(produit)}
+                                                                            onMouseEnter={() => setHoverShow(true)}
+                                                                            onMouseLeave={() => setHoverShow(false)}
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faEye} />
+                                                                            {hoverShow ? " Consulter" : ""}
+                                                                        </Button>
+                                                                        <Button
+                                                                            color="soft-success"
+                                                                            size="sm"
+                                                                            className="edit-item-btn"
+                                                                            onClick={() => openEditModal(produit)}
+                                                                            onMouseEnter={() => setHoverEdit(true)}
+                                                                            onMouseLeave={() => setHoverEdit(false)}
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faEdit} />
+                                                                            {hoverEdit ? " Modifier" : ""}
+                                                                        </Button>
+
+                                                                        <Button
+                                                                            color="soft-danger"
+                                                                            size="sm"
+                                                                            className="remove-item-btn"
+                                                                            onClick={() => openDeleteModal(produit)}
+                                                                            onMouseEnter={() => setHoverRemove(true)}
+                                                                            onMouseLeave={() => setHoverRemove(false)}
+                                                                        >
+                                                                            <FontAwesomeIcon icon={faTrashAlt} />
+                                                                            {hoverRemove ? " Supprimer" : ""}
+                                                                        </Button>
                                                                     </div>
                                                                 </td>
                                                             </tr>
                                                         )) 
                                                         : 
-                                                        <tr><td colSpan="7">No Produits available</td></tr>
+                                                        <tr><td colSpan="7">No Categories available</td></tr>
                                                     }
                                                 </tbody>
                                             </table>

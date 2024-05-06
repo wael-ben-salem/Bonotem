@@ -16,8 +16,11 @@ import gitPackagingReducer from "./Packagings/gitPackagingSlice";
 import gitPackagingCategorieReducer from "./Packagings/gitPackagingCategorie"; 
 import gitCategorieReducer from "./categorie/gitCategorySlice";
 import gitProduitReducer from "./produit/gitProduitSlice";
-import gitIngredientReducer from "./ingredient/GitIngredientSlice";
-
+import gitIngredientReducer from "./ingredient/gitIngredientSlice";
+import gitPlanningReducer from "./planning/gitPlanningSlice";
+import gitPersonnelReducer from "./personnel/gitPersonnelSlice";
+import gitTypePersonnelReducer from "./typepersonnel/gitTypePersonnelSlice";
+import gitJourReducer from "./jour/gitJourSlice";
 import AdminTable from "./auth/Tables/reducer";
 const rootReducer = combineReducers({
   // public
@@ -33,7 +36,10 @@ const rootReducer = combineReducers({
   gitCategory: gitCategorieReducer,
   gitProduit:gitProduitReducer,
   gitIngredient:gitIngredientReducer,
-
+ gitPlanning:gitPlanningReducer,
+ gitPersonnel:gitPersonnelReducer,
+ gitTypePersonnel: gitTypePersonnelReducer,
+  gitJours:gitJourReducer,
   gitUser: gitUserReducer, // Assign gitUserReducer to the key 'gitUser'
   AdminTable,
   

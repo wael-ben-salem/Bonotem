@@ -15,7 +15,7 @@ const SidebarData = [
 
                subItem: [
                     { sublabel: "Planning", link: "/planning" },
-                    { sublabel: "Type de Personnels", link: "/personnel" },
+                    { sublabel: " Personnels", link: "/personnel" },
 
                 ],
     },

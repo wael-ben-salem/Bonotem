@@ -20,7 +20,7 @@ import {
   updateIngredient,
   deleteIngredient,
   addIngredient,
-} from "../../store/ingredient/GitIngredientSlice";
+} from "../../store/ingredient/gitIngredientSlice";
 
 const IngredientTables = () => {
   const dispatch = useDispatch();
@@ -116,7 +116,7 @@ const IngredientTables = () => {
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Tables" breadcrumbItem="Listjs" />
+          <Breadcrumbs title="Tables" breadcrumbItem="List Ingredient" />
 
           <Row>
             <Col lg={12}>
@@ -126,18 +126,22 @@ const IngredientTables = () => {
                 </CardHeader>
 
                 <CardBody>
-                  <div id="customerList">
-                    <Row className="g-4 mb-3">
-                      <Col className="col-sm-auto">
-                        <div className="d-flex gap-1">
-                          <Button
-                            className="btn btn-sm btn-info"
+                <div id="customerList">
+                                        <Row className="g-4 mb-3">
+                                            <Col className="col-sm-auto">
+                                                <div className="d-flex gap-1">
+                                                <Button  className="btn btn-sm btn-info"
                             onClick={toggleAddIngredientModal}
                             id="create-btn"
                           >
                             <i className="ri-add-line align-bottom me-1"></i>{" "}
-                            Ajouter Ingrédient
+                            Ajouter 
                           </Button>
+                          
+                          <Button color="soft-danger">
+                                                        {/* onClick="deleteMultiple()" */}
+                                                        <i className="ri-delete-bin-2-line"></i>
+                                                    </Button>
                         </div>
                       </Col>
                       <Col className="col-sm">

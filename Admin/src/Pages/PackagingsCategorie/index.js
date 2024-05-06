@@ -145,7 +145,7 @@ return(
                                         <Row className="g-4 mb-3">
                                             <Col className="col-sm-auto">
                                                 <div className="d-flex gap-1">
-                                                <Button color="success" className="add-btn"  onClick={toggleAddPackagingModal} id="create-btn"><i className="ri-add-line align-bottom me-1"></i> Ajouter Packagings</Button>
+                                                <Button className="btn btn-sm btn-info"  onClick={toggleAddPackagingModal} id="create-btn"><i className="ri-add-line align-bottom me-1"></i> Ajouter</Button>
                                                 
                                                     <Button color="soft-danger">
                                                         {/* onClick="deleteMultiple()" */}
