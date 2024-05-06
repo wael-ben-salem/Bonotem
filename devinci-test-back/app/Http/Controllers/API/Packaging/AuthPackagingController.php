@@ -15,10 +15,9 @@ class AuthPackagingController extends Controller
     public function createpackaging (Request $request)
 {
     $validator = Validator::make($request->all(), [
-        'name_packaging' => 'required|string|min:3|unique:packagings,name_packaging',
-        'nombre_package' => 'required|int',
-        'validate' => 'required|boolean',
-        // Add more validation rules as needed
+        'name_packaging' => ['required', 'unique:packagings', 'regex:/^[A-Za-z\s]+$/'],
+        'dimension' => 'nullable|string|max:255',
+        'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
     ]);
 
     if ($validator->fails()) {
@@ -28,11 +27,20 @@ class AuthPackagingController extends Controller
 
         ],422);
     } else {
-        $packaging = Packaging::create([
-            'name_packaging' => $request->name_packaging,
-            'nombre_package' => $request->nombre_package,
-            'validate' => $request->validate,
-        ]);
+        $packaging = new Packaging();
+        $packaging->name_packaging = $request->name_packaging;
+        $packaging->dimension = $request->dimension;
+
+        // Handle the photo upload if it's present in the request
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $filename = time() . '.' . $photo->getClientOriginalExtension();
+            $photo->storeAs('public', $filename);
+            $packaging->photo = $filename;
+        }
+
+        $packaging->save();
+
 
         return response()->json([
             'status' => 200,
@@ -100,25 +108,45 @@ class AuthPackagingController extends Controller
 
     public function updatePackaging(Request $request, $id)
     {
-        try {
+
+            // Find Ingredient
             $packaging = Packaging::find($id);
+
             if(!$packaging){
                 return response()->json([
                    'message'=>'Packaging Not Found.'
                 ],404);
             }
 
-            //echo "request : $request->image";
-            $packaging->update($request->all());
+            // Validation
+            $validator = Validator::make($request->all(), [
+                'name_packaging' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+                'dimension' => 'nullable|string|max:255',
+
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'validation_errors' => $validator->messages(),
+                ]);
+            }else {
+                $packaging->name_packaging = $request->name_packaging;
+                $packaging->dimension = $request->dimension;
+
+                // Check if 'photo_url' exists in the request and update the photo attribute
+                if ($request->hasFile('photo')) {
+                    $photo = $request->file('photo');
+                    $filename = time() . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('public', $filename);
+                    $packaging->photo = $filename;
+                }
+
+                $packaging->save();
 
             return response()->json([
                 'message' => "Packaging successfully updated."
             ],200);
-        } catch (\Exception $e) {
-            // Return Json Response
-            return response()->json([
-                'message' => "Something went really wrong!"
-            ],500);
         }
+
     }
 }

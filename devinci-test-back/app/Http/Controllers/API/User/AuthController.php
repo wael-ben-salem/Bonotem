@@ -18,7 +18,6 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         // Vérifier si l'ID de l'emballage existe dans la table packagings
-        $existingRole = Role::find($request->role_id);
 
 
 
@@ -34,25 +33,19 @@ class AuthController extends Controller
             return response()->json([
                 'validation_errors' => $validator->messages(),
             ], 422);
-        } else  if (!$existingRole) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Role id not found',
-            ], 404);
-        }else {
+        } else {
             try {
                 $user = User::create([
                     'name' => $request->name,
                     'email'=> $request->email,
                     'password'=> Hash::make($request->password),
-                    'role_id' => $request->role_id
+
                 ]);
 
                 $token = $user->createToken($user-> email.'_Token') -> plainTextToken;
                 return response() ->json([
                         'status' => 200,
                         'username' => $user->name,
-                        'id_role' => $user->role_id,
                         'token' => $token ,
                         'message' => 'Registered Success',
 

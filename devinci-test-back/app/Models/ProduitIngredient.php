@@ -6,20 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProduitIngredient extends Model
 {
-    protected $fillable = ['produit_id', 'ingredient_id', 'quantite', 'unite_id'];
+    protected $fillable = ['id_produit', 'id_ingredient'];
 
     public function produit()
     {
-        return $this->belongsTo(Produit::class);
+        return $this->belongsTo(Produit::class, 'id_produit');
     }
 
     public function ingredient()
     {
-        return $this->belongsTo(Ingredient::class);
+        return $this->belongsTo(Ingredient::class, 'id_ingredient');
     }
 
-    public function unite()
-    {
-        return $this->belongsTo(Unite::class);
-    }
 }

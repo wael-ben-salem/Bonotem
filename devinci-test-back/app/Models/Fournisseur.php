@@ -8,14 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class Fournisseur extends Model
 {
     protected $table = 'fournisseurs';
- protected $primaryKey = 'id_fournisseur';
+ protected $primaryKey = 'id';
     protected $fillable = [
         'nom',
         'num_telephone',
         'email',
     ];
-   public function ingredient()
+
+
+    public function getPhotoAttribute($photo){
+        return $photo ? asset("/storage/fournisseurs".$photo):null;
+    }
+    public function marchandises()
     {
-        return $this->hasMany(Ingredient::class, 'id_fournisseur');
+        return $this->hasMany(Marchandise::class, 'id_fournissseur');
     }
 }

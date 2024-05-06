@@ -5,8 +5,12 @@ use App\Http\Controllers\API\User\RoleController;
 use App\Http\Controllers\CarteController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\IngredientComposeController;
 use App\Http\Controllers\IngredientController;
+use App\Http\Controllers\IngredientProduitController;
+use App\Http\Controllers\MarchandiseController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\UniteController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\User\AuthController;
@@ -58,7 +62,7 @@ Route::get("packaging", [AuthPackagingController::class, 'packaging']);
 Route::get("packaging/{id}", [AuthPackagingController::class ,'showPackaging']);
 
 Route::post("addpackaging", [AuthPackagingController::class, 'createpackaging']);
-Route::put("updatepackaging/{id}", [AuthPackagingController::class, 'updatePackaging']);
+Route::post("updatepackaging/{id}", [AuthPackagingController::class, 'updatePackaging']);
 Route::delete("deletepackaging/{id}", [AuthPackagingController::class, 'deletePackage']);
 
 
@@ -91,7 +95,7 @@ Route::delete("deleterole/{id}", [RoleController::class, 'deleteRole']);
 Route::post('/categori', [CategorieController::class, 'addCategorie']);
 Route::get('/categorie',[CategorieController::class,'Categorie']);
 Route::get('/categorie/{id}',[CategorieController::class,'showCategorie']);
-Route::put('/categorie/{id}', [CategorieController::class, 'updateCategorie']);
+Route::post('/categori/{id}', [CategorieController::class, 'updateCategorie']);
 Route::delete('/categorie/{id}', [CategorieController::class, 'deleteCategorie']);
 
 //Carte
@@ -103,17 +107,17 @@ Route::put('/carte/{id}',[CarteController::class,'update']);
 
 //ingredient
 Route::delete('/ingredients/{id}', [IngredientController::class, 'destroy']);
-Route::post('/ingredients', [IngredientController::class, 'store']);
-Route::get('/ingredients',[IngredientController::class,'index']);
+Route::post('/ingredients', [IngredientController::class, 'addIngredient']);
+Route::get('/ingredients',[IngredientController::class,'ingredient']);
 Route::get('/ingredients/{id}',[IngredientController::class,'show']);
-Route::put('/ingredients/{id}',[IngredientController::class,'update']);
+Route::post('/ingredients/{id}',[IngredientController::class,'updateIngredient']);
 
 //fournisseur
 Route::delete('/fournisseurs/{id}', [FournisseurController::class, 'destroy']);
 Route::post('/fournisseurs', [FournisseurController::class, 'store']);
-Route::get('/fournisseurs',[FournisseurController::class,'index']);
+Route::get('/fournisseurs',[FournisseurController::class,'fournisseur']);
 Route::get('/fournisseurs/{id}',[FournisseurController::class,'show']);
-Route::put('/fournisseurs/{id}',[FournisseurController::class,'update']);
+Route::post('/fournisseurs/{id}',[FournisseurController::class,'update']);
 
 //Produit
 Route::delete('/produit/{id}', [ProduitController::class, 'destroy']);
@@ -121,4 +125,28 @@ Route::post('/produit', [ProduitController::class, 'addProduit']);
 Route::get('/produit',[ProduitController::class,'produit']);
 Route::get('/produit/{id}',[ProduitController::class,'showProduit']);
 Route::put('/produit/{id}',[ProduitController::class,'updateProduit']);
-Route::post('/produits/{produitId}/associer-ingredients', [ProduitController::class, 'associerIngrédients']);
+
+
+//Unite
+Route::post('/unite', [UniteController::class, 'addUnite']);
+Route::get('/unite',[UniteController::class,'unite']);
+
+
+//Ingredient compose
+Route::post('/ingredientsCompose', [IngredientComposeController::class, 'addIngredientCompose']);
+Route::get('/ingredientsCompose', [IngredientComposeController::class, 'IngredientCompose']);
+Route::get('/ingredientsCompose/{id}', [IngredientComposeController::class, 'show']);
+
+Route::post('/ingredientsCompose/{id}', [IngredientComposeController::class, 'updateIngredientCompose']);
+Route::delete('/ingredientsCompose/{id}', [IngredientComposeController::class, 'destroy']);
+
+
+//Marchandise
+Route::post('/marchandisePackaging', [MarchandiseController::class, 'addPackaging']);
+Route::post('/marchandiseIngredient', [MarchandiseController::class, 'addIngredient']);
+Route::put('/marchandisePackaging/{id}',[MarchandiseController::class,'updatePackaging']);
+Route::put('/marchandiseIngredient/{id}',[MarchandiseController::class,'updateIngredient']);
+
+Route::get('/marchandise',[MarchandiseController::class,'marchandise']);
+Route::delete('/marchandise/{id}', [MarchandiseController::class, 'destroy']);
+Route::get('/marchandise/{id}',[MarchandiseController::class,'showMarchandise']);

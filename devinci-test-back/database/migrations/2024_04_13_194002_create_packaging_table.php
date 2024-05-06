@@ -11,8 +11,9 @@ return new class extends Migration
         Schema::create('packagings', function (Blueprint $table) {
             $table->id();
             $table->string('name_packaging')->unique(); // Add unique constraint
-            $table->integer('nombre_package')->default(0);
-            $table->boolean('validate')->default(0);
+            $table->string('dimension')->default('');
+            $table->string('photo')->nullable();
+
             // Add other columns as needed
             $table->timestamps();
         });
