@@ -10,10 +10,10 @@ return new class extends Migration
     {
         Schema::create('packagings', function (Blueprint $table) {
             $table->id();
-            $table->string('name_packaging')->unique(); // Add unique constraint
+            $table->string('name_packaging')->unique();
             $table->integer('nombre_package')->default(0);
             $table->boolean('validate')->default(0);
-            // Add other columns as needed
+            
             $table->timestamps();
         });
     }

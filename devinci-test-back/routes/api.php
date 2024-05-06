@@ -12,6 +12,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\User\AuthController;
 use App\Http\Controllers\Api\Packaging\AuthPackagingController;
 use App\Http\Controllers\Api\Packaging\AuthPackagingCategoryController;
+use App\Http\Controllers\PersonnelController;
+use App\Http\Controllers\JourController;
+use App\Http\Controllers\PlanningController;
+use App\Http\Controllers\TypePersonnelController;
+use App\Http\Controllers\PresenceController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -122,3 +128,45 @@ Route::get('/produit',[ProduitController::class,'produit']);
 Route::get('/produit/{id}',[ProduitController::class,'showProduit']);
 Route::put('/produit/{id}',[ProduitController::class,'updateProduit']);
 Route::post('/produits/{produitId}/associer-ingredients', [ProduitController::class, 'associerIngrédients']);
+
+
+// Personnel
+Route::get('/personnel', [PersonnelController::class, 'personnel']);
+Route::get("/personnel/{id}", [PersonnelController::class ,'showPersonnel']);
+
+Route::post('/addpersonnel', [PersonnelController::class, 'addPersonnel']);
+Route::put("/updatepersonnel/{id}", [PersonnelController::class, 'updatePersonnel']);
+Route::delete("/deletepersonnel/{id}", [PersonnelController::class, 'deletePersonnel']);
+
+//type_personnel/
+Route::get('/type_personnel',[TypePersonnelController::class,'TypePersonnel']);
+Route::get('/type_personnel/{id}',[TypePersonnelController::class,'showTypePersonnel']);
+
+Route::post('/addtype_personnel', [TypePersonnelController::class, 'addTypePersonnel']);
+Route::put('/updatetype_personnel/{id}',[TypePersonnelController::class,'updateTypePersonnel']);
+Route::delete('/deletetype_personnel/{id}', [TypePersonnelController::class, 'deleteTypePersonnel']);
+
+
+// Planning
+Route::get('/planning', [PlanningController::class, 'planning']);
+Route::get("/planning/{id}", [PlanningController::class ,'showPlanning']);
+
+Route::post('/addplanning', [PlanningController::class, 'addPlanning']);
+Route::put("/updateplanning/{id}", [PlanningController::class, 'updatePlanning']);
+Route::delete("/deleteplanning/{id}", [PlanningController::class, 'deletePlanning']);
+
+//Jour
+Route::get('/jour', [JourController::class, 'jour']);
+Route::get("/jour/{id}", [JourController::class ,'showJour']);
+
+Route::post('/addjour', [JourController::class, 'addJour']);
+Route::put("/updatejour/{id}", [JourController::class, 'updateJour']);
+Route::delete("/deletejour/{id}", [JourController::class, 'deleteJour']);
+
+//Presence
+Route::get('/presence', [PresenceController::class, 'presence']);
+Route::get("/presence/{id}", [PresenceController::class ,'showPresence']);
+
+Route::post('/addpresence', [PresenceController::class, 'addPresence']);
+Route::put("/updatepresence/{id}", [PresenceController::class, 'updatePresence']);
+Route::delete("/deletepresence/{id}", [PresenceController::class, 'deletePresence']);
