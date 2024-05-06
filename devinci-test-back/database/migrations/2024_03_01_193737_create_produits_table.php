@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('produits', function (Blueprint $table) {
             $table->id();
             $table->string('name_produit');
-            // $table->unsignedBigInteger('id_categorie');
-            // $table->foreign('id_categorie')->references('id')->on('categories')->onDelete('cascade');
+            $table->unsignedBigInteger('id_categorie');
+            $table->foreign('id_categorie')->references('id')->on('categories')->onDelete('cascade');
             $table->decimal('marge', 8, 2);
             $table->timestamps();
         });

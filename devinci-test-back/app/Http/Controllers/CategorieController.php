@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Categorie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 class CategorieController extends Controller
 {
@@ -82,53 +83,41 @@ class CategorieController extends Controller
     }
 
 
-    public function updateCategorie(Request $request, $id)
+
+ public function updateCategorie(Request $request, $id)
     {
-        try {
-            $categorie = Categorie::find($id);
+        $categorie = Categorie::findOrFail($id);
 
-            if(!$categorie){
-                return response()->json([
-                   'message'=>'Category Not Found.'
-                ],404);
-            }
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'description' => 'required|string',
+        ]);
 
-            $validator = Validator::make($request->all(), [
-                'name' => 'string|max:255',
-                'description' => 'string',
-                'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'validation_errors' => $validator->messages(),
-                ]);
-            } else {
-                $categorie->fill($request->except('photo'));
-
-                // Handle the photo update if it's present in the request
-                if ($request->hasFile('photo')) {
-                    $photo = $request->file('photo');
-                    $filename = time() . '.' . $photo->getClientOriginalExtension();
-                    $photo->storeAs('public', $filename);
-                    $categorie->photo = $filename;
-                }
-
-                $categorie->save();
-
-                return response()->json([
-                    'message' => "Category successfully updated."
-                ],200);
-            }
-        } catch (\Exception $e) {
-            // Return Json Response
+        if ($validator->fails()) {
             return response()->json([
-                'message' => "Something went really wrong!"
-            ],500);
+                'validation_errors' => $validator->messages(),
+            ]);
+        } else {
+            $categorie->name = $request->name;
+            $categorie->description = $request->description;
+
+            // Check if 'photo_url' exists in the request and update the photo attribute
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                $filename = time() . '.' . $photo->getClientOriginalExtension();
+                $photo->storeAs('public', $filename);
+                $categorie->photo = $filename;
+            }
+
+            $categorie->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Catégorie mise à jour',
+                'Categorie' => $categorie,
+            ]);
         }
     }
-
-
     /**
      * Remove the specified resource from storage.
      */

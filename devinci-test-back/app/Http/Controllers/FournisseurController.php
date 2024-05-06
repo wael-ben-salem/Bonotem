@@ -12,7 +12,7 @@ class FournisseurController extends Controller
     /**
      *Liste tous les fournisseurs disponibles.
      */
-    public function index()
+    public function fournisseur()
     {
         $fournisseurs = Fournisseur::all();
         return response()->json($fournisseurs);
@@ -26,21 +26,26 @@ class FournisseurController extends Controller
         Log::info($request->all());
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|max:255',
-            'num_telephone' => 'required|string|max:255',
+            'num_telephone' => 'required|int',
             'email' => 'required|string|email|max:255|unique:fournisseurs',
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
+        }else{
+         $fournisseur = new Fournisseur();
+        $fournisseur->nom = $request->nom;
+        $fournisseur->num_telephone = $request->num_telephone;
+        $fournisseur->email = $request->email;
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo');
+            $filename = time() . '.' . $photo->getClientOriginalExtension();
+            $photo->storeAs('public', $filename);
+            $fournisseur->photo = $filename;
         }
-
-        $validatedData = $validator->validated();
-
-        $fournisseur = new Fournisseur();
-        $fournisseur->nom = $validatedData['nom'];
-        $fournisseur->num_telephone = $validatedData['num_telephone'];
-        $fournisseur->email = $validatedData['email'];
         $fournisseur->save();
+
+        }
 
         return response()->json([
             'success' => true,
@@ -79,10 +84,21 @@ class FournisseurController extends Controller
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 400);
+        }else{
+            $fournisseur->nom = $request->nom;
+            $fournisseur->num_telephone = $request->num_telephone;
+            $fournisseur->email = $request->email;
+            // Check if 'photo_url' exists in the request and update the photo attribute
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                $filename = time() . '.' . $photo->getClientOriginalExtension();
+                $photo->storeAs('public', $filename);
+                $fournisseur->photo = $filename;
+            }
+
+            $fournisseur->save();
+
         }
-
-        $fournisseur->update($validator->validated());
-
         return response()->json([
             'success' => true,
             'message' => 'Fournisseur mis à jour avec succès',

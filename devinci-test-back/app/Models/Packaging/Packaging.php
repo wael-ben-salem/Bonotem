@@ -3,7 +3,9 @@
 namespace App\Models\Packaging;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Marchandise;
 use App\Models\Packaging\PackagingCategory;
+use App\Models\Produit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
@@ -21,6 +23,7 @@ class Packaging extends Model
     // Define the table associated with the model
     protected $table = 'packagings';
 
+    protected $morphClass = 'Packaging';
 
 
 
@@ -32,14 +35,31 @@ class Packaging extends Model
     // Specify which attributes can be mass assigned
     protected $fillable = [
         'name_packaging',
-        'nombre_package',
-        'validate'
-
+        'dimension',
+        'photo',
 
     ];
+
+    public function getPhotoAttribute($photo){
+        return $photo ? asset("/storage/packagings".$photo):null;
+    }
+
 
     public function packagingCategory()
     {
         return $this->hasOne(PackagingCategory::class, 'id_packaging');
     }
+    public function produits()
+    {
+        return $this->belongsToMany(Produit::class, 'packaging_produit', 'id_packaging' )
+                    ->withPivot('nombre_package');
+    }
+
+
+    public function marchandises()
+    {
+        return $this->hasMany(Marchandise::class);
+    }
+
+
 }

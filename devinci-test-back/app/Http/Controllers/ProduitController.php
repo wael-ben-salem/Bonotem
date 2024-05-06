@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 use App\Models\Categorie;
+use App\Models\Ingredient;
 use App\Models\Produit;
 use App\Models\User\Role;
 use Illuminate\Http\Request;
@@ -12,35 +13,13 @@ class ProduitController extends Controller
 {
     public function produit()
     {
-        $produits = Produit::with('categorie')->get();
+        $produits = Produit::with('categorie','ingredients','packagings')->get();
         return response()->json($produits);
     }
 
 
 
-    public function associerIngrédients(Request $request, $produitId)
-    {
-        // Récupérer le produit
-        $produit = Produit::findOrFail($produitId);
 
-        // Vérifier si les ingrédients sont fournis dans la requête
-        if ($request->has('ingredients')) {
-            $ingredients = $request->input('ingredients');
-
-            // Boucler sur les ingrédients fournis
-            foreach ($ingredients as $ingredient) {
-                // Récupérer l'ID de l'ingrédient et la quantité fournis
-                $ingredientId = $ingredient['ingredient_id'];
-                $quantite = $ingredient['quantite'];
-
-                // Associer l'ingrédient au produit avec la quantité
-                $produit->ingredients()->attach($ingredientId, ['quantite' => $quantite]);
-            }
-        }
-
-        // Retourner une réponse
-        return response()->json(['message' => 'Ingrédients associés avec succès au produit.']);
-    }
 
 
 
@@ -50,39 +29,53 @@ class ProduitController extends Controller
 
 
     public function addProduit(Request $request)
-    {
-        $existingRole = Categorie::find($request->id_categorie );
-        $validator = Validator::make($request->all(), [
-            'name_produit' => 'required|unique:produits',
-            'marge' => 'required|numeric|max:999999.99',
+{
+    $validator = Validator::make($request->all(), [
+        'name_produit' => 'required|unique:produits',
+        'marge' => 'required|numeric|max:999999.99',
+        'id_categorie' => 'required|exists:categories,id', // Add validation for category existence
+        'ingredients' => 'required|array', // Validation for ingredients array
+        'ingredients.*.id_ingredient' => 'required|exists:ingredients,id',
+        'ingredients.*.quantite' => 'required|numeric|min:0',
+        'packagings' => 'required|array', // Validation for packagings array
+        'packagings.*.id_packaging' => 'required|exists:packagings,id',
+        'packagings.*.nombre_package' => 'required|int|min:0',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'validation_errors' => $validator->messages(),
+        ]);
+    } else {
+        $produit = Produit::create([
+            'name_produit' => $request->name_produit,
+            'marge' => $request->marge,
+            'id_categorie' => $request->id_categorie,
         ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'validation_errors' => $validator->messages(),
+        // Associating ingredients with the product
+        foreach ($request->ingredients as $ingredient) {
+            $produit->ingredients()->attach($ingredient['id_ingredient'], [
+                'quantite' => $ingredient['quantite'],
             ]);
-        } else if (!$existingRole) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Category  not found',
-            ], 404);
-        } else {
-            $produit = Produit::create([
-                'name_produit' => $request->name_produit,
-                'marge'=> $request->marge,
-
-                'id_categorie' => $request->id_categorie
-            ]);
-
-
-                return response()->json([
-                'status' => 200,
-                'nom Produit' => $produit->name_produit,
-                'id_categorie' => $produit->id_categorie,
-               'message' => 'added Success',
-            ],200);
         }
+
+         // Associating ingredients with the product
+         foreach ($request->packagings as $packaging) {
+            $produit->packagings()->attach($packaging['id_packaging'], [
+                'nombre_package' => $packaging['nombre_package'],
+            ]);
+        }
+
+        return response()->json([
+            'status' => 200,
+            'nom_produit' => $produit->name_produit,
+            'id_categorie' => $produit->id_categorie,
+            'message' => 'Produit ajouté avec succès et ingrédients associés.',
+        ], 200);
     }
+}
+
 
 
 
@@ -110,30 +103,55 @@ class ProduitController extends Controller
 
 
 
-public function updateProduit(Request $request, $id)
+    public function updateProduit(Request $request, $id)
     {
-        try {
-            // Find Produit
-            $produit = Produit::find($id);
-            if(!$produit){
-                return response()->json([
-                   'message'=>'Produit Not Found.'
-                ],404);
+        $validator = Validator::make($request->all(), [
+            'name_produit' => 'unique:produits,name_produit,' . $id,
+            'marge' => 'numeric|max:999999.99',
+            'id_categorie' => 'exists:categories,id',
+            'ingredients' => 'array',
+            'ingredients.*.id_ingredient' => 'exists:ingredients,id',
+            'ingredients.*.quantite' => 'numeric|min:0',
+            'packagings' => 'array', // Validation for packagings array
+            'packagings.*.id_packaging' => 'exists:packagings,id',
+            'packagings.*.nombre_package' => 'int|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'validation_errors' => $validator->messages(),
+            ]);
+        } else {
+            $produit = Produit::findOrFail($id);
+
+            $produit->name_produit = $request->name_produit;
+            $produit->marge = $request->marge;
+            $produit->id_categorie = $request->id_categorie;
+            $produit->save();
+
+            // Sync ingredients with the product
+            $produit->ingredients()->sync([]);
+            foreach ($request->ingredients as $ingredient) {
+                $produit->ingredients()->attach($ingredient['id_ingredient'], [
+                    'quantite' => $ingredient['quantite'],
+                ]);
             }
 
-            //echo "request : $request->image";
-            $produit->update($request->all());
+            // Sync packagings with the product
+            $produit->packagings()->sync([]);
+            foreach ($request->packagings as $packaging) {
+                $produit->packagings()->attach($packaging['id_packaging'], [
+                    'nombre_package' => $packaging['nombre_package'],
+                ]);
+            }
 
             return response()->json([
-                'message' => "Produit successfully updated."
-            ],200);
-        } catch (\Exception $e) {
-            // Return Json Response
-            return response()->json([
-                'message' => "Something went really wrong!"
-            ],500);
+                'status' => 200,
+                'message' => 'Produit mis à jour avec succès et ingrédients associés.',
+            ], 200);
         }
     }
+
 
 
     public function destroy($id)
