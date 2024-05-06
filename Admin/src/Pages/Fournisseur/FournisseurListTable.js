@@ -1,21 +1,23 @@
 import React from 'react';
 import  { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Card, CardBody, CardHeader, Col, Container, Alert,  Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
-import { addPackaging, deletePackaging, getAllPackaging, getPackagingDetails, updatePackaging } from '../../store/Packagings/gitPackagingSlice';
+import { Button, Card, CardBody,ListGroup, CardHeader, Col, Container, Alert, ListGroupItem, Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
+import { Link } from 'react-router-dom';
 
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { addFournisseur, deleteFournisseur, getAllFournisseur, getFournisseureDetails, updateFournisseur } from '../../store/fournisseur/gitFournisseurSlice';
+import List from 'list.js';
 
 
 
-const Packagings = () => {
+const FournisseurListTable = () => {
     
 
     const dispatch = useDispatch();
-    const packagings = useSelector(state => state.gitPackaging.packagings);
+    const fournisseurs = useSelector(state => state.gitFournisseur.fournisseurs);
     const [hoverShow, setHoverShow] = useState(false);
     const [hoverEdit, setHoverEdit] = useState(false);
     const [hoverRemove, setHoverRemove] = useState(false);
@@ -25,30 +27,33 @@ const Packagings = () => {
     const [modal_confirm_edit, setModalConfirmEdit] = useState(false);
     const [modal_confirm_add, setModalConfirmAdd] = useState(false);
     const { Success, errorMessage } = useSelector(state => ({
-      Success: state.gitPackaging.Success,
-      errorMessage: state.gitPackaging.errorMessage,
+      Success: state.gitFournisseur.Success,
+      errorMessage: state.gitFournisseur.errorMessage,
       
     }));
     const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
   
 
     const [modal_list, setmodal_list] = useState(false);
-    const [editPackaging, setEditPackaging] = useState(null);
-    const [editedNamePackaging, setEditedNamePackaging] = useState('');
-    const [editedDimension, setEditedDimension] = useState('');
+    const [editFournisseur, setEditFournisseur] = useState(null);
+
+    const [editedNameFournisseur, setEditedNameFournisseur] = useState('');
+    const [editedEmailFournisseur, setEditedEmailFournisseur] = useState('');
+    const [editedNumFournisseur, setEditedNumFournisseur] = useState('');
+
     const [editedPhoto, setEditedPhoto] = useState(""); // Store the file itself, initialize as null
 
     const [modal_show, setModalShow] = useState(false); // State for Show Modal
-    const [selectedPackaging, setSelectedPackaging] = useState(null); // State to store selected 
+    const [selectedFournisseur, setSelectedFournisseur] = useState(null); // State to store selected 
     const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
-    const [modalAddPackaging, setModalAddPackaging] = useState(false);
+    const [modalAddFournisseur, setModalAddFournisseur] = useState(false);
     
     
-    const [newPackagingData, setNewPackagingData] = useState({
-        name_Packaging: '',
-        dimension: '',
-        photo: null, // Store the file itself, initialize as null
-
+    const [newFournisseurData, setNewFournisseurData] = useState({
+        nom: '',
+        email: '',
+        num_telephone: '', // Store the file itself, initialize as null
+        photo:null,
         
        
     });
@@ -59,13 +64,13 @@ const Packagings = () => {
         const itemsPerPage = 4;
     
         // Calcul du nombre total de pages
-        const totalPages = Math.ceil(packagings.length / itemsPerPage);
+        const totalPages = Math.ceil(fournisseurs.length / itemsPerPage);
     
         // Fonction pour diviser les éléments en pages
-        const paginatePackagings = () => {
+        const paginateFournisseur = () => {
             const startIndex = currentPage * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
-            return packagings.slice(startIndex, endIndex);
+            return fournisseurs.slice(startIndex, endIndex);
         };
     
         // Fonction pour changer de page
@@ -76,7 +81,7 @@ const Packagings = () => {
     
     
     useEffect(() => {
-        dispatch(getAllPackaging());
+        dispatch(getAllFournisseur());
     }, [dispatch]);
 
 
@@ -94,10 +99,18 @@ const Packagings = () => {
     }
 }, [Success]);
 
+useEffect(() => {
+    if (fournisseurs.length > 0) { // Vérifiez si la liste contient des éléments
+        new List('pagination-list', {
+            valueNames: ['pagi-list'],
+        });
+    }
+}, [fournisseurs]);
+ 
 
     
-    const toggleAddPackagingModal = () => {
-        setModalAddPackaging(!modalAddPackaging);
+    const toggleAddFournisseurModal = () => {
+        setModalAddFournisseur(!modalAddFournisseur);
     };
    
 
@@ -125,13 +138,13 @@ const toggleConfirmEdit = () => {
     
     
     
-    const openDeleteModal = (packaging) => {
-        setSelectedPackaging(packaging);
+    const openDeleteModal = (fournisseur) => {
+        setSelectedFournisseur(fournisseur);
     toggleDeleteModal(); // Open the delete modal
     }
 
     const handleRemove = () => {
-        dispatch(deletePackaging(selectedPackaging.id)); // Dispatch deleteUser action with the selected user's ID
+        dispatch(deleteFournisseur(selectedFournisseur.id)); // Dispatch deleteUser action with the selected user's ID
         setTimeout(() => {
             toggleDeleteModal();
     
@@ -144,12 +157,14 @@ const toggleConfirmEdit = () => {
 
 
 
-    const openEditModal = (packagings) => {
-        setEditPackaging(packagings);
-        setEditedNamePackaging(packagings.name_packaging);
-        setEditedDimension(packagings.dimension);
-        setEditedPhoto(packagings.photo); 
-        setSelectedPackaging(packagings);
+    const openEditModal = (fournisseurs) => {
+        setEditFournisseur(fournisseurs);
+        setEditedNameFournisseur(fournisseurs.nom);
+        setEditedEmailFournisseur(fournisseurs.email);
+        setEditedNumFournisseur(fournisseurs.num_telephone);
+
+        setEditedPhoto(''); 
+        setSelectedFournisseur(fournisseurs);
 
         
         toggleListModal();
@@ -159,17 +174,21 @@ const toggleConfirmEdit = () => {
    const handleUpdate = () => {
     
     const formData = new FormData();
-    formData.append('name_packaging', editedNamePackaging);
-    formData.append('dimension', editedDimension);
+    formData.append('nom', editedNameFournisseur);
+    formData.append('num_telephone', editedNumFournisseur);
+
+    formData.append('email', editedEmailFournisseur);
     formData.append('photo', editedPhoto); // Append the file to the form data
 
-    dispatch(updatePackaging({ id: editPackaging.id, packagingData: formData }));
+    dispatch(updateFournisseur({ id: editFournisseur.id, fournisseurData: formData }));
 
      // Reset the state
-     setEditPackaging({
-        name_packaging: '',
-        dimension: '',
-        photo: null,
+     setEditFournisseur({
+        nom: '',
+        email: '',
+        num_telephone: '', // Store the file itself, initialize as null
+        photo:null,
+        
     });
     setTimeout(() => {
         toggleListModal();
@@ -182,9 +201,9 @@ const toggleConfirmEdit = () => {
 
 
    
-const openShowModal = (packaging) => {
-    setSelectedPackaging(packaging);
-    dispatch(getPackagingDetails(packaging.id)); // Fetch user details when the Show button is clicked
+const openShowModal = (fournisseur) => {
+    setSelectedFournisseur(fournisseur);
+    dispatch(getFournisseureDetails(fournisseur.id)); // Fetch user details when the Show button is clicked
     toggleShowModal();
 }
 
@@ -195,20 +214,22 @@ const openShowModal = (packaging) => {
 
 const handleAddPackaging = () => {
     const formData = new FormData();
-    formData.append('name_packaging', newPackagingData.name_packaging);
-    formData.append('dimension', newPackagingData.dimension);
-    formData.append('', newPackagingData.photo); // Append the file to the form data
+    formData.append('nom', newFournisseurData.nom);
+    formData.append('num_telephone', newFournisseurData.num_telephone);
+
+    formData.append('email', newFournisseurData.email);
+    formData.append('photo', newFournisseurData.photo); // Append the file to the form data
     
 
-    dispatch(addPackaging(newPackagingData));
-    setNewPackagingData({
-        name_packaging: '',
-        dimension: '',
-        photo:'',
-        
+    dispatch(addFournisseur(formData));
+    setNewFournisseurData({
+        nom: '',
+        email: '',
+        num_telephone: '', // Store the file itself, initialize as null
+        photo:null,
     });
     setTimeout(() => {
-        toggleAddPackagingModal();
+        toggleAddFournisseurModal();
         toggleConfirmAdd();
 
         window.location.reload();
@@ -224,13 +245,13 @@ return(
     <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Tables" breadcrumbItem="Packagings" />
+                    <Breadcrumbs title="Tables" breadcrumbItem="Fournisseur" />
 
                     <Row>
                         <Col lg={12}>
                             <Card>
                                 <CardHeader>
-                                    <h4 className="card-title mb-0">Gérer les Packagings</h4>
+                                    <h4 className="card-title mb-0">Gérer les Fournisseur</h4>
                                 </CardHeader>
 
                                 <CardBody>
@@ -238,7 +259,7 @@ return(
                                         <Row className="g-4 mb-3">
                                             <Col className="col-sm-auto">
                                                 <div className="d-flex gap-1">
-                                                <Button  color="soft-info" className="btn btn-sm btn-info" onClick={toggleAddPackagingModal}
+                                                <Button  color="soft-info" className="btn btn-sm btn-info" onClick={toggleAddFournisseurModal}
                                                                                                     onMouseEnter={() => setHover(true)}
                                                                                                       onMouseLeave={() => setHover(false)}
                                                                                                         id="create-btn">
@@ -271,56 +292,59 @@ return(
                                                             </div>
                                                         </th>
                                                         <th className="sort" data-sort="Packaging-Id">ID</th>
-                                                        <th className="sort" data-sort="Packaging-name_packaging">Nom Packaging</th>
-                                                        <th className="sort" data-sort="Packaging-nombre_package">Dimension</th> 
                                                         <th className="sort" data-sort="Packaging-photo">Photo</th> 
-    
-                                                        <th class="d-flex align-items-end flex-column" data-sort="action" >
-                                                        <div class="d-flex flex-row-reverse">
-                            
-                                                        <div class="p-2"></div>
-                                                        <div class="p-2"></div>
 
-                                                        <div class="p-2"></div>
-                                                        <div class="p-2"></div>
-                                                        <div class="p-2"></div>
-                                                        <div class="p-2">Action</div>
-                                                        </div>
+                                                        <th className="sort" data-sort="Packaging-name_packaging">Nom </th>
+                                                        <th className="sort" data-sort="Packaging-nombre_package">Email</th> 
+                                                        <th className="sort" data-sort="Packaging-nombre_package">Numero de telephone</th> 
+    
+                                                        <th class="d-flex align-items flex-column" data-sort="action" >
+                                                        Action
+                                                        
+                                                        
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="list form-check-all">
-                                    {paginatePackagings().length > 0 ? (
-                                        paginatePackagings().map((packaging, index) => (
-                                            <tr key={packaging.id}>
+                                    {paginateFournisseur().length > 0 ? (
+                                        paginateFournisseur().map((fournisseur, index) => (
+                                            <tr key={fournisseur.id}>
                                                 <th scope="row" >
                                                     <div className="form-check">
-                                                        <input className="form-check-input" type="checkbox" onClick={() => openShowModal(packaging)} name="chk_child" value="option1" />
+                                                        <input className="form-check-input" type="checkbox" onClick={() => openShowModal(fournisseur)} name="chk_child" value="option1" />
                                                     </div>
                                                 </th>
-                                                <td onClick={() => openShowModal(packaging)}>{packaging.id}</td>
-                                                <td onClick={() => openShowModal(packaging)}>{packaging.name_packaging}</td>
-                                                <td onClick={() => openShowModal(packaging)}>{packaging.dimension}</td>
-                                                <td onClick={() => openShowModal(packaging)}>
-                                  {packaging.photo ? (
-                                    <img
-                                    src={`${packaging.photo.replace('packagings', '')}`} // Remove the 'categories' prefix
-                                    alt={packaging.name}
-                                      style={{ width: "50px", height: "50px" }}
-                                    />
-                                  ) : (
-                                    "No photo"
-                                  )}
-                                </td>
+                                                <td onClick={() => openShowModal(fournisseur)}>{fournisseur.id}</td>
+                                                <td onClick={() => openShowModal(fournisseur)}>
+  {fournisseur.photo ? (
+    <img
+      src={`${fournisseur.photo.replace('fournisseurs', '')}`} // Supprimer le préfixe 'fournisseurs'
+      alt={fournisseur.nom}
+      style={{
+        width: "50px",
+        height: "50px",
+        borderRadius: "50%", // Appliquer une bordure en cercle
+        objectFit: "cover", // S'assurer que l'image remplit correctement le cercle
+      }}
+    />
+  ) : (
+    "Pas de photo"
+  )}
+</td>
+                                                <td onClick={() => openShowModal(fournisseur)}>{fournisseur.nom}</td>
+                                                <td onClick={() => openShowModal(fournisseur)}>{fournisseur.email}</td>
+                                                <td  onClick={() => openShowModal(fournisseur)}>{fournisseur.num_telephone && `+216 ${fournisseur.num_telephone}`}</td>
+                                               
+
                                                 <td>
-                                                <div className="d-flex justify-content-end">
+                                                <div className="d-flex justify-content">
 
                                                     <div className=" d-flex gap-4">
                                                         <Button
                                                             color="soft-dark"
                                                             size="sm"
                                                             className="show-item-btn"
-                                                            onClick={() => openShowModal(packaging)}
+                                                            onClick={() => openShowModal(fournisseur)}
                                                             onMouseEnter={() => setHoverShow(true)}
                                                             onMouseLeave={() => setHoverShow(false)}
                                                         >
@@ -331,7 +355,7 @@ return(
                                                             color="soft-success"
                                                             size="sm"
                                                             className="edit-item-btn"
-                                                            onClick={() => openEditModal(packaging)}
+                                                            onClick={() => openEditModal(fournisseur)}
                                                             onMouseEnter={() => setHoverEdit(true)}
                                                             onMouseLeave={() => setHoverEdit(false)}
                                                         >
@@ -342,7 +366,7 @@ return(
                                                             color="soft-danger"
                                                             size="sm"
                                                             className="remove-item-btn"
-                                                            onClick={() => openDeleteModal(packaging)}
+                                                            onClick={() => openDeleteModal(fournisseur)}
                                                             onMouseEnter={() => setHoverRemove(true)}
                                                             onMouseLeave={() => setHoverRemove(false)}
                                                         >
@@ -356,7 +380,7 @@ return(
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan="5">Rupture de Packaging</td>
+                                            <td colSpan="5">Rupture de Fournisseur</td>
                                         </tr>
                                     )}
                                 </tbody>
@@ -371,28 +395,115 @@ return(
                                         </li>
                                     ))}
                                 </ul>
-
                                 </div>
                             </div>
                                 </CardBody>
+
+
+
+
+    
+
+
+
                             </Card>
+                        </Col>
+                    </Row>
+                    
+                </Container>
+                <Container>
+                <Row>
+     <Col xl={4}>
+        <Card>
+        <CardBody>
+    <p className="text-muted">Exemple d'utilisation du plugin de pagination</p>
+
+    <div id="pagination-list">
+        <div className="mb-2">
+            <input className="search form-control" placeholder="Rechercher" />
+        </div>
+
+        <div className="mx-n3">
+            <ListGroup className="list mb-0" flush> {/* Utilisez ListGroup ici */}
+                {paginateFournisseur().length > 0 && (
+                    paginateFournisseur().map((fournisseur, index) => (
+                        <ListGroupItem key={fournisseur.id}>
+                            <div className="d-flex align-items-center pagi-list">
+                                <div className="flex-shrink-0 me-3">
+                                    <div>
+                                        {fournisseur.photo ? (
+                                            <img
+                                                className="avatar-xs rounded-circle"
+                                                alt={fournisseur.nom}
+                                                src={`${fournisseur.photo.replace('fournisseurs', '')}`}
+                                                style={{
+                                                    width: "40px",
+                                                    height: "40px",
+                                                    borderRadius: "50%",
+                                                    objectFit: "cover",
+                                                }}
+                                            />
+                                        ) : (
+                                            "Pas de photo"
+                                        )}
+                                    </div>
+                                </div>
+                                <div className="flex-grow-1 overflow-hidden">
+                                    <h5 className="fs-14 mb-1">
+                                        <Link to="#" className="link text-dark">{fournisseur.nom}</Link>
+                                    </h5>
+                                    <p className="born timestamp text-muted mb-0">{fournisseur.email}</p>
+                                </div>
+                                <div className="flex-shrink-0 ms-2">
+                                    <div>
+                                        <button type="button" className="btn btn-sm btn-light">
+                                            <i className="ri-mail-line align-bottom"></i> Message
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </ListGroupItem>
+                    ))
+                )}
+            </ListGroup> {/* Fermez ListGroup ici */}
+
+            <div className="d-flex justify-content-center">
+            <ul className="pagination">
+                                    {/* Générer les boutons de pagination */}
+                                    {Array.from({ length: Math.ceil(totalPages) }, (_, index) => (
+                                        <li key={index} className={`page-item ${currentPage === index ? 'active' : ''}`}>
+                                            <button className="page-link" onClick={() => changePage(index)}>{index + 1}</button>
+                                        </li>
+                                    ))}
+                                </ul>
+
+            </div>
+        </div>
+    </div>
+</CardBody>
+</Card>
                         </Col>
                     </Row>
                 </Container>
             </div>
             {/* Add Packaging Modal */}
-            <Modal isOpen={modalAddPackaging} toggle={toggleAddPackagingModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddPackagingModal}>Ajout Packaging</ModalHeader>
+            <Modal isOpen={modalAddFournisseur} toggle={toggleAddFournisseurModal} centered>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddFournisseurModal}>Ajout Fournisseur</ModalHeader>
                                         <ModalBody>
                                             <form className="tablelist-form">
                                                 <div className="mb-3">
-                                                    <label htmlFor="name_packaging-field" className="form-label">Nom Packaging</label>
-                                                    <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newPackagingData.name_packaging} onChange={(e) => setNewPackagingData({ ...newPackagingData, name_packaging: e.target.value })} required />
+                                                    <label htmlFor="name_packaging-field" className="form-label">Nom </label>
+                                                    <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newFournisseurData.nom} onChange={(e) => setNewFournisseurData({ ...newFournisseurData, nom: e.target.value })} required />
                                                 </div>
                                                 <div className="mb-3">
-                                                    <label htmlFor="nombre_package-field" className="form-label">Dimension</label>
-                                                    <input type="text" id="nombre_package-field" className="form-control" placeholder="Enter Le nombre du package" value={newPackagingData.dimension} onChange={(e) => setNewPackagingData({ ...newPackagingData, dimension: e.target.value })} required />
+                                                    <label htmlFor="name_packaging-field" className="form-label">Email </label>
+                                                    <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newFournisseurData.email} onChange={(e) => setNewFournisseurData({ ...newFournisseurData, email: e.target.value })} required />
                                                 </div>
+                                                <div className="mb-3">
+                                                    <label htmlFor="name_packaging-field" className="form-label">Numero de telephone </label>
+                                                    <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newFournisseurData.num_telephone} onChange={(e) => setNewFournisseurData({ ...newFournisseurData, num_telephone: e.target.value })} required />
+                                                </div>
+                                               
                                                 <div className="mb-3">
                                                 <label htmlFor="photo-field" className="form-label">
                                                   Photo
@@ -401,7 +512,7 @@ return(
                                                   type="file"
                                                   id="photo-field"
                                                   className="form-control"
-                                                  onChange={(e) => setNewPackagingData({ ...newPackagingData, photo: e.target.files[0] })} // Handle file selection
+                                                  onChange={(e) => setNewFournisseurData({ ...newFournisseurData, photo: e.target.files[0] })} // Handle file selection
                                                   name="photo"
                                                 />
                                               </div>
@@ -411,7 +522,7 @@ return(
                                         </ModalBody>
                                         <ModalFooter>
                                             <div className="hstack gap-2 justify-content-end">
-                                                <Button type="button" color="light" onClick={toggleAddPackagingModal}>Fermer</Button>
+                                                <Button type="button" color="light" onClick={toggleAddFournisseurModal}>Fermer</Button>
                                                 <button type="button" className="btn btn-primary" onClick={toggleConfirmAdd}>Ajouter</button>
                                             </div>
                                         </ModalFooter>
@@ -425,36 +536,61 @@ return(
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Packaging </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Fournisseur </ModalHeader>
+                <div className="d-flex flex-column align-items-center" >
+        {selectedFournisseur && selectedFournisseur.photo && (
+                <img
+                    src={`${selectedFournisseur.photo.replace('fournisseurs', '')}`}
+                    alt={selectedFournisseur.nom}
+                    style={{ width: "50px", height: "50px" ,marginTop:"3px",
+                    borderRadius: "50%", // Appliquer une bordure en cercle
+                    objectFit: "cover", 
+                     }}
+                />
+        )}
+    </div>
                 <form className="tablelist-form">
                     <ModalBody>
+                    
                         <div className="mb-3">
                             <label htmlFor="name_packaging-field" className="form-label">Nom</label>
-                            <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedNamePackaging} onChange={(e) => setEditedNamePackaging(e.target.value)} required />
+                            <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedNameFournisseur} onChange={(e) => setEditedNameFournisseur(e.target.value)} required />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="name_packaging-field" className="form-label">Email</label>
+                            <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedEmailFournisseur} onChange={(e) => setEditedEmailFournisseur(e.target.value)} required />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="name_packaging-field" className="form-label">Numero de telephone</label>
+                            <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedNumFournisseur} onChange={(e) => setEditedNumFournisseur(e.target.value)} required />
                         </div>
 
-                        <div className="mb-3">
-                            <label htmlFor="dimension-field" className="form-label">Dimension </label>
-                            <input type="text" id="dimension-field" className="form-control" placeholder="Enter Nombre de Package" value={editedDimension} onChange={(e) => setEditedDimension(e.target.value)} required />
-                        </div>
+                       
                         <div className="mb-3 row align-items-center">
     <div className="col-md-9">
         <label htmlFor="photo-field" className="form-label">Photo</label>
         <input
-            type="file"
-            id="photo-field"
-            className="form-control"
-            onChange={(e) => setEditedPhoto(e.target.files[0])}
-            name="photo"
-        />
+    type="file"
+    id="photo-field"
+    className="form-control"
+    onChange={(e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setEditedPhoto(file);
+        }
+    }}
+    name="photo"
+/>
+
     </div>
-    <div className="col-md-2    ">
-        {selectedPackaging && selectedPackaging.photo && (
-                <img
-                    src={`${selectedPackaging.photo.replace('packagings', '')}`}
-                    alt={selectedPackaging.name}
-                    style={{ width: "50px", height: "50px" }}
-                />
+    <div className="col-md-2">
+        {editedPhoto && (
+            // eslint-disable-next-line jsx-a11y/img-redundant-alt
+            <img
+                src={URL.createObjectURL(editedPhoto)}
+                alt="Profile picture"
+                style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover" }}
+            />
         )}
     </div>
 </div>
@@ -478,31 +614,41 @@ return(
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
                 <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
                 <ModalBody>
-                    {selectedPackaging && (
-                        <form className="tablelist-form">
-                            <div className="mb-3">
-                                <label htmlFor="name_packaging-field" className="form-label">Nom</label>
-                                <input type="text" id="name_packaging-field" className="form-control" value={selectedPackaging.name_packaging} readOnly />
-                            </div>
-                            <div className="mb-3">
-                                <label htmlFor="nombre_package-field" className="form-label">Dimension</label>
-                                <input type="text" id="nombre_package-field" className="form-control" value={selectedPackaging.dimension} readOnly />
-                            </div>
-                            <div className="d-flex flex-column align-items-center" style={{ border: '2px solid rgba(0, 0, 0, 0.15)', padding: '10px', borderRadius: '8px' }}>
-        <img
-            src={`${selectedPackaging.photo.replace('packagings', '')}`} // Remove the 'categories' prefix
-            alt={selectedPackaging.name}
-            style={{ width: "50px", height: "50px" }}
+  {selectedFournisseur && (
+    <form className="tablelist-form">
+        <div className="d-flex flex-column align-items-center" >
+        {selectedFournisseur.photo ? (
+          <img
+            src={`${selectedFournisseur.photo.replace('fournisseurs', '')}`} // Supprimer le préfixe 'fournisseurs'
+            alt={selectedFournisseur.nom}
+            style={{ width: "50px", height: "50px" ,
+            borderRadius: "50%", // Appliquer une bordure en cercle
+            objectFit: "cover",
+            }}
             className="mb-3"
-        />
-        <p className="mb-0">{selectedPackaging.name}</p>
-    </div>
-                           
-                            
-                           
-                        </form>
-                    )}
-                </ModalBody>
+          />
+        ) : (
+          <p className="mb-3">Pas de photo</p>
+        )}
+        <p className="mb-0">{selectedFournisseur.nom}</p>
+      </div>
+      <div className="mb-3">
+        <label htmlFor="name_packaging-field" className="form-label">Nom</label>
+        <input type="text" id="name_packaging-field" className="form-control" value={selectedFournisseur.nom} readOnly />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="nombre_package-field" className="form-label">Email</label>
+        <input type="text" id="nombre_package-field" className="form-control" value={selectedFournisseur.email} readOnly />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="nombre_package-field" className="form-label">Numero de telephone</label>
+        <input type="text" id="nombre_package-field" className="form-control" value={selectedFournisseur.num_telephone} readOnly />
+      </div>
+      
+    </form>
+  )}
+</ModalBody>
+
                 <ModalFooter>
                     <div className="hstack gap-2 justify-content-end">
                         <button type="button" className="btn btn-light" onClick={toggleShowModal}>Fermer</button>
@@ -589,8 +735,8 @@ return(
 
 {errorMessage && <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite,Ressayez ultirierement</div>}
 
-                    {selectedPackaging && (
-                        <p>Êtes-vous sûr de vouloir supprimer l'utilisateur {selectedPackaging.name_packaging}?</p>
+                    {selectedFournisseur && (
+                        <p>Êtes-vous sûr de vouloir supprimer l'utilisateur {selectedFournisseur.nom}?</p>
                     )}
                 </ModalBody>
                 <ModalFooter>
@@ -644,4 +790,4 @@ return(
     
    
 
-export default Packagings;
+export default FournisseurListTable;

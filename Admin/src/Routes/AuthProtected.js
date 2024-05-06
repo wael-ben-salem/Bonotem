@@ -27,6 +27,14 @@ const AuthAdminProtected = (props) => {
   return <>{props.children}</>;
 };
 
+
+const AuthManagerProtected = (props) => {
+
+ 
+
+  return <>{props.children}</>;
+};
+
 const AccessRoute = ({ component: Component, ...rest }) => {
   return (
     <Route
@@ -38,4 +46,4 @@ const AccessRoute = ({ component: Component, ...rest }) => {
   );
 };
 
-export { AuthProtected, AuthAdminProtected, AccessRoute };
+export { AuthProtected, AuthAdminProtected, AuthManagerProtected,AccessRoute };

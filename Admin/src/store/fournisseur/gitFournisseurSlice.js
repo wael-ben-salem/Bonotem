@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () => {
+export const getAllFournisseur = createAsyncThunk("gitFournisseur/getAllUnite", async () => {
     try {
-      const response = await axios.get("/categorie");
+      const response = await axios.get("/fournisseurs");
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -17,11 +17,11 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
   });
 
 
-  export const updateCategorie = createAsyncThunk(
-    "gitCategorie/updateCategorie",
-    async ({ id, categorieData }) => {
+  export const updateFournisseur = createAsyncThunk(
+    "gitFournisseur/updateFournisseur",
+    async ({ id, fournisseurData }) => {
         try {
-            const response = await axios.post(`/categori/${id}`, categorieData);
+            const response = await axios.post(`/fournisseurs/${id}`, fournisseurData);
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -32,13 +32,13 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
   );
 
 
-  export const getCategorieeDetails = createAsyncThunk(
-    "gitCategorie/getPackaging_categorieDetails",
-    async (categorieId) => {
+  export const getFournisseureDetails = createAsyncThunk(
+    "gitFournisseur/getPackaging_FournisseurDetails",
+    async (fournisseurId) => {
       try {
-        const response = await axios.get(`/categorie/${categorieId}`);
+        const response = await axios.get(`/fournisseurs/${fournisseurId}`);
         console.log("API response:", response);
-        return response;
+        return response.categories;
       } catch (error) {
         console.error("API error:", error);
         throw error;
@@ -46,13 +46,13 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
     }
   );
 
-  export const deleteCategorie = createAsyncThunk(
-    "gitCategorie/deletePackaging_categorie",
-    async (categorieId) => {
+  export const deleteFournisseur = createAsyncThunk(
+    "gitFournisseur/deletePackaging_Fournisseur",
+    async (id) => {
       try {
-        const response = await axios.delete(`/categorie/${categorieId}`);
+        const response = await axios.delete(`/fournisseurs/${id}`);
         console.log("API response:", response);
-        return categorieId; // Return the ID of the deleted user
+        return id; // Return the ID of the deleted user
       } catch (error) {
         console.error("API error:", error);
         throw error;
@@ -63,9 +63,9 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
   
 
 
-  export const addCategorie = createAsyncThunk("gitCategorie/addPackaging_categorie", async (newCategorieData) => {
+  export const addFournisseur = createAsyncThunk("gitFournisseur/addPackaging_Fournisseur", async (formData) => {
     try {
-      const response = await axios.post("/categori", newCategorieData);
+      const response = await axios.post("/fournisseurs", formData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added user data
     } catch (error) {
@@ -75,10 +75,10 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
   });
   
 
-  export const gitCategorieSlice = createSlice({
-    name: "gitCategorie",
+  export const gitFournisseurSlice = createSlice({
+    name: "gitFournisseur",
     initialState: {
-        categories: [],
+        fournisseurs: [],
       loading: false,
       error: null,
       Success: false, // Add this state for success message
@@ -89,36 +89,34 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
     reducers: {
       // Define your additional reducers here
       addPackaging: (state, action) => {
-        state.packagings_categorie.push(action.payload);
+        state.packagings_fournisseur.push(action.payload);
       },
       clearPackaging: (state) => {
-        state.categories = [];
+        state.fournisseurs = [];
       },
       // Add more reducers as needed
     },
     extraReducers: (builder) => {
       builder
-        .addCase(getAllData.pending, (state) => {
+        .addCase(getAllFournisseur.pending, (state) => {
           state.loading = true;
           state.error = null;
         })
-        .addCase(getAllData.fulfilled, (state, action) => {
+        .addCase(getAllFournisseur.fulfilled, (state, action) => {
           state.loading = false;
-          state.categories = action.payload; // Update users array
+          state.fournisseurs = action.payload; // Update users array
           state.error = null;
           console.log("Fulfilled payload:", action.payload); // Log fulfilled payload
         })
-        .addCase(getAllData.rejected, (state, action) => {
+        .addCase(getAllFournisseur.rejected, (state, action) => {
           state.loading = false;
           state.error = action.error.message;
         })
-        .addCase(updateCategorie.pending, (state) => {
+        .addCase(updateFournisseur.pending, (state) => {
           state.loading = true;
           state.error = null;
-          state.errorMessage = "";
-
         })
-        .addCase(updateCategorie.fulfilled, (state, action) => {
+        .addCase(updateFournisseur.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
           if (action.payload.validation_errors) {
@@ -132,23 +130,15 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
           }
           // You may want to update the state accordingly here
         })
-        .addCase(updateCategorie.rejected, (state, action) => {
+        .addCase(updateFournisseur.rejected, (state, action) => {
           state.loading = false;
-          if (action.payload && action.payload.validation_errors) {
-            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
-
-          } else {
-         state.errorMessage = "An error occurred. Please try again.";
-
-          }
+          state.error = action.error.message;
         })
-        .addCase(deleteCategorie.pending, (state) => {
+        .addCase(deleteFournisseur.pending, (state) => {
           state.loading = true;
           state.error = null;
-          state.erroredMessage = "";
-
         })
-        .addCase(deleteCategorie.fulfilled, (state, action) => {
+        .addCase(deleteFournisseur.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
           // Remove the deleted user from the state
@@ -162,23 +152,17 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
             }, 3000);
           }
         })
-        .addCase(deleteCategorie.rejected, (state, action) => {
+        .addCase(deleteFournisseur.rejected, (state, action) => {
           state.loading = false;
-          if (action.payload && action.payload.validation_errors) {
-            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
-
-          } else {
-         state.errorMessage = "An error occurred. Please try again.";
-
-          }
+          state.error = action.error.message;
         })
-        .addCase(addCategorie.pending, (state) => {
+        .addCase(addFournisseur.pending, (state) => {
           state.loading = true;
           state.error = null;
           state.errorMessage = ""; // Reset error message
 
         })
-        .addCase(addCategorie.fulfilled, (state, action) => {
+        .addCase(addFournisseur.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
           
@@ -193,7 +177,7 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
               state.Success = false; // Hide success message after 3 seconds
             }, 3000);
           }        })
-        .addCase(addCategorie.rejected, (state, action) => {
+        .addCase(addFournisseur.rejected, (state, action) => {
           state.loading = false;
           state.error = action.error.message;
           if (action.payload.validation_errors) {
@@ -206,4 +190,4 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () 
     },
   });
 
-  export default gitCategorieSlice.reducer;
+  export default gitFournisseurSlice.reducer;

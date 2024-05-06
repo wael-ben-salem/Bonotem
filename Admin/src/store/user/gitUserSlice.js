@@ -13,13 +13,14 @@ export const getAllData = createAsyncThunk("gitUser/getAllData", async () => {
   }
 });
 
+
 export const updateUser = createAsyncThunk(
   "gitUser/updateUser",
   async ({ id, userData }) => {
       try {
           const response = await axios.put(`/usersupdate/${id}`, userData);
           console.log("API response:", response);
-          return response.data; // Assuming the API returns the updated user data
+          return response; // Assuming the API returns the updated user data
       } catch (error) {
           console.error("API error:", error);
           throw error;
@@ -28,13 +29,15 @@ export const updateUser = createAsyncThunk(
 );
 
 
+
+
 export const getUserDetails = createAsyncThunk(
   "gitUser/getUserDetails",
   async (userId) => {
     try {
       const response = await axios.get(`/user/${userId}`);
       console.log("API response:", response);
-      return response.data.users;
+      return response;
     } catch (error) {
       console.error("API error:", error);
       throw error;
@@ -61,11 +64,12 @@ export const deleteUser = createAsyncThunk(
 
 
 
+
 export const addUser = createAsyncThunk("gitUser/addUser", async (userData) => {
   try {
     const response = await axios.post("/adduser", userData);
     console.log("API response:", response);
-    return response.data; // Assuming the API returns the added user data
+    return response; // Assuming the API returns the added user data
   } catch (error) {
     console.error("API error:", error);
     throw error;

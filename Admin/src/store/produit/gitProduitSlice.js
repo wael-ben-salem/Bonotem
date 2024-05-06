@@ -63,16 +63,29 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
   
 
 
-  export const addProduit = createAsyncThunk("gitProduit/addProduit", async (newProduitData) => {
+  export const addProduit = createAsyncThunk("gitProduit/addProduit", async (newProduitData,insertedProduitIngredient,rejectWithValue) => {
     try {
-      const response = await axios.post("/produit", newProduitData);
+      const response = await axios.post("/produit", newProduitData,insertedProduitIngredient,rejectWithValue);
       console.log("API response:", response);
-      return response; // Assuming the API returns the added user data
+      return response; // Assuming the API returns the added product data
     } catch (error) {
-      console.error("API error:", error);
-      throw error;
+        console.error("API error:", error);
+        return rejectWithValue(error.response.data); // Return error data
     }
   });
+  export const insertProduitIngredient = createAsyncThunk("gitProduit/insertProduitIngredient", async ({ productId, produitData }) => {
+    try {
+        const response = await axios.post(`/produits/${productId}/associer-ingredients`, produitData);
+        console.log("API response:", response);
+        return response.data; // Assuming the API returns the added user data
+    } catch (error) {
+        console.error("API error:", error);
+        throw error;
+    }
+});
+
+
+  
   
 
   export const gitProduitSlice = createSlice({
@@ -81,6 +94,10 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
         produits: [],
       loading: false,
       error: null,
+      Success: false, // Add this state for success message
+          errorMessage: "", // Add a state to store error message
+
+
     },
     reducers: {
       // Define your additional reducers here
@@ -115,8 +132,15 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
         .addCase(updateProduit.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
-          console.log("Category Package updated:", action.payload);
-          // You may want to update the state accordingly here
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+          } else {
+            state.Success = true; // Set showSuccessMessage to true
+            setTimeout(() => {
+              state.Success = false; // Hide success message after 3 seconds
+            }, 3000);
+          }
         })
         .addCase(updateProduit.rejected, (state, action) => {
           state.loading = false;
@@ -129,9 +153,15 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
         .addCase(deleteProduit.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
-          // Remove the deleted user from the state
-          state.Produit = state.categories.filter(produit => produit.id !== action.payload);
-          console.log("Category Produit deleted:", action.payload);
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = "Object.values(action.payload.validation_errors)[0][0]";
+          } else {
+            state.Success = true; // Set showSuccessMessage to true
+            setTimeout(() => {
+              state.Success = false; // Hide success message after 3 seconds
+            }, 3000);
+          }
         })
         .addCase(deleteProduit.rejected, (state, action) => {
           state.loading = false;
@@ -140,15 +170,51 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
         .addCase(addProduit.pending, (state) => {
           state.loading = true;
           state.error = null;
+                  state.errorMessage = ""; // Reset error message
+
         })
         .addCase(addProduit.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
+          
           // Optionally, you can update state with the newly added user
          
-          console.log("Category Package added:", action.payload);
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+          } else {
+            state.Success = true; // Set showSuccessMessage to true
+            setTimeout(() => {
+              state.Success = false; // Hide success message after 3 seconds
+            }, 3000);
+          }
         })
         .addCase(addProduit.rejected, (state, action) => {
+          state.loading = false;
+        state.error = action.payload;
+ if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.errorMessage = "An error occurred. Please try again."; // Generic error message
+        }
+
+
+
+
+        })
+        .addCase(insertProduitIngredient.pending, (state) => {
+          state.loading = true;
+          state.error = null;
+        })
+        .addCase(insertProduitIngredient.fulfilled, (state, action) => {
+          state.loading = false;
+          state.error = null;
+          // Optionally, you can update state with the newly added user
+         
+          state.produits = action.payload; // Update users array
+        })
+        .addCase(insertProduitIngredient.rejected, (state, action) => {
           state.loading = false;
           state.error = action.error.message;
         });
