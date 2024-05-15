@@ -28,8 +28,7 @@ import MarchandiseIngredient from  "../Pages/Marchandise/MarchandiseIngredientLi
 import MarchandisePackaging from  "../Pages/Marchandise/MarchandisePackagingListTable.js";
 
 import Produit from "../Pages/Produit/ProduitListTable.js";
-import Packagings from "../Pages/Packagings";
-import PackagingsCategorie from "../Pages/PackagingsCategorie";
+import Packagings from "../Pages/Packagings/Index";
 
 // Import E-mail
 import Inbox from "../Pages/E-mail/Inbox";
@@ -147,7 +146,6 @@ const authProtectedRoutes = [
 
 
 // Packagings_categorie
-{ path: "/PackagingsCategorie", component: <PackagingsCategorie /> },
 
 
 // Packagings

@@ -108,7 +108,7 @@ const MarchandisePackagingListTable = () => {
         setTimeout(() => {
             window.location.reload()
     
-        }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+        }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
         }
     }, [errorMessage]);
     
@@ -133,7 +133,7 @@ const MarchandisePackagingListTable = () => {
                 setShowSuccessMessage(false);
                 window.location.reload()
         
-            }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+            }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
             }
         }, [Success]);
 
@@ -183,7 +183,7 @@ const MarchandisePackagingListTable = () => {
                 toggleDeleteModal();
                 window.location.reload()
 
-            },  3000);    }
+            },  2000);    }
 
 
         

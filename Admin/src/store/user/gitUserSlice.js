@@ -159,7 +159,7 @@ export const gitUserSlice = createSlice({
           state.Success = true; // Set showSuccessMessage to true
           setTimeout(() => {
             state.Success = false; // Hide success message after 3 seconds
-          }, 3000);
+          }, 2000);
         }
         // You may want to update the state accordingly here
       })
@@ -191,7 +191,7 @@ export const gitUserSlice = createSlice({
           state.Success = true; // Set showSuccessMessage to true
           setTimeout(() => {
             state.Success = false; // Hide success message after 3 seconds
-          }, 3000);
+          }, 2000);
         }
         // You may want to update the state accordingly here
       })
@@ -219,7 +219,7 @@ export const gitUserSlice = createSlice({
           state.Success = true; // Set showSuccessMessage to true
           setTimeout(() => {
             state.Success = false; // Hide success message after 3 seconds
-          }, 3000);
+          }, 2000);
         }
       })
       .addCase(deleteUser.rejected, (state, action) => {
@@ -245,7 +245,7 @@ export const gitUserSlice = createSlice({
           state.Success = true; // Set showSuccessMessage to true
           setTimeout(() => {
             state.Success = false; // Hide success message after 3 seconds
-          }, 3000);
+          }, 2000);
         }        })
       .addCase(addUser.rejected, (state, action) => {
         state.loading = false;
@@ -276,7 +276,7 @@ export const gitUserSlice = createSlice({
           state.Success = true; // Set showSuccessMessage to true
           setTimeout(() => {
             state.Success = false; // Hide success message after 3 seconds
-          }, 3000);
+          }, 2000);
         }        })
       .addCase(addManagerUser.rejected, (state, action) => {
         state.loading = false;

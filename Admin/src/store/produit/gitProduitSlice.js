@@ -141,7 +141,7 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }
           // You may want to update the state accordingly here
         })
@@ -169,7 +169,7 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }
         })
         .addCase(deleteProduit.rejected, (state, action) => {
@@ -195,7 +195,7 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }        })
         .addCase(addProduit.rejected, (state, action) => {
           state.loading = false;

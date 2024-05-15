@@ -20,7 +20,7 @@ export const RegisterAuthAction = (userState, navigate,setErrorHandler,setShowSu
         setShowSuccessMessage(true); // Set showSuccessMessage to true
         setTimeout(() => {
           setShowSuccessMessage(false); // Hide success message after 3 seconds
-        }, 3000);
+        }, 2000);
       } else {
         // Handle validation errors
          

@@ -130,7 +130,7 @@ export const gitIngredientSlice = createSlice({
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);}
+            }, 2000);}
           })
       .addCase(updateingredient.rejected, (state, action) => {
         state.loading = false;
@@ -160,7 +160,7 @@ export const gitIngredientSlice = createSlice({
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }    
         })
       .addCase(deleteIngredient.rejected, (state, action) => {
@@ -192,7 +192,7 @@ export const gitIngredientSlice = createSlice({
           state.Success = true; // Set showSuccessMessage to true
           setTimeout(() => {
             state.Success= false; // Hide success message after 3 seconds
-          }, 3000);
+          }, 2000);
         }        })
       .addCase(addIngredient.rejected, (state, action) => {
         state.loading = false;

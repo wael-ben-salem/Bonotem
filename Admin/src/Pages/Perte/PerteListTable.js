@@ -129,7 +129,7 @@ const PerteListTable = () => {
         setShowSuccessMessage(false);
         window.location.reload()
 
-    }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
     }
 }, [Success]);
 
@@ -140,7 +140,7 @@ useEffect(() => {
     setTimeout(() => {
         window.location.reload()
 
-    }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
     }
 }, [errorMessage]);
 
@@ -193,7 +193,7 @@ useEffect(() => {
     
             window.location.reload();
     
-        },  4000); 
+        },  2000); 
     }
 
 

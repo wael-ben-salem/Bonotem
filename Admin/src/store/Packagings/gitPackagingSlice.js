@@ -127,7 +127,7 @@ export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }
           // You may want to update the state accordingly here
         })
@@ -159,7 +159,7 @@ export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }    
         })
         .addCase(deletePackaging.rejected, (state, action) => {
@@ -191,7 +191,7 @@ export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async
           state.Success = true; // Set showSuccessMessage to true
           setTimeout(() => {
             state.Success= false; // Hide success message after 3 seconds
-          }, 3000);
+          }, 2000);
         }        
       }).addCase(addPackaging.rejected, (state, action) => {
         state.loading = false;

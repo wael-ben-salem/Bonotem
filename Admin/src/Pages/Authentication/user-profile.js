@@ -67,7 +67,7 @@ const UserProfile = () => {
       }
       setTimeout(() => {
         dispatch(resetProfileFlag());
-      }, 3000);
+      }, 2000);
     }
   }, [dispatch, success]);
 

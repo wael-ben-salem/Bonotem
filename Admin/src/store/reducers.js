@@ -65,9 +65,10 @@ const rootReducer = combineReducers({
   gitCarte:gitCarteReducer,
   gitPerte:gitPerteReducer,
   gitCout:gitCoutReducer,
-gitPersonnel:gitPersonnelReducer,
- gitTypePersonnel: gitTypePersonnelReducer,
- gitchargefixe: gitChargeFixeReducer,
+  gitPlanning:gitPlanningReducer,
+  gitPersonnel:gitPersonnelReducer,
+  gitTypePersonnel: gitTypePersonnelReducer,
+  gitchargefixe: gitChargeFixeReducer,
   gitJours:gitJourReducer,
  
   gitVente:gitVenteReducer,

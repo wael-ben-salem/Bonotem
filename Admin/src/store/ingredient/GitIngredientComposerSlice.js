@@ -130,7 +130,7 @@ export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIng
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }
         })
         .addCase(updateIngCompose.rejected, (state, action) => {
@@ -151,7 +151,7 @@ export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIng
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }
         })
         .addCase(deleteIngCompose.rejected, (state, action) => {
@@ -177,7 +177,7 @@ export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIng
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);
+            }, 2000);
           }
         })
         .addCase(addIngCompose.rejected, (state, action) => {

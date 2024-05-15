@@ -105,7 +105,7 @@ const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
             setShowSuccessMessage(false);
             window.location.reload()
     
-          }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+          }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
         }
       }, [Success]);
 
@@ -116,7 +116,7 @@ const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
         setTimeout(() => {
             window.location.reload()
     
-        }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+        }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
         }
     }, [errorMessage]);
     
