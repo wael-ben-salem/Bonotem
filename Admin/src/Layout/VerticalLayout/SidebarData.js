@@ -13,6 +13,13 @@ const SidebarData = [
         label: "Personnel et Planning",
         style: { fontSize: "10px" },
         icon: "mdi mdi-calendar-outline",
+
+               subItem: [
+                    { sublabel: "Planning", link: "/planning" },
+                    { sublabel: " Personnels", link: "/personnel" },
+                    { sublabel: " TypePersonnels", link: "/typepersonnel" },
+
+                ],
         subItem: [
             { sublabel: "Planning", link: "/planning" },
             { sublabel: "Type de Personnels", link: "/personnel" },
@@ -160,6 +167,15 @@ const SidebarData = [
     {
             label: "Dépense et Ventilation",
             icon: "ri-bar-chart-line",
+            subItem: [
+                { sublabel: "Charges Fixes", link: "/chargefixe" },
+                { sublabel: "Apex Charts", link: "/chart-apexcharts" },
+                { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
+                { sublabel: "Re Charts", link: "/chart-floatcharts" },
+                { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
+                { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
+            ],
+        },
             url:"/couts"
         },
 
