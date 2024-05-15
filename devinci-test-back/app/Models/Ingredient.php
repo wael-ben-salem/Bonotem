@@ -24,6 +24,10 @@ class Ingredient extends Model
     {
         return $this->belongsTo(Fournisseur::class, 'id_fournisseur');
     }
+    public function pertes()
+    {
+        return $this->hasMany(Perte::class, 'id_ingredient');
+    }
 
     public function produits()
     {

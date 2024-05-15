@@ -1,6 +1,7 @@
 import {
   
   LOGINUSER_SUCCESS,
+  LOGINMANAGER_SUCCESS,
   LOGINADMIN_SUCCESS,
   LOGOUT_USER,
   LOGOUT_USER_SUCCESS,
@@ -10,13 +11,16 @@ import {
 const authState = {
   error:null,
   loading: false,
-  user: {
+  user:JSON.parse(localStorage.getItem("authUser")) ||  {
   
     status: null,
     username: "",
     token: "",
     message: "",
-    role: ""
+    role: "",
+    id:"",
+    photo:"",
+    email:"",
 
   },
 };
@@ -31,6 +35,13 @@ const login = (state = authState, action) => {
      
     };
     case LOGINADMIN_SUCCESS:
+     
+    return  {
+      loading: true,
+      user: action.payload,
+     
+    };
+    case LOGINMANAGER_SUCCESS:
      
     return  {
       loading: true,

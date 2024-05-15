@@ -2,16 +2,17 @@ import React from 'react';
 import  { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Card, CardBody, CardHeader, Alert,Col, Container,  Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import {  getAllPackaging } from '../../store/Packagings/gitPackagingSlice';
 
 import { getAllUnite } from '../../store/Unite/gitUniteSlice';
-import {  addMarchandisePackaging, deleteMarchandise, getAllMarchandise,  updateMarchandisePackaging } from '../../store/marchandise/gitMarchandiseSlice';
 import { getAllFournisseur } from '../../store/fournisseur/gitFournisseurSlice';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { addMarchandisePackaging, deleteMarchandise, getAllMarchandiseData, updateMarchandisepackaging } from '../../store/marchandise/gitMarchandisePackagingSlice';
 
 
 
@@ -22,7 +23,7 @@ const MarchandisePackagingListTable = () => {
 
     const dispatch = useDispatch();
     const packagings = useSelector(state => state.gitPackaging.packagings);
-    const marchandises = useSelector(state => state.gitMarchandise.marchandises);
+    const marchandisespackaging = useSelector(state => state.gitMarchandisePackaging.marchandisespackaging);
     const fournisseurs = useSelector(state => state.gitFournisseur.fournisseurs);
     const unites = useSelector((state) => state.gitUnite.unites);
     
@@ -30,9 +31,9 @@ const MarchandisePackagingListTable = () => {
     
     
 
-      const { Successed, erroredMessage } = useSelector(state => ({
-        Successed: state.gitMarchandise.Successed,
-        erroredMessage: state.gitMarchandise.erroredMessage,
+      const { Success, errorMessage } = useSelector(state => ({
+        Success: state.gitMarchandisePackaging.Success,
+        errorMessage: state.gitMarchandisePackaging.errorMessage,
         
       }));
       const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
@@ -46,14 +47,17 @@ const MarchandisePackagingListTable = () => {
     const [editedNameMarchandise, setEditedNameMarchandise] = useState(null);
     const [editedRefMarchandise, setEditedRefMarchandise] = useState('');
     const [editedNameFournisseur, setEditedNameFournisseur] = useState('');
-    const [editedQuantiteMarchandise, setEditedQuantiteMarchandise] = useState(null);
+    const [editedQuantiteAcheteeMarchandise, setEditedQuantiteAcheteeMarchandise] = useState(null);
+    const [editedQuantiteConsomeeMarchandise, setEditedQuantiteConsomeeMarchandise] = useState(null);
+    const [editedQuantiteEnStockMarchandise, setEditedQuantiteEnStockMarchandise] = useState(null);
+
     const [editedPrixMarchandise, setEditedPrixMarchandise] = useState(null);
     const [editedDateMarchandise, setEditedDateMarchandise] = useState(null);
     
     const [modal_show, setModalShow] = useState(false); // State for Show Modal
-    const [selectedIngredientMarchandise, setSelectedIngredientMarchandise] = useState(null); // State to store selected 
+    const [selectedPackagingMarchandise, setSelectedPackagingMarchandise] = useState(null); // State to store selected 
     const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
-    const [modalAddIngredientMarchandise, setModalAddIngredientMarchandise] = useState(false);
+    const [modalAddPackagingMarchandise, setModalAddPackagingMarchandise] = useState(false);
 
 
     const [hoverShow, setHoverShow] = useState(false);
@@ -74,14 +78,15 @@ const MarchandisePackagingListTable = () => {
         reference: '',
         id_packaging:'',
         dimension:'',
-
         id_fournisseur:'',
-        quantite: '', 
-        unite_id:'',
+        quantite_achetee: null, 
+        quantite_en_stock: null, 
+        quantite_consomee: null,
+         unite_id:'',
         prix:'',
         date_achat:'',
           
-         
+        
       });
       const [currentPage, setCurrentPage] = useState(0);
 
@@ -97,12 +102,23 @@ const MarchandisePackagingListTable = () => {
 
 
 
+    useEffect(() => {
+        if (errorMessage) {
+    
+        setTimeout(() => {
+            window.location.reload()
+    
+        }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+        }
+    }, [errorMessage]);
+    
+    
 
         
         useEffect(() => {
             dispatch(getAllPackaging());
             dispatch(getAllUnite());
-            dispatch(getAllMarchandise());
+            dispatch(getAllMarchandiseData());
             dispatch(getAllFournisseur());
 
 
@@ -110,7 +126,7 @@ const MarchandisePackagingListTable = () => {
         }, [dispatch]);
 
         useEffect(() => {
-            if (Successed) {
+            if (Success) {
         
             setShowSuccessMessage(true);
             setTimeout(() => {
@@ -119,14 +135,14 @@ const MarchandisePackagingListTable = () => {
         
             }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
             }
-        }, [Successed]);
+        }, [Success]);
 
 
         
 
 
-        const toggleAddIngredientMarchandiseModal = () => {
-            setModalAddIngredientMarchandise(!modalAddIngredientMarchandise);
+        const toggleAddPackagingMarchandiseModal = () => {
+            setModalAddPackagingMarchandise(!modalAddPackagingMarchandise);
         };
     
 
@@ -143,11 +159,11 @@ const MarchandisePackagingListTable = () => {
 
         
 
-        const toggleConfirmAddMarchandise = () => {
-            setModalConfirmAddMarchandise(!modal_confirm_add_marchandise);
+        const toggleConfirmAddMarchandise = (isOpen) => {
+            setModalConfirmAddMarchandise(isOpen);
         }
-        const toggleConfirmEdit = () => {
-            setModalConfirmEdit(!modal_confirm_edit);
+        const toggleConfirmEdit = (isOpen) => {
+            setModalConfirmEdit(isOpen);
         }
         
         
@@ -156,13 +172,13 @@ const MarchandisePackagingListTable = () => {
         
         
         
-        const openDeleteModal = (marchandise) => {
-            setSelectedIngredientMarchandise(marchandise);
+        const openDeleteModal = (marchandisepackaging) => {
+            setSelectedPackagingMarchandise(marchandisepackaging);
         toggleDeleteModal(); // Open the delete modal
         }
 
         const handleRemove = () => {
-            dispatch(deleteMarchandise(selectedIngredientMarchandise.id)); // Dispatch deleteUser action with the selected user's ID
+            dispatch(deleteMarchandise(selectedPackagingMarchandise.id)); // Dispatch deleteUser action with the selected user's ID
             setTimeout(() => {
                 toggleDeleteModal();
                 window.location.reload()
@@ -171,53 +187,79 @@ const MarchandisePackagingListTable = () => {
 
 
         
-        const openEditModal = (marchandises) => {
-            setEditMarchandise(marchandises);
-            setEditedNameMarchandise(marchandises.nom);
-            setEditedRefMarchandise(marchandises.reference)
-            setEditedNameFournisseur(marchandises.id_fournisseur);
-            setEditedNamePackaging(marchandises.id_packaging);
-            setEditedDimension(marchandises.dimension);
+        const openEditModal = (marchandisespackaging) => {
+            setEditMarchandise(marchandisespackaging);
+            setEditedNameMarchandise(marchandisespackaging.nom);
+            setEditedRefMarchandise(marchandisespackaging.reference)
+            setEditedNameFournisseur(marchandisespackaging.id_fournisseur);
+            setEditedNamePackaging(marchandisespackaging.id_packaging);
+            setEditedDimension( marchandisespackaging.packaging.dimension);
 
-            setEditedUnitIngredient(marchandises.unite_id);
-            setEditedQuantiteMarchandise(marchandises.quantite);
-            setEditedPrixMarchandise(marchandises.prix);
-            setEditedDateMarchandise(marchandises.date_achat)
+            setEditedUnitIngredient(marchandisespackaging.unite_id);
+            setEditedQuantiteAcheteeMarchandise(marchandisespackaging.quantite_achetee);
+            setEditedQuantiteConsomeeMarchandise(marchandisespackaging.quantite_consomee);
+            setEditedQuantiteEnStockMarchandise(marchandisespackaging.quantite_en_stock);
+
+            setEditedPrixMarchandise(marchandisespackaging.prix);
+            setEditedDateMarchandise(marchandisespackaging.date_achat)
             
             toggleListModal();
 
         };
 
         const handleUpdate = () => {
-            const updateIngredientMarchandise = {
+            const updatePackagingMarchandise = {
                 id: editMarchandise.id,
                 nom:editedNameMarchandise,
                 reference:editedRefMarchandise,
                 id_fournisseur: editedNameFournisseur,
                 id_packaging: editedNamePackaging,
-                dimension: editedDimension,
 
                 unite_id: editedUnitIngredient,
-                quantite: editedQuantiteMarchandise,
+                quantite_achetee: editedQuantiteAcheteeMarchandise,
                 prix: editedPrixMarchandise,
                 date_achat: editedDateMarchandise,
                 
             };
         
-            dispatch(updateMarchandisePackaging({ id: editMarchandise.id, ingredientMarchandiseData: updateIngredientMarchandise }));
-            setTimeout(() => {
+            dispatch(updateMarchandisepackaging({ id: editMarchandise.id, packagingMarchandiseData: updatePackagingMarchandise }))
+
+            .then(() => {
+                // Réinitialiser l'état
+                setEditMarchandise({
+                    nom: '',
+                    reference: '',
+                    id_packaging:'',
+                    dimension:'',
+                    id_fournisseur:'',
+                    quantite_achetee: null, 
+                    quantite_en_stock: null, 
+                    quantite_consomee: null,
+                    unite_id:'',
+                    prix:'',
+                    date_achat:'',
+                });
+    
+                // Fermer le modal
                 toggleListModal();
-                toggleConfirmEdit();
-
-                window.location.reload();
-
-            },  4000); 
+    
+                // Ouvrir le modal de confirmation
+                toggleConfirmEdit(true);
+            })
+            .catch(error => {
+                // Gérer l'erreur
+                console.error("Error updating Marchandise:", error);
+            })
+            .finally(() => {
+                // Désactiver le chargement après l'achèvement de l'action
+            });
+           
         };
 
 
     
-        const openShowModal = (marchandise) => {
-            setSelectedIngredientMarchandise(marchandise); // Set the selected product
+        const openShowModal = (marchandisepackaging) => {
+            setSelectedPackagingMarchandise(marchandisepackaging); // Set the selected product
            
             setModalShow(true); // Open the show modal
         }
@@ -225,11 +267,11 @@ const MarchandisePackagingListTable = () => {
         // Calcul du nombre total d'éléments de marchandises
 
 // Filtrage des éléments non nuls
-const filteredMarchandises = marchandises
+const filteredMarchandises = marchandisespackaging
   .filter(marchandise => marchandise.packaging !== null);
 
 // Fonction de pagination pour obtenir les éléments de la page actuelle
-const paginateMarchandise = (marchandises, page, pageSize) => {
+const paginateMarchandise = (marchandisespackaging, page, pageSize) => {
   const startIndex = page * pageSize;
   return filteredMarchandises.slice(startIndex, startIndex + pageSize);
 };
@@ -251,38 +293,53 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                 const formData = new FormData();
 
                 formData.append('id_packaging', newIngredientMarchandiseData.id_packaging); // Utiliser id_ingredient au lieu de name_ingredient
-                formData.append('dimension',   newIngredientMarchandiseData.dimension); // Utiliser les dimensions du packaging sélectionné
 
                 formData.append('unite_id', newIngredientMarchandiseData.unite_id);
                 formData.append('nom', newIngredientMarchandiseData.nom);
-                formData.append('quantite', newIngredientMarchandiseData.quantite);
+                formData.append('quantite_achetee', newIngredientMarchandiseData.quantite_achetee);
                 formData.append('prix', newIngredientMarchandiseData.prix);
                 formData.append('reference', newIngredientMarchandiseData.reference);
                 formData.append('id_fournisseur', newIngredientMarchandiseData.id_fournisseur);
                 formData.append('date_achat', newIngredientMarchandiseData.date_achat);
                 
-                dispatch(addMarchandisePackaging(formData)); 
+                dispatch(addMarchandisePackaging(formData))
+
+                .then(() => {
+        
+    
+                    // Réinitialiser l'état
+                    setNewIngredientMarchandiseData({
+                        nom: '',
+                        reference: '',
+                        id_packaging: '', // Utiliser id_ingredient au lieu de name_packaging
+    
+                        unite_id: '',
+                        id_fournisseur: '',
+                        quantite_achetee: null, 
+                        quantite_consomee: null, 
+                        quantite_en_stock: null, 
+                        prix: '',
+                        date_achat: '',
+                    });
+                
+                
+                        // Fermer le modal
+                        toggleAddPackagingMarchandiseModal();
+                
+                        // Ouvrir le modal de confirmation
+                        toggleConfirmAddMarchandise(true);
+                    })
+                    .catch(error => {
+                        // Gérer l'erreur
+                        console.error("Error updating Marchandise:", error);
+                    })
+                    .finally(() => {
+                        // Désactiver le chargement après l'achèvement de l'action
+                    });
                 
                 // Réinitialiser l'état
-                setNewIngredientMarchandiseData({
-                    nom: '',
-                    reference: '',
-                    id_packaging: '', // Utiliser id_ingredient au lieu de name_packaging
-                    dimension: '',
-
-                    unite_id: '',
-                    id_fournisseur: '',
-                    quantite: '', 
-                    prix: '',
-                    date_achat: '',
-                });
-            
-                setTimeout(() => {
-                    toggleAddIngredientMarchandiseModal();
-                    toggleConfirmAddMarchandise();
-                    window.location.reload();
-
-                }, 3000);
+               
+               
             };
 
 
@@ -310,7 +367,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                                             <Row className="g-4 mb-3">
                                                 <Col className="col-sm-auto">
                                                     <div className="d-flex gap-1">
-                                                    <Button  color="soft-info" className="btn btn-sm btn-info" onClick={toggleAddIngredientMarchandiseModal}
+                                                    <Button  color="soft-info" className="btn btn-sm btn-info" onClick={toggleAddPackagingMarchandiseModal}
                                                                                                     onMouseEnter={() => setHover(true)}
                                                                                                       onMouseLeave={() => setHover(false)}
                                                                                                         id="create-btn">
@@ -356,7 +413,10 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                             <th className="sort" data-sort="Marchandise-unite_id">Unite de mesure </th>
 
                             <th className="sort" data-sort="Marchandise-name_fournisseur">Name fournisseur</th>
-                            <th className="sort" data-sort="Marchandise-quantite">Quantité</th>
+                            <th className="sort" data-sort="Marchandise-quantite">Nombre de package Achetee</th>
+                            <th className="sort" data-sort="Marchandise-quantite">Nombre de package En Stock</th>
+                            <th className="sort" data-sort="Marchandise-quantite">Nombre de package Utilisés</th>
+
                             <th className="sort" data-sort="Marchandise-prix">Prix</th>
                             <th className="sort" data-sort="Marchandise-date">Date achat</th>
                                                             
@@ -368,44 +428,47 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 
 
 {currentPageData.length > 0 ? (
-        currentPageData.map((marchandise, index) => (
-            <tr key={marchandise.id}>
+        currentPageData.map((marchandisepackaging, index) => (
+            <tr key={marchandisepackaging.id}>
 <th scope="row">
         <div className="form-check">
           <input
             className="form-check-input"
             type="checkbox"
-            onClick={() => openShowModal(marchandise)}
+            onClick={() => openShowModal(marchandisepackaging)}
             name="chk_child"
             value="option1"
           />
         </div>
       </th>
       {/* <td onClick={() => openShowModal(marchandise)}>{marchandise.id}</td> */}
-      <td onClick={() => openShowModal(marchandise)}>{marchandise.nom}</td>
-      <td onClick={() => openShowModal(marchandise)}>{marchandise.reference}</td>
-      <td onClick={() => openShowModal(marchandise)}>
-        {marchandise.packaging ? marchandise.packaging.name_packaging : 'No'}
+      <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.nom}</td>
+      <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.reference}</td>
+      <td onClick={() => openShowModal(marchandisepackaging)}>
+        {marchandisepackaging.packaging ? marchandisepackaging.packaging.name_packaging : 'No'}
       </td> 
-      <td onClick={() => openShowModal(marchandise)}>
-        {marchandise.packaging ? marchandise.packaging.dimension : 'No'}
+      <td onClick={() => openShowModal(marchandisepackaging)}>
+        {marchandisepackaging.packaging ? marchandisepackaging.packaging.dimension : 'No'}
       </td> 
-      <td onClick={() => openShowModal(marchandise)}>
-        {marchandise.unite ? marchandise.unite.name_unite : 'No'}
+      <td onClick={() => openShowModal(marchandisepackaging)}>
+        {marchandisepackaging.unite ? marchandisepackaging.unite.name_unite : 'No'}
       </td> 
-      <td onClick={() => openShowModal(marchandise)}>
-        {marchandise.fournisseur ? marchandise.fournisseur.nom : 'No'}
+      <td onClick={() => openShowModal(marchandisepackaging)}>
+        {marchandisepackaging.fournisseur ? marchandisepackaging.fournisseur.nom : 'No'}
       </td> 
-      <td onClick={() => openShowModal(marchandise)}>{marchandise.quantite}</td>
-      <td onClick={() => openShowModal(marchandise)}>{marchandise.prix}</td>
-      <td onClick={() => openShowModal(marchandise)}>{marchandise.date_achat}</td>
+      <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.quantite_achetee|| "0" }</td>
+      <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.quantite_en_stock|| "0" }</td>
+      <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.quantite_consomee|| "0" }</td>
+
+      <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.prix}</td>
+      <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.date_achat}</td>
       <td>
         <div className=" d-flex gap-4">
           <Button
             color="soft-dark"
             size="sm"
             className="show-item-btn"
-            onClick={() => openShowModal(marchandise)}
+            onClick={() => openShowModal(marchandisepackaging)}
             onMouseEnter={() => setHoverShow(true)}
             onMouseLeave={() => setHoverShow(false)}
           >
@@ -415,7 +478,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
             color="soft-primary"
             size="sm"
             className="edit-item-btn"
-            onClick={() => openEditModal(marchandise)}
+            onClick={() => openEditModal(marchandisepackaging)}
             onMouseEnter={() => setHoverEdit(true)}
             onMouseLeave={() => setHoverEdit(false)}
           >
@@ -426,7 +489,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
             color="soft-danger"
             size="sm"
             className="remove-item-btn"
-            onClick={() => openDeleteModal(marchandise)}
+            onClick={() => openDeleteModal(marchandisepackaging)}
             onMouseEnter={() => setHoverRemove(true)}
             onMouseLeave={() => setHoverRemove(false)}
           >
@@ -465,8 +528,8 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 
 
                                      {/* Add Packaging-Marchandise Modal */}
-            <Modal isOpen={modalAddIngredientMarchandise} toggle={toggleAddIngredientMarchandiseModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddIngredientMarchandiseModal}>Ajout</ModalHeader>
+            <Modal isOpen={modalAddPackagingMarchandise} toggle={toggleAddPackagingMarchandiseModal} centered>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddPackagingMarchandiseModal}>Ajout</ModalHeader>
                                         <ModalBody>
                                             <form className="tablelist-form">
                                             <div className="mb-3">
@@ -496,7 +559,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 </select>
 
             </div>
-            <div className="mb-3">
+            {/* <div className="mb-3">
             <label htmlFor="dimension-field" className="form-label">Dimension :</label>
             <select
     id="name_packaging-field"
@@ -511,7 +574,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
             {packaging.dimension ? packaging.dimension : 'No'}
         </option>
     ))}
-</select>        </div>
+</select>        </div> */}
                                                 <div className="mb-3">
                 <label htmlFor="unite_id-field" className="form-label">Mesure unite :</label>
                 <select
@@ -549,8 +612,8 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                 </select>
             </div>
             <div className="mb-3">
-             <label htmlFor="qunatite-field" className="form-label">Quantite</label>
-            <input type="number" id="qunatite-field" className="form-control" placeholder="Enter Quantite" value={newIngredientMarchandiseData.quantite} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, quantite: e.target.value })} required />
+             <label htmlFor="qunatite-field" className="form-label">Quantite Achetée</label>
+            <input type="number" id="qunatite-field" className="form-control" placeholder="Enter Quantite" value={newIngredientMarchandiseData.quantite_achetee} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, quantite_achetee: e.target.value })} required />
             </div>
             <div className="mb-3">
              <label htmlFor="prix-field" className="form-label">Prix</label>
@@ -575,8 +638,8 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                                         </ModalBody>
                                         <ModalFooter>
                                             <div className="hstack gap-2 justify-content-end">
-                                                <Button type="button" color="secondary" onClick={toggleAddIngredientMarchandiseModal}>Fermer</Button>
-                                                <Button type="button" color="primary" onClick={toggleConfirmAddMarchandise}>Ajouter </Button>
+                                                <Button type="button" color="secondary" onClick={toggleAddPackagingMarchandiseModal}>Fermer</Button>
+                                                <Button type="button" color="primary" onClick={handleAddIngredientMarchandise}>Ajouter </Button>
                                             </div>
                                         </ModalFooter>
                                     </Modal>
@@ -618,18 +681,15 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
         </div>
         <div className="mb-3">
             <label htmlFor="dimension-field" className="form-label">Dimension:</label>
-            <select
-                id="dimension-field"
-                className="form-control"
-                value={editedDimension}
-                onChange={(e) => setEditedDimension(e.target.value)}
-            >
-                {packagings.map((packaging) => (
-                    <option key={packaging.dimension} value={packaging.dimension}>
-                        {packaging.dimension}
-                    </option>
-                ))}
-            </select>
+            
+            <input   
+            id="dimension-field"
+            className="form-control"
+            value={editedDimension}
+            onChange={(e) => setEditedDimension(e.target.value)}
+            disabled
+            
+            />
         </div>
 
 
@@ -665,8 +725,16 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
         </div>
 
                     <div className="mb-3">
-                        <label htmlFor="quantite-field" className="form-label">Quantité</label>
-                        <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteMarchandise} onChange={(e) => setEditedQuantiteMarchandise(e.target.value)} required />
+                        <label htmlFor="quantite-field" className="form-label">Quantité Achetée</label>
+                        <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteAcheteeMarchandise || "0" } onChange={(e) => setEditedQuantiteAcheteeMarchandise(e.target.value)} required />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="quantite-field" className="form-label">Nombre de Package En Stock</label>
+                        <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteEnStockMarchandise || "0" } onChange={(e) => setEditedQuantiteEnStockMarchandise(e.target.value)} disabled />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="quantite-field" className="form-label">Nombre de Package Utilisés</label>
+                        <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteConsomeeMarchandise || "0" } onChange={(e) => setEditedQuantiteConsomeeMarchandise(e.target.value)} disabled />
                     </div>
                     <div className="mb-3">
                         <label htmlFor="prix-field" className="form-label">Prix</label>
@@ -686,7 +754,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                 <ModalFooter>
                     <div className="hstack gap-2 justify-content-end">
                         <button type="button" className="btn btn-secondary" onClick={toggleListModal}>Fermer</button>
-                        <button type="button" className="btn btn-primary" onClick={toggleConfirmEdit}>Mettre à jour</button>
+                        <button type="button" className="btn btn-primary" onClick={handleUpdate}>Mettre à jour</button>
                     </div>
                 </ModalFooter>
             </form>
@@ -699,43 +767,51 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
                 <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Marchandise</ModalHeader>
                 <ModalBody>
-                    {selectedIngredientMarchandise && (
+                    {selectedPackagingMarchandise && (
                         <form className="tablelist-form">
                             <div className="mb-3">
                                 <label htmlFor="name_marchandise-field" className="form-label">Nom Marchandise</label>
-                                <input type="text" id="name_marchandise-field" className="form-control" value={selectedIngredientMarchandise.nom} readOnly />
+                                <input type="text" id="name_marchandise-field" className="form-control" value={selectedPackagingMarchandise.nom} readOnly />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="ref-field" className="form-label">Referance</label>
-                                <input type="text" id="ref-field" className="form-control" value={selectedIngredientMarchandise.reference} readOnly />
+                                <input type="text" id="ref-field" className="form-control" value={selectedPackagingMarchandise.reference} readOnly />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="name_packaging-field" className="form-label">Nom Packaging</label>
-                                <input type="text" id="name_packaging-field" className="form-control" value={selectedIngredientMarchandise.packaging ? selectedIngredientMarchandise.packaging.name_packaging: 'No'} readOnly />
+                                <input type="text" id="name_packaging-field" className="form-control" value={selectedPackagingMarchandise.packaging ? selectedPackagingMarchandise.packaging.name_packaging: 'No'} readOnly />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="dimension-field" className="form-label">Dimension</label>
-                                <input type="text" id="dimension-field" className="form-control" value={selectedIngredientMarchandise.packaging ? selectedIngredientMarchandise.packaging.dimension: 'No'} readOnly />
+                                <input type="text" id="dimension-field" className="form-control" value={selectedPackagingMarchandise.packaging ? selectedPackagingMarchandise.packaging.dimension: 'No'} readOnly />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="unite_id-field" className="form-label">Unite de mesure </label>
-                                <input type="text" id="unite_id-field" className="form-control" value={selectedIngredientMarchandise.unite ? selectedIngredientMarchandise.unite.name_unite : 'No'} readOnly />
+                                <input type="text" id="unite_id-field" className="form-control" value={selectedPackagingMarchandise.unite ? selectedPackagingMarchandise.unite.name_unite : 'No'} readOnly />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="name_fournisseur-field" className="form-label">Foufnisseur </label>
-                                <input type="text" id="name_fournisseur-field" className="form-control" value={selectedIngredientMarchandise.fournisseur ? selectedIngredientMarchandise.fournisseur.nom : 'No'} readOnly />
+                                <input type="text" id="name_fournisseur-field" className="form-control" value={selectedPackagingMarchandise.fournisseur ? selectedPackagingMarchandise.fournisseur.nom : 'No'} readOnly />
                             </div>
                             <div className="mb-3">
-                                <label htmlFor="quantite-field" className="form-label">Quantite</label>
-                                <input type="text" id="quantite-field" className="form-control" value={selectedIngredientMarchandise.quantite} readOnly />
+                                <label htmlFor="quantite-field" className="form-label">Quantite Achetées</label>
+                                <input type="text" id="quantite-field" className="form-control" value={selectedPackagingMarchandise.quantite_achetee || "0" } readOnly />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="quantite-field" className="form-label">Nombre de Package En Stock</label>
+                                <input type="text" id="quantite-field" className="form-control" value={selectedPackagingMarchandise.quantite_en_stock || "0" } readOnly />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="quantite-field" className="form-label">Nombre de Package Utilisés</label>
+                                <input type="text" id="quantite-field" className="form-control" value={selectedPackagingMarchandise.quantite_consomee || "0" } readOnly />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="prix-field" className="form-label">Prix</label>
-                                <input type="text" id="prix-field" className="form-control" value={selectedIngredientMarchandise.prix} readOnly />
+                                <input type="text" id="prix-field" className="form-control" value={selectedPackagingMarchandise.prix} readOnly />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="date-field" className="form-label">Date d'achat</label>
-                                <input type="text" id="date-field" className="form-control" value={selectedIngredientMarchandise.date_achat} readOnly />
+                                <input type="text" id="date-field" className="form-control" value={selectedPackagingMarchandise.date_achat} readOnly />
                             </div>
                            
                             
@@ -758,61 +834,30 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
             </Modal>
 
 
-
-            {/* confirm edit Modal */}
-
- <Modal isOpen={modal_confirm_edit} toggle={toggleConfirmEdit} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleConfirmEdit}>Confirmer la modification</ModalHeader>
-                {showSuccessMessage && Successed ? (
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Marchandise modifié avec succès...
-                                    </Alert>
-                                    
-                                ) : null}
-
-{erroredMessage && <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite,Ressayez ultirierement</div>}
-
-                <ModalBody>
-                    
-                        <p>Êtes-vous sûr de vouloir editer cette Marchandise </p>
-                    
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" onClick={toggleConfirmEdit}>Retour</Button>
-                    <Button color="primary" onClick={handleUpdate}>Modifier</Button>
-                </ModalFooter>
-            </Modal>
-
-
-
-
-
-          
-
-
+        
             {/* confirm add Modal */}
 
-            <Modal isOpen={modal_confirm_add_marchandise} toggle={toggleConfirmAddMarchandise} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleConfirmAddMarchandise}>Confirmer l'ajout</ModalHeader>
-
-                {showSuccessMessage && Successed ? (
-
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Marchandise ajouté avec succès                                    
-                                    </Alert>
-                                                                ) : null}
-    
-
-{erroredMessage && <div className="alert alert-danger"  style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite, Ressayez ultirierement</div>}
-
-                <ModalBody>
-                    
-                        <p>Êtes-vous sûr de vouloir ajouter cette Marchandise </p>
-                   
-                </ModalBody>
+            <Modal isOpen={modal_confirm_add} toggle={() => toggleConfirmAddMarchandise(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmAddMarchandise(false)}>Confirmer l'ajout</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Marchandise ajoutée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
                 <ModalFooter>
-                    <Button color="secondary" onClick={toggleConfirmAddMarchandise}>Retour</Button>
-                    <Button color="primary" onClick={handleAddIngredientMarchandise}>Confirmer</Button>
+                <Button color="secondary" onClick={() => toggleConfirmAddMarchandise(false)}>Retour</Button>
                 </ModalFooter>
             </Modal>
 
@@ -820,31 +865,67 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 
 
 
+
+
+
+            <Modal isOpen={modal_confirm_edit} toggle={() => toggleConfirmEdit(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmEdit(false)}>Confirmer la modification</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Marchandise modifiée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
+    <ModalFooter>
+        <Button color="secondary" onClick={() => toggleConfirmEdit(false)}>Retour</Button>
+    </ModalFooter>
+</Modal>
+
+
+
+
             
             
             
             
             
             
-            {/* Remove Modal */}
-            <Modal isOpen={modal_delete} toggle={toggleDeleteModal} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleDeleteModal}>Confirmer la suppression</ModalHeader>
+            
+      {/* Suppression Modal */}
+      <Modal isOpen={modal_delete} toggle={() => toggleDeleteModal(false)} centered>
+        <ModalHeader className="bg-light p-3"toggle={() => toggleDeleteModal(false)} >
+          Confirmer la suppression
+        </ModalHeader>
+        <ModalBody>
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Marchandise suprimée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+        
 
-                
-                {showSuccessMessage && Successed ? (
-
-<Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-Marchandise Supprimée avec succès                                    
-</Alert>
-                            ) : null}
-
-
-{erroredMessage && <div className="alert alert-danger"  style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite, Ressayez ultirierement</div>}
-
-
-                <ModalBody>
-                    {selectedIngredientMarchandise && (
-                        <p>Êtes-vous sûr de vouloir supprimer cette marchandise: {selectedIngredientMarchandise.nom}?</p>
+                    {selectedPackagingMarchandise && (
+                        <p>Êtes-vous sûr de vouloir supprimer cette marchandise: {selectedPackagingMarchandise.nom}?</p>
                     )}
                 </ModalBody>
                 <ModalFooter>
@@ -870,7 +951,7 @@ Marchandise Supprimée avec succès
     
     
     
-
+ 
 
 
 

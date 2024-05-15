@@ -22,18 +22,23 @@ const ProfileMenu = props => {
   const [menu, setMenu] = useState(false);
 
   const [username, setusername] = useState("Admin");
+  const [photo, setphoto] = useState("");
+
 
   useEffect(() => {
     if (localStorage.getItem("authUser")) {
       if (process.env.REACT_APP_DEFAULTAUTH === "firebase") {
         const obj = JSON.parse(localStorage.getItem("authUser"));
         setusername(obj.displayName);
+        setphoto(obj.photo)
       } else if (
         process.env.REACT_APP_DEFAULTAUTH === "fake" ||
         process.env.REACT_APP_DEFAULTAUTH === "jwt"
       ) {
         const obj = JSON.parse(localStorage.getItem("authUser"));
         setusername(obj.username);
+        setphoto(obj.photo)
+
       }
     }
   }, [props.success]);
@@ -50,11 +55,11 @@ const ProfileMenu = props => {
           id="page-header-user-dropdown"
           tag="button"
         >
-          <img
-            className="rounded-circle header-profile-user"
-            src={user1}
-            alt="Header Avatar"
-          />
+            <img
+              className="rounded-circle header-profile-user"
+              src={photo ? `${photo.replace('users', '')}` : ''} // Check if photo is defined before using replace
+              alt=""
+            />
           <span className="d-none d-xl-inline-block ms-2 me-2">{username}</span>
           <i className="mdi mdi-chevron-down d-none d-xl-inline-block" />
         </DropdownToggle>

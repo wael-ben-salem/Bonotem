@@ -24,18 +24,34 @@ public function IngredientCompose()
     public function addIngredientCompose(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name_ingredient_compose' => ['required', 'regex:/^[A-Za-z\s]+$/'],
-            'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
-            'ingredientsComposes' => 'required|array', // Validation for ingredients array
+            'name_ingredient_compose' => ['required', 'unique:ingredient_composes', 'regex:/^[A-Za-z\s]+$/'],
+
+            'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+            'ingredientsComposes' => 'required|array', // Validation pour le tableau d'ingrédients
             'ingredientsComposes.*.id_ingredient' => 'required|exists:ingredients,id',
             'ingredientsComposes.*.quantite' => 'required|numeric|min:0',
+        ], [
+            'name_ingredient_compose.unique' => 'Ce nom d\'ingrédient existe déjà.',
+
+            'name_ingredient_compose.required' => 'Le champ nom d\'ingrédient est requis.',
+            'name_ingredient_compose.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+            'photo.file' => 'Le champ photo doit être un fichier.',
+            'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+            'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
+            'ingredientsComposes.required' => 'Le tableau des ingrédients est requis.',
+            'ingredientsComposes.array' => 'Le champ des ingrédients doit être un tableau.',
+            'ingredientsComposes.*.id_ingredient.required' => 'L\'identifiant de l\'ingrédient est requis.',
+            'ingredientsComposes.*.id_ingredient.exists' => 'L\'identifiant de l\'ingrédient sélectionné n\'existe pas.',
+            'ingredientsComposes.*.quantite.required' => 'La quantité de l\'ingrédient est requise.',
+            'ingredientsComposes.*.quantite.numeric' => 'La quantité de l\'ingrédient doit être un nombre.',
+            'ingredientsComposes.*.quantite.min' => 'La quantité de l\'ingrédient doit être d\'au moins :min.',
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([
                 'validation_errors' => $validator->messages(),
-            ]);
-        }
+            ]);}else {
 
         // Create a new IngredientCompose instance
         $ingredientcompose = new IngredientCompose();
@@ -66,7 +82,7 @@ public function IngredientCompose()
         ], 200);
     }
 
-
+    }
 
     public function show($id)
     {
@@ -107,15 +123,26 @@ public function IngredientCompose()
 
             // Validation
             $validator = Validator::make($request->all(), [
-                'name_ingredient_compose' =>['required', 'regex:/^[A-Za-z\s]+$/'],
-                'ingredientsComposes' => 'required|array', // Validation for ingredients array
-            'ingredientsComposes.*.id_ingredient' => 'required|exists:ingredients,id',
-            'ingredientsComposes.*.quantite' => 'required|numeric|min:0',
-            'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
-
-
-
+                'name_ingredient_compose' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+                'ingredientsComposes' => 'required|array', // Validation pour le tableau d'ingrédients
+                'ingredientsComposes.*.id_ingredient' => 'required|exists:ingredients,id',
+                'ingredientsComposes.*.quantite' => 'required|numeric|min:0',
+                'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+            ], [
+                'name_ingredient_compose.required' => 'Le champ nom d\'ingrédient est requis.',
+                'name_ingredient_compose.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+                'ingredientsComposes.required' => 'Le tableau des ingrédients est requis.',
+                'ingredientsComposes.array' => 'Le champ des ingrédients doit être un tableau.',
+                'ingredientsComposes.*.id_ingredient.required' => 'L\'identifiant de l\'ingrédient est requis.',
+                'ingredientsComposes.*.id_ingredient.exists' => 'L\'identifiant de l\'ingrédient sélectionné n\'existe pas.',
+                'ingredientsComposes.*.quantite.required' => 'La quantité de l\'ingrédient est requise.',
+                'ingredientsComposes.*.quantite.numeric' => 'La quantité de l\'ingrédient doit être un nombre.',
+                'ingredientsComposes.*.quantite.min' => 'La quantité de l\'ingrédient doit être d\'au moins :min.',
+                'photo.file' => 'Le champ photo doit être un fichier.',
+                'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+                'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
             ]);
+
 
             if ($validator->fails()) {
                 return response()->json([

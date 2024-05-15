@@ -30,9 +30,19 @@ class IngredientController extends Controller
 
         $validator = Validator::make($request->all(), [
             'name_ingredient' => ['required', 'unique:ingredients', 'regex:/^[A-Za-z\s]+$/'],
-            'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
+            'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
 
+        ], [
+            'name_ingredient.required' => 'Le champ nom d\'ingrédient est requis.',
+            'name_ingredient.unique' => 'Ce nom d\'ingrédient existe déjà.',
+            'name_ingredient.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+            'photo.file' => 'Le champ photo doit être un fichier.',
+            'photo.required' => 'Le champ photo est requis.',
+
+            'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+            'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([
@@ -65,23 +75,34 @@ class IngredientController extends Controller
     public function updateIngredient(Request $request, $id)
     {
 
-            // Find Ingredient
-            $ingredient = Ingredient::find($id);
-            if(!$ingredient){
-                return response()->json([
-                   'message'=>'Ingredient Not Found.'
-                ],404);
-            }
+
 
             // Validation
             $validator = Validator::make($request->all(), [
                 'name_ingredient' => ['required', 'regex:/^[A-Za-z\s]+$/'],
+                'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+            ], [
+                'name_ingredient.required' => 'Le champ nom d\'ingrédient est requis.',
+                'name_ingredient.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+                'photo.required' => 'Le champ photo est requis.',
+
+                'photo.file' => 'Le champ photo doit être un fichier.',
+                'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+                'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
             ]);
+
 
             if ($validator->fails()) {
                 return response()->json([
                     'validation_errors' => $validator->messages(),
                 ]);
+            }else{
+                // Find Ingredient
+            $ingredient = Ingredient::find($id);
+            if(!$ingredient){
+                return response()->json([
+                   'message'=>'Ingredient Not Found.'
+                ],404);
             }else{
                 $ingredient->name_ingredient = $request->name_ingredient;
 
@@ -94,14 +115,15 @@ class IngredientController extends Controller
             }
 
             $ingredient->save();
-            }
 
             // Update Ingredient
 
             return response()->json([
                 'message' => "Ingredient successfully updated."
             ],200);
-        }
+            }
+         }
+ }
 
 
 

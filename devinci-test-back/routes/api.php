@@ -4,13 +4,18 @@
 use App\Http\Controllers\API\User\RoleController;
 use App\Http\Controllers\CartesController;
 use App\Http\Controllers\CategorieController;
+use App\Http\Controllers\CoutController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\IngredientComposeController;
 use App\Http\Controllers\IngredientController;
 use App\Http\Controllers\IngredientProduitController;
 use App\Http\Controllers\MarchandiseController;
+use App\Http\Controllers\PerteController;
 use App\Http\Controllers\ProduitController;
 use App\Http\Controllers\UniteController;
+use App\Http\Controllers\UserStatisticsController;
+use App\Http\Controllers\VentesController;
+use App\Models\Ventes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\User\AuthController;
@@ -36,8 +41,12 @@ Route::post("register", [AuthController::class , 'register']);
 Route::post('login', [AuthController::class ,'login']);
 Route::get('user', [AuthController::class ,'user']);
 Route::get('user/{id}', [AuthController::class ,'showUser']);
-Route::put('usersupdate/{id}', [AuthController::class, 'updateUser']);
-Route::post("adduser", [AuthController::class , 'addUser']);
+Route::post('usersupdate/{id}', [AuthController::class, 'updateUser']);
+Route::post("adduser/{id}", [AuthController::class , 'addUser']);
+Route::post("addmanageruser/{id}", [AuthController::class , 'addManagerUser']);
+Route::post('usersmanagerupdate/{id}', [AuthController::class, 'updateManagerUser']);
+
+Route::get('/user-statistics', [UserStatisticsController::class, 'getUserStatistics']);
 
 Route::delete('deleteuser/{id}', [AuthController::class, 'deleteUser']);
 
@@ -135,12 +144,17 @@ Route::get('/ingredientsCompose/{id}', [IngredientComposeController::class, 'sho
 Route::post('/ingredientsCompose/{id}', [IngredientComposeController::class, 'updateIngredientCompose']);
 Route::delete('/ingredientsCompose/{id}', [IngredientComposeController::class, 'destroy']);
 
+//Marchandise Packaging
+
+Route::post('/marchandisePackaging', [MarchandiseController::class, 'addPackaging']);
+Route::put('/marchandisePackaging/{id}',[MarchandiseController::class,'updatePackaging']);
+
+
+//Marchandise Ingredient
+Route::post('/marchandiseIngredient', [MarchandiseController::class, 'addIngredient']);
+Route::put('/marchandiseIngredient/{id}',[MarchandiseController::class,'updateIngredientMarchandise']);
 
 //Marchandise
-Route::post('/marchandisePackaging', [MarchandiseController::class, 'addPackaging']);
-Route::post('/marchandiseIngredient', [MarchandiseController::class, 'addIngredient']);
-Route::put('/marchandisePackaging/{id}',[MarchandiseController::class,'updatePackaging']);
-Route::put('/marchandiseIngredient/{id}',[MarchandiseController::class,'updateIngredient']);
 
 Route::get('/marchandise',[MarchandiseController::class,'marchandise']);
 Route::delete('/marchandise/{id}', [MarchandiseController::class, 'destroy']);
@@ -154,4 +168,27 @@ Route::delete('/cartes/{id}', [CartesController::class, 'destroy']);
 Route::get('/cartes/{id}', [CartesController::class, 'show']);
 Route::put('/cartes/{id}', [CartesController::class, 'update']);
 
+
+//Ventes
+Route::get('/ventes', [VentesController::class, 'ventes']);
+Route::get('/ventes/{id}', [VentesController::class, 'show']);
+Route::delete('/ventes/{id}', [VentesController::class, 'destroy']);
+Route::post('/ventes', [VentesController::class, 'store']);
+Route::put('/ventes/{id}', [VentesController::class, 'update']);
+
+
+
+//Pertes
+Route::get('/pertes', [PerteController::class, 'perte']);
+Route::get('/pertes/{id}', [PerteController::class, 'show']);
+Route::delete('/pertes/{id}', [PerteController::class, 'destroy']);
+Route::post('/pertes', [PerteController::class, 'addPerte']);
+Route::put('/pertes/{id}', [PerteController::class, 'updatePerte']);
+
+//Cout
+Route::get('/couts', [CoutController::class, 'index']);
+Route::get('/couts/{id}', [CoutController::class, 'show']);
+Route::delete('/couts/{id}', [CoutController::class, 'destroy']);
+Route::post('/couts', [CoutController::class, 'addCout']);
+Route::put('/couts/{id}', [CoutController::class, 'updateCout']);
 

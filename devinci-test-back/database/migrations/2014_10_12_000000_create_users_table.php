@@ -17,19 +17,23 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->integer('id_creator')->nullable();
+            $table->dateTime('date_abonnement')->nullable(); // Changer le type de colonne en dateTime
+            $table->dateTime('date_expiration_abonnement')->nullable(); // Ajouter la date d'expiration
+            $table->decimal('montant', 8, 2)->default(0); // Montant avec deux décimales
+
+            $table->string('photo')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
             $table->enum('statut', ['activé', 'désactivé'])->default('activé');
             $table->string('adresse')->default('');
-            $table->bigInteger('numero')->length(8)->default(0);;
+            $table->bigInteger('numero')->nullable(); // Supprimer la longueur et changer la valeur par défaut à NULL
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');
+
     }
 };

@@ -21,4 +21,8 @@ class Cartes extends Model
     {
         return $this->belongsTo(Categorie::class, 'id_categorie');
     }
+    public function vente()
+    {
+        return $this->hasOne(Ventes::class, 'id_carte');
+    }
 }

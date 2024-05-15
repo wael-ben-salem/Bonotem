@@ -120,9 +120,6 @@ export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async
         .addCase(updatePackaging.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
-          
-          // Optionally, you can update state with the newly added user
-         
           if (action.payload.validation_errors) {
             // If validation errors present, set error message accordingly
             state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
@@ -130,8 +127,9 @@ export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async
             state.Success = true; // Set showSuccessMessage to true
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
-            }, 3000);}
-          
+            }, 3000);
+          }
+          // You may want to update the state accordingly here
         })
         .addCase(updatePackaging.rejected, (state, action) => {
           state.loading = false;

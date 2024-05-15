@@ -21,6 +21,10 @@ class Produit extends Model
     {
         return $this->hasOne(Cartes::class, 'id_produit');
     }
+    public function vente()
+    {
+        return $this->hasOne(Ventes::class, 'id_produit');
+    }
     public function ingredients()
 {
     return $this->belongsToMany(Ingredient::class, 'produit_ingredient', 'id_produit', 'id_ingredient')

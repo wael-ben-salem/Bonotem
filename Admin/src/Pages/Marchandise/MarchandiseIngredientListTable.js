@@ -6,11 +6,12 @@ import { Button, Card, CardBody, CardHeader, Alert,Col, Container,  Modal, Modal
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import {  getAllDataIngredient } from '../../store/ingredient/GitIngredientSlice';
 import { getAllUnite } from '../../store/Unite/gitUniteSlice';
-import { addMarchandise, deleteMarchandise, getAllMarchandise,  updateMarchandiseingredient } from '../../store/marchandise/gitMarchandiseSlice';
 import { getAllFournisseur } from '../../store/fournisseur/gitFournisseurSlice';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { addMarchandiseIngredient, deleteMarchandise, getAllMarchandiseData, updateMarchandiseingredient } from '../../store/marchandise/gitMarchandiseIngredientSlice';
 
 
 
@@ -21,7 +22,7 @@ const MarchandiseIngredientListTable = () => {
 
     const dispatch = useDispatch();
     const ingredients = useSelector(state => state.gitIngredient.ingredients);
-    const marchandises = useSelector(state => state.gitMarchandise.marchandises);
+    const marchandisesingredient = useSelector(state => state.gitMarchandiseIngredient.marchandisesingredient);
     const fournisseurs = useSelector(state => state.gitFournisseur.fournisseurs);
     const unites = useSelector((state) => state.gitUnite.unites);
     
@@ -29,9 +30,9 @@ const MarchandiseIngredientListTable = () => {
     
    
 
-      const { Successed, erroredMessage } = useSelector(state => ({
-        Successed: state.gitMarchandise.Successed,
-        erroredMessage: state.gitMarchandise.erroredMessage,
+      const { Success, errorMessage } = useSelector(state => ({
+        Success: state.gitMarchandiseIngredient.Success,
+        errorMessage: state.gitMarchandiseIngredient.errorMessage,
         
       }));
       const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
@@ -44,7 +45,10 @@ const MarchandiseIngredientListTable = () => {
     const [editedNameMarchandise, setEditedNameMarchandise] = useState(null);
     const [editedRefMarchandise, setEditedRefMarchandise] = useState('');
     const [editedNameFournisseur, setEditedNameFournisseur] = useState('');
-    const [editedQuantiteMarchandise, setEditedQuantiteMarchandise] = useState(null);
+    const [editedQuantiteAcheteeMarchandise, setEditedQuantiteAcheteeMarchandise] = useState(null);
+    const [editedQuantiteConsomeeMarchandise, setEditedQuantiteConsomeeMarchandise] = useState(null);
+    const [editedQuantiteEnStockMarchandise, setEditedQuantiteEnStockMarchandise] = useState(null);
+
     const [editedPrixMarchandise, setEditedPrixMarchandise] = useState(null);
     const [editedDateMarchandise, setEditedDateMarchandise] = useState(null);
     
@@ -57,7 +61,6 @@ const MarchandiseIngredientListTable = () => {
 
     
     const [modal_confirm_edit, setModalConfirmEdit] = useState(false);
-    const [modal_confirm_add, setModalConfirmAdd] = useState(false);
     const [modal_confirm_add_marchandise, setModalConfirmAddMarchandise] = useState(false);
 
 
@@ -69,7 +72,10 @@ const MarchandiseIngredientListTable = () => {
         reference: '',
         id_ingredient:'',
         id_fournisseur:'',
-        quantite: '', 
+        quantite_achetee: null, 
+        quantite_en_stock: null, 
+        quantite_consomee: null, 
+
         unite_id:'',
         prix:'',
         date_achat:'',
@@ -85,11 +91,11 @@ const MarchandiseIngredientListTable = () => {
 
 
       // Filtrage des éléments non nuls
-      const filteredMarchandises = marchandises
+      const filteredMarchandises = marchandisesingredient
         .filter(marchandise => marchandise.ingredient !== null);
       
       // Fonction de pagination pour obtenir les éléments de la page actuelle
-      const paginateMarchandise = (marchandises, page, pageSize) => {
+      const paginateMarchandise = (marchandisesingredient, page, pageSize) => {
         const startIndex = page * pageSize;
         return filteredMarchandises.slice(startIndex, startIndex + pageSize);
       };
@@ -119,7 +125,7 @@ const MarchandiseIngredientListTable = () => {
         useEffect(() => {
             dispatch(getAllDataIngredient());
             dispatch(getAllUnite());
-            dispatch(getAllMarchandise());
+            dispatch(getAllMarchandiseData());
             dispatch(getAllFournisseur());
 
 
@@ -127,9 +133,20 @@ const MarchandiseIngredientListTable = () => {
         }, [dispatch]);
 
        
+useEffect(() => {
+    if (errorMessage) {
+
+    setTimeout(() => {
+        window.location.reload()
+
+    }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }
+}, [errorMessage]);
+
+
 
         useEffect(() => {
-            if (Successed) {
+            if (Success) {
         
             setShowSuccessMessage(true);
             setTimeout(() => {
@@ -138,7 +155,7 @@ const MarchandiseIngredientListTable = () => {
         
             }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
             }
-        }, [Successed]);
+        }, [Success]);
 
 
         
@@ -161,15 +178,13 @@ const MarchandiseIngredientListTable = () => {
             setModalShow(!modal_show);
         }
 
-        const toggleConfirmAdd = () => {
-            setModalConfirmAdd(!modal_confirm_add);
-        }
+        
 
-        const toggleConfirmAddMarchandise = () => {
-            setModalConfirmAddMarchandise(!modal_confirm_add_marchandise);
+        const toggleConfirmAddMarchandise = (isOpen) => {
+            setModalConfirmAddMarchandise(isOpen);
         }
-        const toggleConfirmEdit = () => {
-            setModalConfirmEdit(!modal_confirm_edit);
+        const toggleConfirmEdit = (isOpen) => {
+            setModalConfirmEdit(isOpen);
         }
         
         
@@ -178,8 +193,8 @@ const MarchandiseIngredientListTable = () => {
         
         
         
-        const openDeleteModal = (marchandise) => {
-            setSelectedIngredientMarchandise(marchandise);
+        const openDeleteModal = (marchandiseingredient) => {
+            setSelectedIngredientMarchandise(marchandiseingredient);
         toggleDeleteModal(); // Open the delete modal
         }
 
@@ -193,16 +208,19 @@ const MarchandiseIngredientListTable = () => {
 
 
         
-        const openEditModal = (marchandises) => {
-            setEditMarchandise(marchandises);
-            setEditedNameMarchandise(marchandises.nom);
-            setEditedRefMarchandise(marchandises.reference)
-            setEditedNameFournisseur(marchandises.id_fournisseur);
-            setEditedNameIngredient(marchandises.id_ingredient);
-            setEditedUnitIngredient(marchandises.unite_id);
-            setEditedQuantiteMarchandise(marchandises.quantite);
-            setEditedPrixMarchandise(marchandises.prix);
-            setEditedDateMarchandise(marchandises.date_achat)
+        const openEditModal = (marchandisesingredient) => {
+            setEditMarchandise(marchandisesingredient);
+            setEditedNameMarchandise(marchandisesingredient.nom);
+            setEditedRefMarchandise(marchandisesingredient.reference)
+            setEditedNameFournisseur(marchandisesingredient.id_fournisseur);
+            setEditedNameIngredient(marchandisesingredient.id_ingredient);
+            setEditedUnitIngredient(marchandisesingredient.unite_id);
+            setEditedQuantiteAcheteeMarchandise(marchandisesingredient.quantite_achetee);
+            setEditedQuantiteConsomeeMarchandise(marchandisesingredient.quantite_consomee);
+            setEditedQuantiteEnStockMarchandise(marchandisesingredient.quantite_en_stock);
+
+            setEditedPrixMarchandise(marchandisesingredient.prix);
+            setEditedDateMarchandise(marchandisesingredient.date_achat)
             
             toggleListModal();
 
@@ -216,26 +234,50 @@ const MarchandiseIngredientListTable = () => {
                 id_fournisseur: editedNameFournisseur,
                 id_ingredient: editedNameIngredient,
                 unite_id: editedUnitIngredient,
-                quantite: editedQuantiteMarchandise,
+                quantite_achetee: editedQuantiteAcheteeMarchandise,
                 prix: editedPrixMarchandise,
                 date_achat: editedDateMarchandise,
                 
             };
         
-            dispatch(updateMarchandiseingredient({ id: editMarchandise.id, ingredientMarchandiseData: updateIngredientMarchandise }));
-            setTimeout(() => {
+            dispatch(updateMarchandiseingredient({ id: editMarchandise.id, ingredientMarchandiseData: updateIngredientMarchandise }))
+            .then(() => {
+                // Réinitialiser l'état
+                setEditMarchandise({
+                    nom: '',
+                    reference: '',
+                    id_ingredient:'',
+                    id_fournisseur:'',
+                    quantite_achetee: null, 
+                    quantite_en_stock: null, 
+                    quantite_consomee: null, 
+            
+                    unite_id:'',
+                    prix:'',
+                    date_achat:'',
+                });
+    
+                // Fermer le modal
                 toggleListModal();
-                toggleConfirmEdit();
+    
+                // Ouvrir le modal de confirmation
+                toggleConfirmEdit(true);
+            })
+            .catch(error => {
+                // Gérer l'erreur
+                console.error("Error updating Marchandise:", error);
+            })
+            .finally(() => {
+                // Désactiver le chargement après l'achèvement de l'action
+            });
 
-                window.location.reload();
-
-            },  4000); 
+             
         };
 
 
     
-        const openShowModal = (marchandise) => {
-            setSelectedIngredientMarchandise(marchandise); 
+        const openShowModal = (marchandiseingredient) => {
+            setSelectedIngredientMarchandise(marchandiseingredient); 
             setModalShow(true); // Open the show modal
         }
 
@@ -248,32 +290,52 @@ const MarchandiseIngredientListTable = () => {
                 formData.append('id_ingredient', newIngredientMarchandiseData.id_ingredient); // Utiliser id_ingredient au lieu de name_ingredient
                 formData.append('unite_id', newIngredientMarchandiseData.unite_id);
                 formData.append('nom', newIngredientMarchandiseData.nom);
-                formData.append('quantite', newIngredientMarchandiseData.quantite);
+                formData.append('quantite_achetee', newIngredientMarchandiseData.quantite_achetee);
                 formData.append('prix', newIngredientMarchandiseData.prix);
                 formData.append('reference', newIngredientMarchandiseData.reference);
                 formData.append('id_fournisseur', newIngredientMarchandiseData.id_fournisseur);
                 formData.append('date_achat', newIngredientMarchandiseData.date_achat);
                 
-                dispatch(addMarchandise(formData)); 
-                
-                // Réinitialiser l'état
-                setNewIngredientMarchandiseData({
-                    nom: '',
-                    reference: '',
-                    id_ingredient: '', // Utiliser id_ingredient au lieu de name_ingredient
-                    unite_id: '',
-                    id_fournisseur: '',
-                    quantite: '', 
-                    prix: '',
-                    date_achat: '',
-                });
-            
-                setTimeout(() => {
-                    toggleAddIngredientMarchandiseModal();
-                    toggleConfirmAddMarchandise();
-                    window.location.reload();
+                dispatch(addMarchandiseIngredient(formData)) 
 
-                }, 3000);
+                .then(() => {
+        
+    
+                    // Réinitialiser l'état
+                    setNewIngredientMarchandiseData({
+                        nom: '',
+                        reference: '',
+                        id_ingredient: '', // Utiliser id_ingredient au lieu de name_ingredient
+                        unite_id: '',
+                        id_fournisseur: '',
+                        quantite_achetee: null, 
+                        quantite_consomee: null, 
+                        quantite_en_stock: null, 
+    
+                        prix: '',
+                        date_achat: '',
+                    });
+                
+                        // Fermer le modal
+                        toggleAddIngredientMarchandiseModal();
+                
+                        // Ouvrir le modal de confirmation
+                        toggleConfirmAddMarchandise(true);
+                    })
+                    .catch(error => {
+                        // Gérer l'erreur
+                        console.error("Error updating Marchandise:", error);
+                    })
+                    .finally(() => {
+                        // Désactiver le chargement après l'achèvement de l'action
+                    });
+                
+                
+                
+               
+
+                
+                
             };
 
 
@@ -348,7 +410,11 @@ const MarchandiseIngredientListTable = () => {
                             <th className="sort" data-sort="Marchandise-unite_id">Unite de mésure </th>
 
                             <th className="sort" data-sort="Marchandise-name_fournisseur">Name fournisseur</th>
-                            <th className="sort" data-sort="Marchandise-quantite">Quantité</th>
+                            <th className="sort" data-sort="Marchandise-quantite">Quantité Achetée</th>
+                            <th className="sort" data-sort="Marchandise-quantite">Quantité En Stock</th>
+                            <th className="sort" data-sort="Marchandise-quantite">Quantité Consomée</th>
+
+
                             <th className="sort" data-sort="Marchandise-prix">Prix</th>
                             <th className="sort" data-sort="Marchandise-date">Date achat</th>
                                                             
@@ -358,31 +424,35 @@ const MarchandiseIngredientListTable = () => {
                                                     <tbody className="list form-check-all">
                                                     
                                                              {currentPageData.length > 0 ? (
-        currentPageData.map((marchandise, index) => (
-            <tr key={marchandise.id}>
+        currentPageData.map((marchandiseingredient, index) => (
+            <tr key={marchandiseingredient.id}>
                      <th scope="row">
         <div className="form-check">
           <input
             className="form-check-input"
             type="checkbox"
-            onClick={() => openShowModal(marchandise)}
+            onClick={() => openShowModal(marchandiseingredient)}
             name="chk_child"
             value="option1"
           />
         </div>
       </th> 
                                                                     {/* <td onClick={() => openShowModal(marchandise)}>{marchandise.id}</td> */}
-                                    <td onClick={() => openShowModal(marchandise)}>{marchandise.nom}</td>
-                                    <td onClick={() => openShowModal(marchandise)}>{marchandise.reference}</td>
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.nom}</td>
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.reference}</td>
 
-                                    <td onClick={() => openShowModal(marchandise)}>{marchandise.ingredient ? marchandise.ingredient.name_ingredient : 'No'}</td> 
-                                    <td onClick={() => openShowModal(marchandise)}>{marchandise.unite ? marchandise.unite.name_unite : 'No'}</td> 
-                                    <td onClick={() => openShowModal(marchandise)}>{marchandise.fournisseur ? marchandise.fournisseur.nom : 'No'}</td> 
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.ingredient ? marchandiseingredient.ingredient.name_ingredient : 'No'}</td> 
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.unite ? marchandiseingredient.unite.name_unite : 'No'}</td> 
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.fournisseur ? marchandiseingredient.fournisseur.nom : 'No'}</td> 
 
                                     
-                                    <td onClick={() => openShowModal(marchandise)}>{marchandise.quantite }</td>
-                                    <td onClick={() => openShowModal(marchandise)}>{marchandise.prix }</td>
-                                    <td onClick={() => openShowModal(marchandise)}>{marchandise.date_achat }</td>
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.quantite_achetee }</td>
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.quantite_en_stock|| "0" }</td>
+
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.quantite_consomee || "0"}</td>
+
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.prix }</td>
+                                    <td onClick={() => openShowModal(marchandiseingredient)}>{marchandiseingredient.date_achat }</td>
 
 
 
@@ -397,7 +467,7 @@ const MarchandiseIngredientListTable = () => {
                                                                             color="soft-dark"
                                                                             size="sm"
                                                                             className="show-item-btn"
-                                                                            onClick={() => openShowModal(marchandise)}
+                                                                            onClick={() => openShowModal(marchandiseingredient)}
                                                                             onMouseEnter={() => setHoverShow(true)}
                                                                             onMouseLeave={() => setHoverShow(false)}
                                                                         >
@@ -407,7 +477,7 @@ const MarchandiseIngredientListTable = () => {
                                                                             color="soft-primary"
                                                                             size="sm"
                                                                             className="edit-item-btn"
-                                                                            onClick={() => openEditModal(marchandise)}
+                                                                            onClick={() => openEditModal(marchandiseingredient)}
                                                                             onMouseEnter={() => setHoverEdit(true)}
                                                                             onMouseLeave={() => setHoverEdit(false)}
                                                                         >
@@ -418,7 +488,7 @@ const MarchandiseIngredientListTable = () => {
                                                                             color="soft-danger"
                                                                             size="sm"
                                                                             className="remove-item-btn"
-                                                                            onClick={() => openDeleteModal(marchandise)}
+                                                                            onClick={() => openDeleteModal(marchandiseingredient)}
                                                                             onMouseEnter={() => setHoverRemove(true)}
                                                                             onMouseLeave={() => setHoverRemove(false)}
                                                                         >
@@ -522,8 +592,8 @@ const MarchandiseIngredientListTable = () => {
                 </select>
             </div>
             <div className="mb-3">
-             <label htmlFor="qunatite-field" className="form-label">Quantite</label>
-            <input type="number" id="qunatite-field" className="form-control" placeholder="Enter Quantite" value={newIngredientMarchandiseData.quantite} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, quantite: e.target.value })} required />
+             <label htmlFor="qunatite-field" className="form-label">Quantite Achetée</label>
+            <input type="number" id="qunatite-field" className="form-control" placeholder="Enter Quantite" value={newIngredientMarchandiseData.quantite_achetee} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, quantite_achetee: e.target.value })} required />
             </div>
             <div className="mb-3">
              <label htmlFor="prix-field" className="form-label">Prix</label>
@@ -538,7 +608,7 @@ const MarchandiseIngredientListTable = () => {
                                         <ModalFooter>
                                             <div className="hstack gap-2 justify-content-end">
                                                 <Button type="button" color="secondary" onClick={toggleAddIngredientMarchandiseModal}>Fermer</Button>
-                                                <Button type="button" color="primary" onClick={toggleConfirmAddMarchandise}>Ajouter </Button>
+                                                <Button type="button" color="primary" onClick={handleAddIngredientMarchandise}>Ajouter </Button>
                                             </div>
                                         </ModalFooter>
                                     </Modal>
@@ -611,8 +681,16 @@ const MarchandiseIngredientListTable = () => {
         </div>
 
                     <div className="mb-3">
-                        <label htmlFor="quantite-field" className="form-label">Quantité</label>
-                        <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteMarchandise} onChange={(e) => setEditedQuantiteMarchandise(e.target.value)} required />
+                        <label htmlFor="quantite-field" className="form-label">Quantité Achetée</label>
+                        <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteAcheteeMarchandise} onChange={(e) => setEditedQuantiteAcheteeMarchandise(e.target.value)} required />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="quantite-field" className="form-label">Quantité En stock</label>
+                        <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteEnStockMarchandise|| "0"} onChange={(e) => setEditedQuantiteEnStockMarchandise(e.target.value)} disabled />
+                    </div>
+                    <div className="mb-3">
+                        <label htmlFor="quantite-field" className="form-label">Quantité Consomée</label>
+                        <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteConsomeeMarchandise|| "0"} onChange={(e) => setEditedQuantiteConsomeeMarchandise(e.target.value)} disabled />
                     </div>
                     <div className="mb-3">
                         <label htmlFor="prix-field" className="form-label">Prix</label>
@@ -632,7 +710,7 @@ const MarchandiseIngredientListTable = () => {
                 <ModalFooter>
                     <div className="hstack gap-2 justify-content-end">
                         <button type="button" className="btn btn-secondary" onClick={toggleListModal}>Fermer</button>
-                        <button type="button" className="btn btn-primary" onClick={toggleConfirmEdit}>Mettre à jour</button>
+                        <button type="button" className="btn btn-primary" onClick={handleUpdate}>Mettre à jour</button>
                     </div>
                 </ModalFooter>
             </form>
@@ -668,8 +746,16 @@ const MarchandiseIngredientListTable = () => {
                                 <input type="text" id="name_fournisseur-field" className="form-control" value={selectedIngredientMarchandise.fournisseur ? selectedIngredientMarchandise.fournisseur.nom : 'No'} readOnly />
                             </div>
                             <div className="mb-3">
-                                <label htmlFor="quantite-field" className="form-label">Quantite</label>
-                                <input type="text" id="quantite-field" className="form-control" value={selectedIngredientMarchandise.quantite} readOnly />
+                                <label htmlFor="quantite-field" className="form-label">Quantite Achetée</label>
+                                <input type="text" id="quantite-field" className="form-control" value={selectedIngredientMarchandise.quantite_achetee} readOnly />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="quantite-field" className="form-label">Quantite En stock</label>
+                                <input type="text" id="quantite-field" className="form-control" value={selectedIngredientMarchandise.quantite_en_stock|| "0"} readOnly />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="quantite-field" className="form-label">Quantite Consomée</label>
+                                <input type="text" id="quantite-field" className="form-control" value={selectedIngredientMarchandise.quantite_consomee|| "0"} readOnly />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="prix-field" className="form-label">Prix</label>
@@ -692,61 +778,30 @@ const MarchandiseIngredientListTable = () => {
                 </ModalFooter>
             </Modal>
 
-
-
-            {/* confirm edit Modal */}
-
- <Modal isOpen={modal_confirm_edit} toggle={toggleConfirmEdit} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleConfirmEdit}>Confirmer l'ajout</ModalHeader>
-                {showSuccessMessage && Successed ? (
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Marchandie modifiée avec succès...
-                                    </Alert>
-                                    
-                                ) : null}
-
-{erroredMessage && <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite,Ressayez ultirierement</div>}
-
-                <ModalBody>
-                    
-                        <p>Êtes-vous sûr de vouloir editer cette Marchandie </p>
-                    
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" onClick={toggleConfirmEdit}>Retour</Button>
-                    <Button color="primary" onClick={handleUpdate}>Modifier</Button>
-                </ModalFooter>
-            </Modal>
-
-
-
-
-
-            
-
+        
             {/* confirm add Modal */}
 
-            <Modal isOpen={modal_confirm_add_marchandise} toggle={toggleConfirmAddMarchandise} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleConfirmAddMarchandise}>Confirmer l'ajout</ModalHeader>
-
-                {showSuccessMessage && Successed ? (
-
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Marchandie ajouté avec succès                                    
-                                    </Alert>
-                                                                ) : null}
-    
-
-{erroredMessage && <div className="alert alert-danger"  style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite, Ressayez ultirierement</div>}
-
-                <ModalBody>
-                    
-                        <p>Êtes-vous sûr de vouloir ajouter cette Marchandise </p>
-                   
-                </ModalBody>
+            <Modal isOpen={modal_confirm_add_marchandise} toggle={() => toggleConfirmAddMarchandise(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmAddMarchandise(false)}>Confirmer l'ajout</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Marchandise ajoutée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
                 <ModalFooter>
-                    <Button color="secondary" onClick={toggleConfirmAddMarchandise}>Retour</Button>
-                    <Button color="primary" onClick={handleAddIngredientMarchandise}>Confirmer</Button>
+                <Button color="secondary" onClick={() => toggleConfirmAddMarchandise(false)}>Retour</Button>
                 </ModalFooter>
             </Modal>
 
@@ -754,29 +809,61 @@ const MarchandiseIngredientListTable = () => {
 
 
 
+
+
+
+            <Modal isOpen={modal_confirm_edit} toggle={() => toggleConfirmEdit(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmEdit(false)}>Confirmer la modification</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Marchandise modifiée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
+    <ModalFooter>
+        <Button color="secondary" onClick={() => toggleConfirmEdit(false)}>Retour</Button>
+    </ModalFooter>
+</Modal>
+
             
             
             
             
             
             
-            {/* Remove Modal */}
-            <Modal isOpen={modal_delete} toggle={toggleDeleteModal} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleDeleteModal}>Confirmer la suppression</ModalHeader>
+             {/* Suppression Modal */}
+      <Modal isOpen={modal_delete} toggle={() => toggleDeleteModal(false)} centered>
+        <ModalHeader className="bg-light p-3"toggle={() => toggleDeleteModal(false)} >
+          Confirmer la suppression
+        </ModalHeader>
+        <ModalBody>
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Marchandise suprimée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+        
 
-                
-                {showSuccessMessage && Successed ? (
-
-<Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-Marchandise Supprimée avec succès                                    
-</Alert>
-                            ) : null}
-
-
-{erroredMessage && <div className="alert alert-danger"  style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite, Ressayez ultirierement</div>}
-
-
-                <ModalBody>
                     {selectedIngredientMarchandise && (
                         <p>Êtes-vous sûr de vouloir supprimer cette marchandise: {selectedIngredientMarchandise.nom}?</p>
                     )}

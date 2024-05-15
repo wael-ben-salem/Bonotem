@@ -16,7 +16,16 @@ class IngredientProduitController extends Controller
             'ingredients' => 'required|array',
             'ingredients.*.id_ingredient' => 'required|exists:ingredients,id',
             'ingredients.*.quantite' => 'required|numeric|min:0',
+        ], [
+            'ingredients.required' => 'Le champ des ingrédients est requis.',
+            'ingredients.array' => 'Le champ des ingrédients doit être un tableau.',
+            'ingredients.*.id_ingredient.required' => 'L\'identifiant de l\'ingrédient est requis.',
+            'ingredients.*.id_ingredient.exists' => 'L\'identifiant de l\'ingrédient sélectionné n\'existe pas.',
+            'ingredients.*.quantite.required' => 'La quantité de l\'ingrédient est requise.',
+            'ingredients.*.quantite.numeric' => 'La quantité de l\'ingrédient doit être un nombre.',
+            'ingredients.*.quantite.min' => 'La quantité de l\'ingrédient doit être d\'au moins :min.',
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([

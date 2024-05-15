@@ -10,15 +10,17 @@ const SidebarData = [
 
     },
     {
-        label: "Personnels et Planning",
+        label: "Personnel et Planning",
+        style: { fontSize: "10px" },
         icon: "mdi mdi-calendar-outline",
-
-               subItem: [
-                    { sublabel: "Planning", link: "/planning" },
-                    { sublabel: "Type de Personnels", link: "/personnel" },
-
-                ],
+        subItem: [
+            { sublabel: "Planning", link: "/planning" },
+            { sublabel: "Type de Personnels", link: "/personnel" },
+        ],
     },
+    
+
+    
     {
             label: "Production",
             icon:   "bx bx-barcode",
@@ -27,7 +29,6 @@ const SidebarData = [
                 { sublabel: "Packagings", link: "/packagings" },
                 { sublabel: "Ingrédients Composés", link: "/ingredientCompose" },
                 { sublabel: "Catégories", link: "/categorie" },
-                { sublabel: "Packagings_categorie", link: "/PackagingsCategorie" },
 
                    
 
@@ -114,7 +115,7 @@ const SidebarData = [
     },*/
 
     {
-        label: "Cartes et Produits",
+        label: "Carte et Produit",
         icon:   "bx bx-barcode",
         subItem: [
            
@@ -150,51 +151,46 @@ const SidebarData = [
         ],
     },*/
      {
-                label: "Ventes",
+                label: "Vente",
 
                       icon: "fas fa-chart-line",
                       url: "/vente",
 
             },
     {
-            label: "Dépenses",
+            label: "Dépense et Ventilation",
             icon: "ri-bar-chart-line",
-            subItem: [
-                { sublabel: "Apex Charts", link: "/chart-apexcharts" },
-                { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
-                { sublabel: "Re Charts", link: "/chart-floatcharts" },
-                { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
-                { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
-            ],
+            url:"/couts"
         },
-        {
-                label: "Fournisseurs",
-                icon: "ri-table-2",
-                subItem: [
-                    { sublabel: "Unités", link: "/tables-basic" },
-                    { sublabel: "Marchandises", link: "/tables-listjs" },
-                    { sublabel: "Références/Marques", link: "/table-datatables" },
-                    { sublabel: "Fournisseur", link: "/Fournisseur" },
 
-                ],
-            },
-            {
-                label: "Fournisseurs",
+
+        {
+            label: "Perte",
+            icon: "mdi mdi-briefcase-variant-outline",
+            url: "/perte",
+
+        },
+
+
+        {
+                label: "Fournisseur",
                 icon: "ri-table-2",
-                link: "/Fournisseur"
+                url: "/Fournisseur",
+
                 
             },
-   /* {
-        label: "Charts",
-        icon: "ri-bar-chart-line",
-        subItem: [
-            { sublabel: "Apex Charts", link: "/chart-apexcharts" },
-            { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
-            { sublabel: "Re Charts", link: "/chart-floatcharts" },
-            { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
-            { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
-        ],
-    },*/
+            
+//    {
+//         label: "Charts",
+//         icon: "ri-bar-chart-line",
+//         subItem: [
+//             { sublabel: "Apex Charts", link: "/chart-apexcharts" },
+//             { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
+//             { sublabel: "Re Charts", link: "/chart-floatcharts" },
+//             { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
+//             { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
+//         ],
+//     },
     /*{
         label: "Icons",
         icon: "ri-brush-line",

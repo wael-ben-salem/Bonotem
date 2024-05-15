@@ -5,6 +5,7 @@ import { Button, Card, CardBody,Alert, CardHeader, Col, Container,  Modal, Modal
 
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { addCategorie, deleteCategorie, getAllData, getCategorieeDetails, updateCategorie } from '../../store/categorie/gitCategorySlice';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
@@ -99,7 +100,16 @@ const CartesListTable = () => {
 
     }, [dispatch]);
 
-
+    useEffect(() => {
+        if (errorMessage) {
+    
+        setTimeout(() => {
+            window.location.reload()
+    
+        }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+        }
+    }, [errorMessage]);
+    
 
 
       
@@ -136,13 +146,13 @@ const CartesListTable = () => {
     }
     
     
-    const toggleConfirmAdd = () => {
-        setModalConfirmAdd(!modal_confirm_add);
+    const toggleConfirmAdd = (isOpen) => {
+        setModalConfirmAdd(isOpen);
     }
     
     
-    const toggleConfirmEdit = () => {
-        setModalConfirmEdit(!modal_confirm_edit);
+    const toggleConfirmEdit = (isOpen) => {
+        setModalConfirmEdit(isOpen);
     }
 
 
@@ -193,24 +203,34 @@ const CartesListTable = () => {
             
             
         };
-        dispatch(updateCarte({ id: editCarte.id,  updatedCarte }));
+        dispatch(updateCarte({ id: editCarte.id,  updatedCarte }))
+        .then(() => {
+            // Réinitialiser l'état
+            setEditCarte({
+                name: '',
+               prix: '',
+               id_produit: '', // Store the file itself, initialize as null
+               id_categorie: '', // Store the file itself, initialize as null
+               photo: null, // Store the file itself, initialize as null
+               });
+
+            // Fermer le modal
+            toggleListModal();
+
+            // Ouvrir le modal de confirmation
+            toggleConfirmEdit(true);
+        })
+        .catch(error => {
+            // Gérer l'erreur
+            console.error("Error updating Produit Carte:", error);
+        })
+        .finally(() => {
+            // Désactiver le chargement après l'achèvement de l'action
+        });
 
         
         // Reset the state
-        setEditCarte({
-         name: '',
-        prix: '',
-        id_produit: '', // Store the file itself, initialize as null
-        id_categorie: '', // Store the file itself, initialize as null
-        photo: null, // Store the file itself, initialize as null
-        });
-        setTimeout(() => {
-            toggleListModal();
-            toggleConfirmEdit();
-    
-            window.location.reload();
-    
-        },  4000); 
+       
     };
 
    
@@ -232,7 +252,32 @@ const handleAddCategorie = () => {
 
     formData.append('prix', newCarteData.prix);
     formData.append('id_produit', newCarteData.id_produit);
-    dispatch(addCarte(formData)); // Pass the formData to your addCategorie action
+    dispatch(addCarte(formData)) // Pass the formData to your addCategorie action
+    .then(() => {
+        
+    
+        // Réinitialiser l'état
+        setNewCarteData({
+            name: '',
+            prix: '',
+            id_produit: '', // Store the file itself, initialize as null
+            id_categorie: '', // Store the file itself, initialize as null
+            photo: null, // Store the file itself, initialize as null
+        });
+    
+            // Fermer le modal
+            toggleAddCarteModal();
+    
+            // Ouvrir le modal de confirmation
+            toggleConfirmAdd(true);
+        })
+        .catch(error => {
+            // Gérer l'erreur
+            console.error("Error updating Produit Carte:", error);
+        })
+        .finally(() => {
+            // Désactiver le chargement après l'achèvement de l'action
+        });
     
     // Reset the state
     setNewCarteData({
@@ -242,13 +287,7 @@ const handleAddCategorie = () => {
         id_categorie: '', // Store the file itself, initialize as null
         photo: null, // Store the file itself, initialize as null
     });
-    setTimeout(() => {
-        toggleAddCarteModal();
-        toggleConfirmAdd();
-
-        window.location.reload();
-
-    },  4000); 
+   
 };
 
 
@@ -407,7 +446,7 @@ return(
             
             {/* Add Packaging Modal */}
             <Modal isOpen={modalAddCarte} toggle={toggleAddCarteModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddCarteModal}>Ajout</ModalHeader>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddCarteModal}>Ajouter Carte</ModalHeader>
                                         <ModalBody>
                                             <form className="tablelist-form">
                                             <div className="d-flex flex-column align-items-center">
@@ -482,7 +521,7 @@ return(
                                         <ModalFooter>
                                             <div className="hstack gap-2 justify-content-end">
                                                 <Button type="button" color="light" onClick={toggleAddCarteModal}>Fermer</Button>
-                                                <button type="button" className="btn btn-primary" onClick={toggleConfirmAdd}>Ajouter</button>
+                                                <button type="button" className="btn btn-primary" onClick={handleAddCategorie}>Ajouter</button>
                                             </div>
                                         </ModalFooter>
                                     </Modal>
@@ -491,7 +530,7 @@ return(
 
                                      {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Packaging </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Carte </ModalHeader>
                 <form className="tablelist-form">
                     <ModalBody>
                     <div className="d-flex flex-column align-items-center">
@@ -585,7 +624,7 @@ return(
                     <ModalFooter>
                         <div className="hstack gap-2 justify-content-end">
                             <button type="button" className="btn btn-light" onClick={toggleListModal}>Fermer</button>
-                            <button type="button" className="btn btn-primary" onClick={toggleConfirmEdit}>Mettre à jour</button>
+                            <button type="button" className="btn btn-primary" onClick={handleUpdate}>Mettre à jour</button>
                         </div>
                     </ModalFooter>
                 </form>
@@ -595,7 +634,7 @@ return(
 
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail du Carte</ModalHeader>
                 <ModalBody>
     {selectedCarte && (
         <form className="tablelist-form">
@@ -643,78 +682,90 @@ return(
             </Modal>
 
 
-            
- {/* confirm edit Modal */}
-
- <Modal isOpen={modal_confirm_edit} toggle={toggleConfirmEdit} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleConfirmEdit}>Confirmer l'ajout</ModalHeader>
-                {showSuccessMessage && Success ? (
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Carte modifiée avec succès...
-                                    </Alert>
-                                    
-                                ) : null}
-
-{errorMessage && <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite,Ressayez ultirierement</div>}
-
-                <ModalBody>
-                    
-                        <p>Êtes-vous sûr de vouloir editer cette Carte </p>
-                    
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" onClick={toggleConfirmEdit}>Retour</Button>
-                    <Button color="primary" onClick={handleUpdate}>Modifier</Button>
-                </ModalFooter>
-            </Modal>
-
-
-
-
-
+        
             {/* confirm add Modal */}
 
-            <Modal isOpen={modal_confirm_add} toggle={toggleConfirmAdd} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleConfirmAdd}>Confirmer l'ajout</ModalHeader>
-
-                {showSuccessMessage && Success ? (
-
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Carte ajoutée avec succès                                    
-                                    </Alert>
-                                                                ) : null}
-    
-
-{errorMessage && <div className="alert alert-danger"  style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite, Ressayez ultirierement</div>}
-
-                <ModalBody>
-                    
-                        <p>Êtes-vous sûr de vouloir ajouter cette Carte </p>
-                   
-                </ModalBody>
+            <Modal isOpen={modal_confirm_add} toggle={() => toggleConfirmAdd(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmAdd(false)}>Confirmer l'ajout</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Produit Carte ajoutée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
                 <ModalFooter>
-                    <Button color="secondary" onClick={toggleConfirmAdd}>Retour</Button>
-                    <Button color="primary" onClick={handleAddCategorie}>Ajouer</Button>
+                <Button color="secondary" onClick={() => toggleConfirmAdd(false)}>Retour</Button>
                 </ModalFooter>
             </Modal>
 
 
 
 
-            {/* Remove Modal */}
-            
-            <Modal isOpen={modal_delete} toggle={toggleDeleteModal} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleDeleteModal}>Confirmer la suppression</ModalHeader>
-                {showSuccessMessage && Success ? (
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Carte supprimée avec succès                                    
-                                    </Alert>
-                                    
-                                ) : null}
 
-{errorMessage && <div className="alert alert-danger"  style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite, Ressayez ultirierement</div>}
 
-                <ModalBody>
+
+
+            <Modal isOpen={modal_confirm_edit} toggle={() => toggleConfirmEdit(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmEdit(false)}>Confirmer la modification</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Produit Carte modifiée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
+    <ModalFooter>
+        <Button color="secondary" onClick={() => toggleConfirmEdit(false)}>Retour</Button>
+    </ModalFooter>
+</Modal>
+
+
+
+          
+
+      {/* Suppression Modal */}
+      <Modal isOpen={modal_delete} toggle={() => toggleDeleteModal(false)} centered>
+        <ModalHeader className="bg-light p-3"toggle={() => toggleDeleteModal(false)} >
+          Confirmer la suppression
+        </ModalHeader>
+        <ModalBody>
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Produit Carte suprimée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+        
+
                     {selectedCarte && (
                         <p>Êtes-vous sûr de vouloir supprimer la Carte</p>
                     )}

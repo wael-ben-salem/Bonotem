@@ -89,23 +89,23 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
   
 
   export const gitProduitSlice = createSlice({
-    name: "gitProduitSlice",
+    name: "gitProduit",
     initialState: {
         produits: [],
       loading: false,
       error: null,
       Success: false, // Add this state for success message
-          errorMessage: "", // Add a state to store error message
+      errorMessage: "", // Add a state to store error message
 
 
     },
     reducers: {
       // Define your additional reducers here
       addProduit: (state, action) => {
-        state.produit.push(action.payload);
+        state.produits.push(action.payload);
       },
       clearProduit: (state) => {
-        state.produit = [];
+        state.produits = [];
       },
       // Add more reducers as needed
     },
@@ -128,6 +128,8 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
         .addCase(updateProduit.pending, (state) => {
           state.loading = true;
           state.error = null;
+          state.errorMessage = "";
+
         })
         .addCase(updateProduit.fulfilled, (state, action) => {
           state.loading = false;
@@ -141,10 +143,17 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
               state.Success = false; // Hide success message after 3 seconds
             }, 3000);
           }
+          // You may want to update the state accordingly here
         })
         .addCase(updateProduit.rejected, (state, action) => {
           state.loading = false;
-          state.error = action.error.message;
+          if (action.payload && action.payload.validation_errors) {
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+
+          } else {
+         state.errorMessage = "An error occurred. Please try again.";
+
+          }
         })
         .addCase(deleteProduit.pending, (state) => {
           state.loading = true;
@@ -170,7 +179,7 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
         .addCase(addProduit.pending, (state) => {
           state.loading = true;
           state.error = null;
-                  state.errorMessage = ""; // Reset error message
+          state.errorMessage = ""; // Reset error message
 
         })
         .addCase(addProduit.fulfilled, (state, action) => {
@@ -187,21 +196,16 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
             setTimeout(() => {
               state.Success = false; // Hide success message after 3 seconds
             }, 3000);
-          }
-        })
+          }        })
         .addCase(addProduit.rejected, (state, action) => {
           state.loading = false;
-        state.error = action.payload;
- if (action.payload.validation_errors) {
-          // If validation errors present, set error message accordingly
-          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
-        } else {
-          state.errorMessage = "An error occurred. Please try again."; // Generic error message
-        }
-
-
-
-
+          state.error = action.error.message;
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+          } else {
+            state.errorMessage = "An error occurred. Please try again."; // Generic error message
+          }
         })
         .addCase(insertProduitIngredient.pending, (state) => {
           state.loading = true;

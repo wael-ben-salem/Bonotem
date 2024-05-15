@@ -16,9 +16,25 @@ export const getAllData = createAsyncThunk("gitUser/getAllData", async () => {
 
 export const updateUser = createAsyncThunk(
   "gitUser/updateUser",
+  async ({ id, userupdate }) => {
+      try {
+          const response = await axios.post(`/usersupdate/${id}`, userupdate);
+          console.log("API response:", response);
+          return response; // Assuming the API returns the updated user data
+      } catch (error) {
+          console.error("API error:", error);
+          throw error;
+      }
+  }
+);
+
+
+
+export const updateManagerUser = createAsyncThunk(
+  "gitUser/updateManagerUser",
   async ({ id, userData }) => {
       try {
-          const response = await axios.put(`/usersupdate/${id}`, userData);
+          const response = await axios.post(`/usersmanagerupdate/${id}`, userData);
           console.log("API response:", response);
           return response; // Assuming the API returns the updated user data
       } catch (error) {
@@ -63,11 +79,22 @@ export const deleteUser = createAsyncThunk(
 );
 
 
-
-
-export const addUser = createAsyncThunk("gitUser/addUser", async (userData) => {
+export const addUser = createAsyncThunk("gitUser/addUser", async ({ formData, id }) => {
   try {
-    const response = await axios.post("/adduser", userData);
+    const response = await axios.post(`/adduser/${id}`, formData,id);
+    console.log("API response:", response);
+    return response; // Assuming the API returns the added user data
+  } catch (error) {
+    console.error("API error:", error);
+    throw error;
+  }
+});
+
+
+
+export const addManagerUser = createAsyncThunk("gitUser/addManagerUser", async ({ formData, id }) => {
+  try {
+    const response = await axios.post(`/addmanageruser/${id}`, formData,id);
     console.log("API response:", response);
     return response; // Assuming the API returns the added user data
   } catch (error) {
@@ -80,12 +107,15 @@ export const addUser = createAsyncThunk("gitUser/addUser", async (userData) => {
 
 
 
+
 export const gitUserSlice = createSlice({
   name: "gitUser",
   initialState: {
     users: [],
     loading: false,
     error: null,
+    Success: false, // Add this state for success message
+      errorMessage: "", 
   },
   reducers: {
     // Define your additional reducers here
@@ -116,16 +146,64 @@ export const gitUserSlice = createSlice({
       .addCase(updateUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.errorMessage = "";
+
       })
       .addCase(updateUser.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log("User updated:", action.payload);
+        if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.Success = true; // Set showSuccessMessage to true
+          setTimeout(() => {
+            state.Success = false; // Hide success message after 3 seconds
+          }, 3000);
+        }
         // You may want to update the state accordingly here
       })
       .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        if (action.payload && action.payload.validation_errors) {
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+
+        } else {
+       state.errorMessage = "An error occurred. Please try again.";
+
+        }
+      })
+
+
+      .addCase(updateManagerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.errorMessage = "";
+
+      })
+      .addCase(updateManagerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.Success = true; // Set showSuccessMessage to true
+          setTimeout(() => {
+            state.Success = false; // Hide success message after 3 seconds
+          }, 3000);
+        }
+        // You may want to update the state accordingly here
+      })
+      .addCase(updateManagerUser.rejected, (state, action) => {
+        state.loading = false;
+        if (action.payload && action.payload.validation_errors) {
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+
+        } else {
+       state.errorMessage = "An error occurred. Please try again.";
+
+        }
       })
       .addCase(deleteUser.pending, (state) => {
         state.loading = true;
@@ -134,9 +212,15 @@ export const gitUserSlice = createSlice({
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        // Remove the deleted user from the state
-        state.users = state.users.filter(user => user.id !== action.payload);
-        console.log("User deleted:", action.payload);
+        if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = "Object.values(action.payload.validation_errors)[0][0]";
+        } else {
+          state.Success = true; // Set showSuccessMessage to true
+          setTimeout(() => {
+            state.Success = false; // Hide success message after 3 seconds
+          }, 3000);
+        }
       })
       .addCase(deleteUser.rejected, (state, action) => {
         state.loading = false;
@@ -145,17 +229,64 @@ export const gitUserSlice = createSlice({
       .addCase(addUser.pending, (state) => {
         state.loading = true;
         state.error = null;
+        state.errorMessage = ""; // Reset error message
+
       })
       .addCase(addUser.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
+        
         // Optionally, you can update state with the newly added user
        
-        console.log("User added:", action.payload);
-      })
+        if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.Success = true; // Set showSuccessMessage to true
+          setTimeout(() => {
+            state.Success = false; // Hide success message after 3 seconds
+          }, 3000);
+        }        })
       .addCase(addUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
+        if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.errorMessage = "An error occurred. Please try again."; // Generic error message
+        }
+      })
+      .addCase(addManagerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.errorMessage = ""; // Reset error message
+
+      })
+      .addCase(addManagerUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        
+        // Optionally, you can update state with the newly added user
+       
+        if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.Success = true; // Set showSuccessMessage to true
+          setTimeout(() => {
+            state.Success = false; // Hide success message after 3 seconds
+          }, 3000);
+        }        })
+      .addCase(addManagerUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
+        if (action.payload.validation_errors) {
+          // If validation errors present, set error message accordingly
+          state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+        } else {
+          state.errorMessage = "An error occurred. Please try again."; // Generic error message
+        }
       });
   },
 });

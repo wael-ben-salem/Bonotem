@@ -27,13 +27,19 @@ const AuthAdminProtected = (props) => {
   return <>{props.children}</>;
 };
 
-
 const AuthManagerProtected = (props) => {
+  const { userProfile, loading } = useProfile();
 
- 
+  if (!userProfile || loading || userProfile.role !== "manager") {
+    // Redirect user to login if not logged in, still loading profile, or not an admin
+    return (
+      <Navigate to={{ pathname: "/login", state: { from: props.location } }} />
+    );
+  }
 
   return <>{props.children}</>;
 };
+
 
 const AccessRoute = ({ component: Component, ...rest }) => {
   return (

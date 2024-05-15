@@ -27,17 +27,32 @@ class CategorieController extends Controller
      * Store a newly created resource in storage.
      */
     public function addCategorie(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'description' => 'required|string',
-        'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
-    ]);
+{$validator = Validator::make($request->all(), [
+    'name' => ['required', 'string','unique:categories','regex:/^[A-Za-z\s]+$/'],
+
+    'description' => 'required|string',
+    'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+], [
+    'name.required' => 'Le champ nom est requis.',
+    'name.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+    'name.unique' => 'Ce nom de categorie existe déjà.',
+
+    'name.string' => 'Le champ nom doit être une chaîne de caractères.',
+    'name.max' => 'Le champ nom ne doit pas dépasser :max caractères.',
+    'description.required' => 'Le champ description est requis.',
+    'description.string' => 'Le champ description doit être une chaîne de caractères.',
+    'photo.required' => 'Le champ photo est requis.',
+
+    'photo.file' => 'Le champ photo doit être un fichier.',
+    'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+    'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
+]);
+
 
     if ($validator->fails()) {
-        return response()->json([
-            'validation_errors' => $validator->messages(),
-        ]);
+    return response()->json([
+        'validation_errors' => $validator->messages(),
+    ]);
     } else {
         $categorie = new Categorie();
         $categorie->name = $request->name;
@@ -89,15 +104,33 @@ class CategorieController extends Controller
         $categorie = Categorie::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
             'description' => 'required|string',
+            'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+
+        ], [
+            'name.required' => 'Le champ nom est requis.',
+            'name.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+
+            'name.string' => 'Le champ nom doit être une chaîne de caractères.',
+            'name.max' => 'Le champ nom ne doit pas dépasser :max caractères.',
+            'description.required' => 'Le champ description est requis.',
+            'photo.required' => 'Le champ photo est requis.',
+
+            'photo.file' => 'Le champ photo doit être un fichier.',
+            'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+            'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
+
+            'description.string' => 'Le champ description doit être une chaîne de caractères.',
         ]);
+
 
         if ($validator->fails()) {
             return response()->json([
                 'validation_errors' => $validator->messages(),
             ]);
-        } else {
+        }
+            else {
             $categorie->name = $request->name;
             $categorie->description = $request->description;
 

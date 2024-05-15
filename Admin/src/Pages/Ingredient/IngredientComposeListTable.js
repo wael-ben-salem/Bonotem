@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Card, CardBody,Alert, CardHeader, Col, Container,  Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
 
 import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
@@ -115,6 +116,17 @@ const IngredientComposeListTable = () => {
 
 
     
+useEffect(() => {
+    if (errorMessage) {
+
+    setTimeout(() => {
+        window.location.reload()
+
+    }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }
+}, [errorMessage]);
+
+
 
     
     const toggleAddCategorieModal = () => {
@@ -134,13 +146,13 @@ const IngredientComposeListTable = () => {
     }
     
     
-    const toggleConfirmAdd = () => {
-        setModalConfirmAdd(!modal_confirm_add);
+    const toggleConfirmAdd = (isOpen) => {
+        setModalConfirmAdd(isOpen);
     }
     
     
-    const toggleConfirmEdit = () => {
-        setModalConfirmEdit(!modal_confirm_edit);
+    const toggleConfirmEdit = (isOpen) => {
+        setModalConfirmEdit(isOpen);
     }
 
 
@@ -223,19 +235,35 @@ const IngredientComposeListTable = () => {
 
         
        
-        dispatch(updateIngCompose({ id: editingredientcompose.id, formData ,insertedProduitIngredient}));
+        dispatch(updateIngCompose({ id: editingredientcompose.id, formData ,insertedProduitIngredient}))
 
-        
-        // Reset the state
-        setNewIngComposeData({
+        .then(() => {
+            // Reset the state
+            setNewIngComposeData({
             name_ingredient_compose: '',
             photo: null,
             selectedIngredientId:'',
             quantity:''
         });
+
+            // Fermer le modal
+            toggleListModal();
+
+            // Ouvrir le modal de confirmation
+            toggleConfirmEdit(true);
+        })
+        .catch(error => {
+            // Gérer l'erreur
+            console.error("Error updating Ingrédient Composé:", error);
+        })
+        .finally(() => {
+            // Désactiver le chargement après l'achèvement de l'action
+        });
+
         
-        toggleListModal();
-        toggleConfirmEdit();
+        
+        
+       
     };
 
    
@@ -283,17 +311,35 @@ const handleAddCategorie = () => {
         formData.append(`ingredientsComposes[${index}][quantite]`, ingredient.quantite);
     });
     
-    dispatch(addIngCompose(formData)); // Pass the formData to your addCategorie action
+    dispatch(addIngCompose(formData)) // Pass the formData to your addCategorie action
+    .then(() => {
+        
     
-    // Reset the state
-    setNewIngComposeData({
-        name_ingredient_compose: '',
-        photo: null,
-        selectedIngredientId:'',
-        quantity:''
-    });
-    toggleAddCategorieModal();
-    toggleConfirmAdd();
+        // Réinitialiser l'état
+        setNewIngComposeData({
+            name_ingredient_compose: '',
+            photo: null,
+            selectedIngredientId:'',
+            quantity:''
+        });
+    
+            // Fermer le modal
+            toggleAddCategorieModal();
+    
+            // Ouvrir le modal de confirmation
+            toggleConfirmAdd(true);
+        })
+        .catch(error => {
+            // Gérer l'erreur
+            console.error("Error updating Ingrédient Composé:", error);
+        })
+        .finally(() => {
+            // Désactiver le chargement après l'achèvement de l'action
+        });
+        
+
+
+    
 };
 
 
@@ -522,7 +568,7 @@ return(
                                         <ModalFooter>
                                             <div className="hstack gap-2 justify-content-end">
                                                 <Button type="button" color="light" onClick={toggleAddCategorieModal}>Fermer</Button>
-                                                <button type="button" className="btn btn-primary" onClick={toggleConfirmAdd}>Ajouter</button>
+                                                <button type="button" className="btn btn-primary" onClick={handleAddCategorie}>Ajouter</button>
                                             </div>
                                         </ModalFooter>
                                     </Modal>
@@ -657,7 +703,7 @@ return(
                     <ModalFooter>
                         <div className="hstack gap-2 justify-content-end">
                             <button type="button" className="btn btn-light" onClick={toggleListModal}>Fermer</button>
-                            <button type="button" className="btn btn-primary" onClick={toggleConfirmEdit}>Mettre à jour</button>
+                            <button type="button" className="btn btn-primary" onClick={handleUpdate}>Mettre à jour</button>
                         </div>
                     </ModalFooter>
                 </form>
@@ -668,27 +714,27 @@ return(
             
             {/* confirm add Modal */}
 
-            <Modal isOpen={modal_confirm_add} toggle={toggleConfirmAdd} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleConfirmAdd}>Confirmer l'ajout</ModalHeader>
-
-                {showSuccessMessage && Success ? (
-
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Packaging ajoutée avec succès                                    
-                                    </Alert>
-                                                                ) : null}
-    
-
-{errorMessage && <div className="alert alert-danger"  style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite, Ressayez ultirierement</div>}
-
-                <ModalBody>
-                    
-                        <p>Êtes-vous sûr de vouloir ajouter cette Packaging </p>
-                   
-                </ModalBody>
+            <Modal isOpen={modal_confirm_add} toggle={() => toggleConfirmAdd(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmAdd(false)}>Confirmer l'ajout</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Ingredient Composée ajoutée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
                 <ModalFooter>
-                    <Button color="secondary" onClick={toggleConfirmAdd}>Retour</Button>
-                    <Button color="primary" onClick={handleAddCategorie}>Confirmer</Button>
+                <Button color="secondary" onClick={() => toggleConfirmAdd(false)}>Retour</Button>
                 </ModalFooter>
             </Modal>
 
@@ -698,30 +744,31 @@ return(
 
 
 
-            
-             {/* confirm edit Modal */}
 
- <Modal isOpen={modal_confirm_edit} toggle={toggleConfirmEdit} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleConfirmEdit}>Confirmer la modification</ModalHeader>
-                {showSuccessMessage && Success ? (
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Packaging modifiée avec succès
-                                    </Alert>
-                                    
-                                ) : null}
+            <Modal isOpen={modal_confirm_edit} toggle={() => toggleConfirmEdit(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmEdit(false)}>Confirmer la modification</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                Ingredient Composée modifiée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
+    <ModalFooter>
+        <Button color="secondary" onClick={() => toggleConfirmEdit(false)}>Retour</Button>
+    </ModalFooter>
+</Modal>
 
-{errorMessage && <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite,Ressayez ultirierement</div>}
-
-                <ModalBody>
-                    
-                        <p>Êtes-vous sûr de vouloir editer cette Packaging </p>
-                    
-                </ModalBody>
-                <ModalFooter>
-                    <Button color="secondary" onClick={toggleConfirmEdit}>Retour</Button>
-                    <Button color="primary" onClick={handleUpdate}>Modifier</Button>
-                </ModalFooter>
-            </Modal>
 
 
 
@@ -806,22 +853,27 @@ return(
 
 
 
-            {/* Remove Modal */}
-            <Modal isOpen={modal_delete} toggle={toggleDeleteModal} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleDeleteModal}>Confirmer la suppression</ModalHeader>
-                <ModalBody>
-
-                {showSuccessMessage && Success ? (
-                                    <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                                    Packaging Supprimée avec succès
-                                    </Alert>
-                                    
-                                ) : null}
-
-{errorMessage && <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>Une erreur s'est produite,Ressayez ultirierement</div>}
-
-
-
+            {/* Suppression Modal */}
+      <Modal isOpen={modal_delete} toggle={() => toggleDeleteModal(false)} centered>
+        <ModalHeader className="bg-light p-3"toggle={() => toggleDeleteModal(false)} >
+          Confirmer la suppression
+        </ModalHeader>
+        <ModalBody>
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Ingrédient Composé suprimée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+        
 
 
 
