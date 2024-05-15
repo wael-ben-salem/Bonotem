@@ -6,10 +6,10 @@ const AdminSidebarData = [
 
     },
     {
-        label: "assalem alaykom",
+        label: "Liste",
         icon: "bx bx-line-chart-down",
         subItem: [
-        { sublabel: "Liste des utilisateurs", link: "/tables-adminlistjs" },
+        { sublabel: "Restaurateurs", link: "/test" },
         ],
 
     },

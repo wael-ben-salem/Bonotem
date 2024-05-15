@@ -17,15 +17,25 @@ class AuthPackagingController extends Controller
     $validator = Validator::make($request->all(), [
         'name_packaging' => ['required', 'unique:packagings', 'regex:/^[A-Za-z\s]+$/'],
         'dimension' => 'nullable|string|max:255',
-        'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
+        'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+    ], [
+        'name_packaging.required' => 'Le champ nom de l\'emballage est requis.',
+        'name_packaging.unique' => 'Ce nom d\'emballage existe déjà.',
+        'name_packaging.regex' => 'Le champ nom de l\'emballage doit contenir uniquement des lettres et des espaces.',
+        'dimension.string' => 'Le champ dimension doit être une chaîne de caractères.',
+        'dimension.max' => 'Le champ dimension ne doit pas dépasser :max caractères.',
+        'photo.file' => 'Le champ photo doit être un fichier.',
+        'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+        'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
+        'photo.required' => 'Le champ photo rest requis.',
+
     ]);
+
 
     if ($validator->fails()) {
         return response()->json([
             'validation_errors' => $validator->messages(),
-
-
-        ],422);
+        ]);
     } else {
         $packaging = new Packaging();
         $packaging->name_packaging = $request->name_packaging;
@@ -109,19 +119,18 @@ class AuthPackagingController extends Controller
     public function updatePackaging(Request $request, $id)
     {
 
-            // Find Ingredient
-            $packaging = Packaging::find($id);
 
-            if(!$packaging){
-                return response()->json([
-                   'message'=>'Packaging Not Found.'
-                ],404);
-            }
 
             // Validation
             $validator = Validator::make($request->all(), [
                 'name_packaging' => ['required', 'regex:/^[A-Za-z\s]+$/'],
-                'dimension' => 'nullable|string|max:255',
+                'dimension' => 'required|nullable|string|max:255',
+            ], [
+                'name_packaging.required' => 'Le champ nom de l\'emballage est requis.',
+                'name_packaging.regex' => 'Le champ nom de l\'emballage doit contenir uniquement des lettres et des espaces.',
+                'dimension.string' => 'Le champ dimension doit être une chaîne de caractères.',
+                'dimension.max' => 'Le champ dimension ne doit pas dépasser :max caractères.',
+                'dimension.required' => 'Le champ dimension est requis.',
 
             ]);
 
@@ -130,6 +139,15 @@ class AuthPackagingController extends Controller
                     'validation_errors' => $validator->messages(),
                 ]);
             }else {
+                // Find Ingredient
+            $packaging = Packaging::find($id);
+
+            if(!$packaging){
+                return response()->json([
+                   'message'=>'Packaging Not Found.'
+                ],404);
+            }else {
+
                 $packaging->name_packaging = $request->name_packaging;
                 $packaging->dimension = $request->dimension;
 
@@ -146,6 +164,15 @@ class AuthPackagingController extends Controller
             return response()->json([
                 'message' => "Packaging successfully updated."
             ],200);
+
+
+
+
+            }
+
+
+
+
         }
 
     }

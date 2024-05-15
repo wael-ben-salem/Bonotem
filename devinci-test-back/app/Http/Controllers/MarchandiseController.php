@@ -18,36 +18,84 @@ class MarchandiseController extends Controller
     }
 
 
+
+
+
     public function addIngredient(Request $request)
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'nom' => 'required|string',
+            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
             'reference' => 'required|string',
-            'id_ingredient' => 'required|exists:ingredients,id', // Change to existing ingredient ID or remove if using packaging
-            'quantite' => 'required|integer|min:0',
+            'id_ingredient' => 'required|exists:ingredients,id',
+            'quantite_achetee' => 'required|integer|min:0',
             'id_fournisseur' => 'nullable|exists:fournisseurs,id',
             'unite_id' => 'nullable|exists:unites,id',
-
             'prix' => 'required|numeric|min:0',
             'date_achat' => 'required|date',
+        ], [
+            'nom.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+
+            'nom.required' => 'Le champ nom est requis.',
+            'reference.required' => 'Le champ référence est requis.',
+            'id_ingredient.required' => 'Le champ ID ingrédient est requis.',
+            'id_ingredient.exists' => 'L\'ingrédient sélectionné n\'existe pas.',
+            'quantite_achetee.required' => 'Le champ quantité achetée est requis.',
+            'quantite_achetee.integer' => 'Le champ quantité achetée doit être un entier.',
+            'quantite_achetee.min' => 'Le champ quantité achetée doit être supérieur ou égal à 0.',
+            'id_fournisseur.exists' => 'Le fournisseur sélectionné n\'existe pas.',
+            'unite_id.exists' => 'L\'unité sélectionnée n\'existe pas.',
+            'prix.required' => 'Le champ prix est requis.',
+            'prix.numeric' => 'Le champ prix doit être un nombre.',
+            'prix.min' => 'Le champ prix doit être supérieur ou égal à 0.',
+            'date_achat.required' => 'Le champ date d\'achat est requis.',
+            'date_achat.date' => 'Le champ date d\'achat doit être une date valide.',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'validation_errors' => $validator->messages(),
-            ], 400);
-        }
+            ]);
+        } else {
 
-        // Retrieve the ingredient by its ID
-        $ingredient = Ingredient::find($request->id_ingredient);
+             // Find the latest Marchandise with the same ingredient
+        $latestMarchandise = Marchandise::where('id_ingredient', $request->id_ingredient)->latest()->first();
 
-        // Create the Marchandise instance with the ingredient ID
+        // Calculate the stock quantity for the new Marchandise
+        // Calculate the stock quantity for the new Marchandise
+    $stockQuantity = $request->quantite_achetee;
+    if ($latestMarchandise) {
+        $stockQuantity = ($latestMarchandise->quantite_achetee +$stockQuantity )-$latestMarchandise->quantite_en_stock ;
+        // Create a new Marchandise instance
         $marchandise = Marchandise::create([
             'nom' => $request->nom,
             'reference' => $request->reference,
             'id_ingredient' => $request->id_ingredient,
-            'quantite' => $request->quantite,
+            'quantite_achetee' => $request->quantite_achetee,
+            'id_fournisseur' => $request->id_fournisseur,
+            'prix' => $request->prix,
+            'date_achat' => $request->date_achat,
+            'unite_id' => $request->unite_id,
+            'quantite_en_stock' => $stockQuantity,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'New Marchandise created after successfully!',
+            'data' => $marchandise,
+        ], 200);
+
+
+    }else{
+
+
+
+         // Create the Marchandise instance with the ingredient ID
+         $marchandise = Marchandise::create([
+            'nom' => $request->nom,
+            'reference' => $request->reference,
+            'id_ingredient' => $request->id_ingredient,
+            'quantite_achetee' => $request->quantite_achetee,
             'id_fournisseur' => $request->id_fournisseur,
             'prix' => $request->prix,
             'date_achat' => $request->date_achat,
@@ -59,7 +107,122 @@ class MarchandiseController extends Controller
             'message' => 'Marchandise created successfully!',
             'data' => $marchandise,
         ], 200);
+
     }
+
+    }
+
+
+    }
+
+    public function updateIngredientMarchandise(Request $request, $id)
+{
+    // Validate the incoming request data
+    $validator = Validator::make($request->all(), [
+        'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
+        'reference' => 'required|string',
+        'id_ingredient' => 'required|exists:ingredients,id',
+        'quantite_achetee' => 'required|integer|min:0',
+        'id_fournisseur' => 'nullable|exists:fournisseurs,id',
+        'unite_id' => 'nullable|exists:unites,id',
+        'prix' => 'required|numeric|min:0',
+        'date_achat' => 'required|date',
+    ], [
+        'nom.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+
+        'nom.required' => 'Le champ nom est requis.',
+        'reference.required' => 'Le champ référence est requis.',
+        'id_ingredient.required' => 'Le champ ID ingrédient est requis.',
+        'id_ingredient.exists' => 'L\'ingrédient sélectionné n\'existe pas.',
+        'quantite_achetee.required' => 'Le champ quantité achetée est requis.',
+        'quantite_achetee.integer' => 'Le champ quantité achetée doit être un entier.',
+        'quantite_achetee.min' => 'Le champ quantité achetée doit être supérieur ou égal à 0.',
+        'id_fournisseur.exists' => 'Le fournisseur sélectionné n\'existe pas.',
+        'unite_id.exists' => 'L\'unité sélectionnée n\'existe pas.',
+        'prix.required' => 'Le champ prix est requis.',
+        'prix.numeric' => 'Le champ prix doit être un nombre.',
+        'prix.min' => 'Le champ prix doit être supérieur ou égal à 0.',
+        'date_achat.required' => 'Le champ date d\'achat est requis.',
+        'date_achat.date' => 'Le champ date d\'achat doit être une date valide.',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'validation_errors' => $validator->messages(),
+        ]);
+    }else {
+
+
+        // Find the Marchandise to update
+    $marchandise = Marchandise::findOrFail($id);
+
+    if (!$marchandise) {
+        return response()->json([
+            'message' => 'Marchandise not found',
+        ], 404);
+    } else {
+        // Calculate the stock quantity for the updated Marchandise
+        $previousMarchandise = Marchandise::where('id_ingredient', $request->id_ingredient)
+                                            ->orderBy('created_at', 'desc')
+                                            ->skip(1) // Skip the latest Marchandise
+                                            ->first();
+
+        $stockQuantity = $request->quantite_achetee;
+        if ($previousMarchandise) {
+            $stockQuantity = ($previousMarchandise->quantite_achetee + $stockQuantity) - $previousMarchandise->quantite_en_stock;
+
+        // Update the Marchandise instance
+        $marchandise->update([
+            'nom' => $request->nom,
+            'reference' => $request->reference,
+            'id_ingredient' => $request->id_ingredient,
+            'quantite_achetee' => $request->quantite_achetee,
+            'id_fournisseur' => $request->id_fournisseur,
+            'prix' => $request->prix,
+            'date_achat' => $request->date_achat,
+            'unite_id' => $request->unite_id,
+            'quantite_en_stock' => $stockQuantity,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Marchandise updated with quantite successfully!',
+            'data' => $marchandise,
+        ], 200);
+
+
+        }else{
+            $marchandise->update([
+                'nom' => $request->nom,
+                'reference' => $request->reference,
+                'quantite_achetee' => $request->quantite_achetee,
+                'id_ingredient' => $request->id_ingredient,
+                'id_fournisseur' => $request->id_fournisseur,
+                'prix' => $request->prix,
+                'date_achat' => $request->date_achat,
+                'unite_id' => $request->unite_id,
+            ]);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Marchandise updated successfully!',
+                'data' => $marchandise,
+            ], 200);
+
+
+        }
+
+    }
+
+
+
+
+
+    }
+
+
+}
+
+
 
 
 
@@ -67,35 +230,78 @@ class MarchandiseController extends Controller
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'nom' => 'required|string',
+            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
             'reference' => 'required|string',
             'id_packaging' => 'required|exists:packagings,id', // Change to existing ingredient ID or remove if using packaging
-            'dimension' =>'required|exists:packagings,dimension',
-            'quantite' => 'required|integer|min:0',
+
+            'quantite_achetee' => 'required|integer|min:0',
             'id_fournisseur' => 'nullable|exists:fournisseurs,id',
             'unite_id' => 'nullable|exists:unites,id',
-
             'prix' => 'required|numeric|min:0',
             'date_achat' => 'required|date',
+        ], [
+            'nom.required' => 'Le champ nom est requis.',
+            'nom.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+
+            'reference.required' => 'Le champ référence est requis.',
+            'id_packaging.required' => 'Le champ ID d\'emballage est requis.',
+            'id_packaging.exists' => 'L\'emballage sélectionné n\'existe pas.',
+
+            'quantite_achetee.required' => 'Le champ quantité achetée est requis.',
+            'quantite_achetee.integer' => 'Le champ quantité achetée doit être un entier.',
+            'quantite_achetee.min' => 'Le champ quantité achetée doit être supérieur ou égal à 0.',
+            'id_fournisseur.exists' => 'Le fournisseur sélectionné n\'existe pas.',
+            'unite_id.exists' => 'L\'unité sélectionnée n\'existe pas.',
+            'prix.required' => 'Le champ prix est requis.',
+            'prix.numeric' => 'Le champ prix doit être un nombre.',
+            'prix.min' => 'Le champ prix doit être supérieur ou égal à 0.',
+            'date_achat.required' => 'Le champ date d\'achat est requis.',
+            'date_achat.date' => 'Le champ date d\'achat doit être une date valide.',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'validation_errors' => $validator->messages(),
-            ], 400);
-        }
+            ]);
+        }else{
 
-        // Retrieve the ingredient by its ID
-        $ingredient = Ingredient::find($request->id_ingredient);
 
-        // Create the Marchandise instance with the ingredient ID
-        $marchandise = Marchandise::create([
+
+            // Retrieve the ingredient by its ID
+        $latestMarchandise = Marchandise::where('id_packaging', $request->id_packaging)->latest()->first();
+        $stockQuantity = $request->quantite_achetee;
+        if ($latestMarchandise) {
+            $stockQuantity = ($latestMarchandise->quantite_achetee +$stockQuantity )-$latestMarchandise->quantite_en_stock ;
+            // Create a new Marchandise instance
+            $marchandise = Marchandise::create([
+                'nom' => $request->nom,
+                'reference' => $request->reference,
+                'id_packaging' => $request->id_packaging,
+                'dimension' => $request->dimension,
+                'quantite_achetee' => $request->quantite_achetee,
+                'id_fournisseur' => $request->id_fournisseur,
+                'prix' => $request->prix,
+                'date_achat' => $request->date_achat,
+                'unite_id' => $request->unite_id,
+                'quantite_en_stock' => $stockQuantity,
+            ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'New Marchandise created after successfully!',
+            'data' => $marchandise,
+        ], 200);
+
+
+    }else{
+
+         // Create the Marchandise instance with the ingredient ID
+         $marchandise = Marchandise::create([
             'nom' => $request->nom,
             'reference' => $request->reference,
             'id_packaging' => $request->id_packaging,
             'dimension' => $request->dimension,
-
-            'quantite' => $request->quantite,
+            'quantite_achetee' => $request->quantite_achetee,
             'id_fournisseur' => $request->id_fournisseur,
             'prix' => $request->prix,
             'date_achat' => $request->date_achat,
@@ -107,6 +313,19 @@ class MarchandiseController extends Controller
             'message' => 'Marchandise created successfully!',
             'data' => $marchandise,
         ], 200);
+
+
+
+
+
+    }
+
+
+
+
+        }
+
+
     }
 
 
@@ -114,101 +333,110 @@ class MarchandiseController extends Controller
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'nom' => 'required|string',
+            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
             'reference' => 'required|string',
             'id_packaging' => 'required|exists:packagings,id',
-            'dimension' =>'required|exists:packagings,dimension',
-            'quantite' => 'required|integer|min:0',
+            'quantite_achetee' => 'required|integer|min:0',
             'id_fournisseur' => 'nullable|exists:fournisseurs,id',
             'unite_id' => 'nullable|exists:unites,id',
             'prix' => 'required|numeric|min:0',
             'date_achat' => 'required|date',
+        ], [
+            'nom.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+
+            'nom.required' => 'Le champ nom est requis.',
+            'reference.required' => 'Le champ référence est requis.',
+            'id_packaging.required' => 'Le champ ID d\'emballage est requis.',
+            'id_packaging.exists' => 'L\'emballage sélectionné n\'existe pas.',
+
+            'quantite_achetee.required' => 'Le champ quantité achetée est requis.',
+            'quantite_achetee.integer' => 'Le champ quantité achetée doit être un entier.',
+            'quantite_achetee.min' => 'Le champ quantité achetée doit être supérieur ou égal à 0.',
+            'id_fournisseur.exists' => 'Le fournisseur sélectionné n\'existe pas.',
+            'unite_id.exists' => 'L\'unité sélectionnée n\'existe pas.',
+            'prix.required' => 'Le champ prix est requis.',
+            'prix.numeric' => 'Le champ prix doit être un nombre.',
+            'prix.min' => 'Le champ prix doit être supérieur ou égal à 0.',
+            'date_achat.required' => 'Le champ date d\'achat est requis.',
+            'date_achat.date' => 'Le champ date d\'achat doit être une date valide.',
         ]);
 
         if ($validator->fails()) {
             return response()->json([
                 'validation_errors' => $validator->messages(),
-            ], 400);
-        }
+            ]);
+        } else {
 
-        // Retrieve the Marchandise instance by its ID
+
+
+            // Retrieve the Marchandise instance by its ID
         $marchandise = Marchandise::find($id);
 
         if (!$marchandise) {
             return response()->json([
                 'message' => 'Marchandise not found!',
             ], 404);
-        }
+        }else{
 
-        // Update the Marchandise instance with the new data
+             // Calculate the stock quantity for the updated Marchandise
+        $previousMarchandise = Marchandise::where('id_packaging', $request->id_packaging)
+        ->orderBy('created_at', 'desc')
+        ->skip(1) // Skip the latest Marchandise
+        ->first();
+
+        $stockQuantity = $request->quantite_achetee;
+        if ($previousMarchandise) {
+        $stockQuantity = ($previousMarchandise->quantite_achetee + $stockQuantity) - $previousMarchandise->quantite_en_stock;
+
+        // Update the Marchandise instance
         $marchandise->update([
-            'nom' => $request->nom,
-            'reference' => $request->reference,
-            'id_packaging' => $request->id_packaging,
-            'dimension' => $request->dimension,
-            'quantite' => $request->quantite,
-            'id_fournisseur' => $request->id_fournisseur,
-            'prix' => $request->prix,
-            'date_achat' => $request->date_achat,
-            'unite_id' => $request->unite_id,
-        ]);
-
-        return response()->json([
-            'status' => 200,
-            'message' => 'Marchandise updated successfully!',
-            'data' => $marchandise,
-        ], 200);
-    }
-
-public function updateIngredient(Request $request, $id)
-{
-    // Validate the incoming request data
-    $validator = Validator::make($request->all(), [
-        'nom' => 'required|string',
-        'reference' => 'required|string',
-        'id_ingredient' => 'required|exists:ingredients,id', // Change to existing ingredient ID or remove if using packaging
-        'quantite' => 'required|integer|min:0',
-        'id_fournisseur' => 'nullable|exists:fournisseurs,id',
-        'unite_id' => 'nullable|exists:unites,id',
-        'prix' => 'required|numeric|min:0',
-        'date_achat' => 'required|date',
-    ]);
-
-    if ($validator->fails()) {
-        return response()->json([
-            'validation_errors' => $validator->messages(),
-        ], 400);
-    }
-
-    // Retrieve the Marchandise by its ID
-    $marchandise = Marchandise::find($id);
-
-    if (!$marchandise) {
-        return response()->json([
-            'message' => 'Marchandise not found',
-        ], 404);
-    }
-    $ingredient = Ingredient::find($request->id_ingredient);
-
-    // Update the Marchandise details
-    $marchandise->update([
         'nom' => $request->nom,
         'reference' => $request->reference,
-        'quantite' => $request->quantite,
-        'id_ingredient' => $request->id_ingredient,
-
+        'id_packaging' => $request->id_packaging,
+        'dimension' => $request->dimension,
+        'quantite_achetee' => $request->quantite_achetee,
         'id_fournisseur' => $request->id_fournisseur,
         'prix' => $request->prix,
         'date_achat' => $request->date_achat,
         'unite_id' => $request->unite_id,
-    ]);
+        'quantite_en_stock' => $stockQuantity,
+        ]);
 
-    return response()->json([
+        return response()->json([
         'status' => 200,
-        'message' => 'Marchandise updated successfully!',
+        'message' => 'Marchandise updated with quantite successfully!',
         'data' => $marchandise,
-    ], 200);
+        ], 200);
+
+        }else{
+            $marchandise->update([
+                'nom' => $request->nom,
+                'reference' => $request->reference,
+                'id_packaging' => $request->id_packaging,
+                'dimension' => $request->dimension,
+                'quantite_achetee' => $request->quantite_achetee,
+                'id_fournisseur' => $request->id_fournisseur,
+                'prix' => $request->prix,
+                'date_achat' => $request->date_achat,
+                'unite_id' => $request->unite_id,
+            ]);
+            return response()->json([
+                'status' => 200,
+                'message' => 'Marchandise updated successfully!',
+                'data' => $marchandise,
+            ], 200);
+
+    }
 }
+
+
+
+
+
+        }
+
+
+    }
 
 
     public function showMarchandise($id)

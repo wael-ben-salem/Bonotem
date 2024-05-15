@@ -20,7 +20,10 @@ return new class extends Migration
             $table->unsignedBigInteger('id_packaging')->nullable();
             $table->unsignedBigInteger('unite_id')->nullable();
 
-            $table->integer('quantite');
+            $table->integer('quantite_achetee');
+            $table->integer('quantite_en_stock')->nullable();
+            $table->integer('quantite_consomee')->nullable();
+
             $table->float('prix');
             $table->date('date_achat');
             $table->timestamps();

@@ -24,8 +24,12 @@ class User extends Authenticatable
         'password',
         'statut',
         'role_id',
+        'id_creator',
         'numero',
-        'adresse'
+        'adresse',
+        'date_abonnement',
+        'photo',
+        'date_expiration_abonnement'
     ];
 
     /**
@@ -38,6 +42,14 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+
+
+
+
+    public function getPhotoAttribute($photo){
+        return $photo ? asset("/storage/users".$photo):null;
+    }
+
     /**
      * The attributes that should be cast.
      *
@@ -46,10 +58,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'date_abonnement' => 'datetime', // Convertir date_abonnement en objet DateTime
+
     ];
     public function role()
     {
         return $this->belongsTo(Role::class);
     }
+    public function createdUsers()
+{
+    return $this->hasMany(User::class, 'id_creator');
+}
 
 }

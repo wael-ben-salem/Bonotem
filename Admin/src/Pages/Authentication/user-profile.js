@@ -37,6 +37,8 @@ const UserProfile = () => {
 
   const [email, setemail] = useState("");
   const [name, setname] = useState("");
+  const [photo, setphoto] = useState("");
+
   const [idx, setidx] = useState(1);
 
   const { error, success } = useSelector((state) => ({
@@ -51,11 +53,15 @@ const UserProfile = () => {
         setname(obj.displayName);
         setemail(obj.email);
         setidx(obj.uid);
+        setphoto(obj.photo);
+
       } else if (
         process.env.REACT_APP_DEFAULTAUTH === "fake" ||
         process.env.REACT_APP_DEFAULTAUTH === "jwt"
       ) {
         setname(obj.username);
+        setphoto(obj.photo);
+
         setemail(obj.email);
         setidx(obj.uid);
       }
@@ -71,10 +77,14 @@ const UserProfile = () => {
 
     initialValues: {
       username: name || "",
+      photo: photo || "",
+
       idx: idx || "",
     },
     validationSchema: Yup.object({
       username: Yup.string().required("Please Enter Your UserName"),
+      photo: Yup.string().required("Please Enter Your Photo"),
+
     }),
     onSubmit: (values) => {
       dispatch(editProfile(values));
@@ -105,8 +115,8 @@ const UserProfile = () => {
                     <div className="d-flex">
                       <div className="ms-3">
                         <img
-                          src={avatar}
-                          alt=""
+              src={photo ? `${photo.replace('users', '')}` : ''} // Check if photo is defined before using replace
+                                alt=""
                           className="avatar-md rounded-circle img-thumbnail"
                         />
                       </div>

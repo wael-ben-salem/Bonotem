@@ -5,6 +5,7 @@ namespace App\Models\Packaging;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Models\Marchandise;
 use App\Models\Packaging\PackagingCategory;
+use App\Models\Perte;
 use App\Models\Produit;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -53,6 +54,11 @@ class Packaging extends Model
     {
         return $this->belongsToMany(Produit::class, 'packaging_produit', 'id_packaging' )
                     ->withPivot('nombre_package');
+    }
+
+    public function pertes()
+    {
+        return $this->hasMany(Perte::class, 'id_packaging');
     }
 
 

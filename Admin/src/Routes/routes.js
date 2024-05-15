@@ -5,6 +5,8 @@ import { Navigate } from "react-router-dom";
 import Dashboard from "../Pages/Dashboard";
 //Admin-Dashboard
 import AdminDashboard from "../Pages/AdminDashboard";
+import AdminManagerList from "../Pages/AdminDashboard/AdminManajerListTable";
+
 import Testexample from "../Pages/Test/test";
 
 
@@ -13,6 +15,8 @@ import IngredientCompose from "../Pages/Ingredient/IngredientComposeListTable";
 
 // Import Planning
 import Planning from "../Pages/Personnels et Planning";
+
+
 // Import Catégorie
 import Categorie from "../Pages/Categorie/CategoryListTable.js";
 import MarchandiseIngredient from  "../Pages/Marchandise/MarchandiseIngredientListTable.js";
@@ -64,7 +68,7 @@ import FormWizard from "../Pages/Forms/FormWizard";
 // Import Tables
 import BasicTable from "../Pages/Tables/BasicTable.js";
 import ListJs from "../Pages/Tables/ListTables/ListTables";
-import AdminList from "../Pages/Tables/ListTables/AdminListTables.js"
+import AdminList from "../Pages/AdminDashboard/AdminUserListTables";
 import DataTable from "../Pages/Tables/DataTables/DataTables";
 
 
@@ -75,22 +79,61 @@ import DataTable from "../Pages/Tables/DataTables/DataTables";
 import IconMaterialdesign from "../Pages/Icons/IconMaterialdesign";
 import IconFontawesome from "../Pages/Icons/IconFontAwesome";
 import IconDripicons from "../Pages/Icons/IconDrip";
-import IconBoxicons from "../Pages/Icons/IconBoxicons"
+import IconBoxicons from "../Pages/Icons/IconBoxicons";
+import Chart from "../Pages/AllCharts/apex/RadialChart";
+
+
+
+
+
+
 
 // Import Map Pages
 import VectorMaps from "../Pages/Maps/VectorMap";
 import GoogleMap from "../Pages/Maps/GoogleMap";
 import FournisseurListTable from "../Pages/Fournisseur/FournisseurListTable";
+import CartesListTable from "../Pages/Carte/CarteListTable";
+import VentesListTable from "../Pages/Vente/VentesListTable";
+import PerteListTable from "../Pages/Perte/PerteListTable";
+import CoutListTable from "../Pages/Cout/CoutListTable.js";
 
 
 const authProtectedRoutes = [
   //dashboard
   { path: "/dashboard", component: <Dashboard /> },
+
+
+  //marchandise
   { path: "/marchandise-Ingredient", component: <MarchandiseIngredient /> },
   { path: "/marchandise-Packaging", component: <MarchandisePackaging /> },
 
+
+  //ingredientCompose
   { path: "/ingredientCompose", component: <IngredientCompose /> },
+
+  { path: "/chart-apexcharts", component: <Chart /> },
+  
+
+
+  //Fournisseur
   { path: "/Fournisseur", component: <FournisseurListTable /> },
+
+
+  //carte
+
+  { path: "/carte", component: <CartesListTable /> },
+
+  //pertes
+
+  { path: "/perte", component: <PerteListTable /> },
+  
+  { path: "/couts", component: <CoutListTable /> },
+
+  //ventes
+  { path: "/vente", component: <VentesListTable /> },
+
+
+  
 
 
   
@@ -169,7 +212,12 @@ const authProtectedRoutes = [
 const authAdminProtectedRoutes = [
   //Admin-dashboard
   { path: "/admindashboard", component: <AdminDashboard /> },
+  { path: "/adminlistjs-tables", component: <AdminManagerList /> },
   { path: "/tables-adminlistjs", component: <AdminList /> },
+
+   // Profile
+   { path: "/userprofile", component: <UserProfile /> },
+
 
   
 ];
@@ -177,6 +225,10 @@ const authAdminProtectedRoutes = [
 
 const authManagerProtectedRoutes = [
   { path: "/test", component: <Testexample /> },
+   // Profile
+   { path: "/userprofile", component: <UserProfile /> },
+   
+
 
   //Admin-dashboard
   

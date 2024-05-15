@@ -12,7 +12,7 @@ class Marchandise extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['reference', 'nom', 'quantite', 'prix','unite_id' ,'date_achat','id_ingredient','id_packaging','id_fournisseur','unite_id'];
+    protected $fillable = ['reference', 'nom', 'quantite_achetee','quantite_en_stock','quantite_consomee', 'prix','unite_id' ,'date_achat','id_ingredient','id_packaging','id_fournisseur','unite_id'];
     protected $morphClass = 'ingredient';
 
 
@@ -40,4 +40,11 @@ class Marchandise extends Model
     {
         return $this->belongsTo(Fournisseur::class , 'id_fournisseur');
     }
+
+
+
+    public function pertes()
+{
+    return $this->hasMany(Perte::class, 'id_marchandise');
+}
 }

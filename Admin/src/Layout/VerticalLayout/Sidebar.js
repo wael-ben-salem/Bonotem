@@ -139,6 +139,8 @@ const Sidebar = (props) => {
                             ? " "
                             : "has-arrow"
                         }
+                        style={{ marginRight: "-15px" }}
+
                       >
                         <i
                           className={item.icon}
