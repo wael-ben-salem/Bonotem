@@ -14,9 +14,14 @@ import IngredientCompose from "../Pages/Ingredient/IngredientComposeListTable";
 
 
 // Import Planning
-import Planning from "../Pages/Personnels et Planning";
 
-
+import Planning from "../Pages/Planning/PlanningListTable.js";
+// Import Personnel
+import Personnel from "../Pages/Personnel/PersonnelListTable.js";
+import TypePersonnel from "../Pages/TypePersonnel/TypePersonnelListTable.js";
+import ChargesFixes from "../Pages/ChargeFixe/ChargeFixeListTable.js"; 
+// Import Planning
+//import Planning from "../Pages/Planning/PlanningListTable.js";
 // Import Catégorie
 import Categorie from "../Pages/Categorie/CategoryListTable.js";
 import MarchandiseIngredient from  "../Pages/Marchandise/MarchandiseIngredientListTable.js";
@@ -152,7 +157,12 @@ const authProtectedRoutes = [
   // Calender
   { path: "/planning", component: <Planning /> },
 
-  
+   // Personnel
+   { path: "/personnel", component: <Personnel/> },
+   //Typepersonnel
+   { path: "/typepersonnel", component: <TypePersonnel/> },
+   // Chargefixe
+   { path: "/chargefixe", component: <ChargesFixes/> },
    // Catégorie
     { path: "/categorie", component: <Categorie /> },
      // Produit

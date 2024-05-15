@@ -28,6 +28,11 @@ import gitFournisseurReducer from "./fournisseur/gitFournisseurSlice";
 import gitIngredientComposeReducer from "./ingredient/GitIngredientComposerSlice";
 import gitCarteReducer from "./carte/gitCarteSlice";
 import gitPerteReducer from "./perte/gitPerteSlice";
+import gitPlanningReducer from "./planning/gitPlanningSlice";
+import gitPersonnelReducer from "./personnel/gitPersonnelSlice";
+import gitTypePersonnelReducer from "./typepersonnel/gitTypePersonnelSlice";
+import gitChargeFixeReducer from './chargefixe/gitChargeFixeSlice';
+import gitJourReducer from "./jour/gitJourSlice";
 
 import gitCoutReducer from "./Cout/gitCoutSlice";
 
@@ -60,7 +65,11 @@ const rootReducer = combineReducers({
   gitCarte:gitCarteReducer,
   gitPerte:gitPerteReducer,
   gitCout:gitCoutReducer,
-
+gitPersonnel:gitPersonnelReducer,
+ gitTypePersonnel: gitTypePersonnelReducer,
+ gitchargefixe: gitChargeFixeReducer,
+  gitJours:gitJourReducer,
+ 
   gitVente:gitVenteReducer,
   gitMarchandiseIngredient:gitMarchandiseIngredientReducer,
   gitMarchandisePackaging:gitMarchandisePackagingReducer,

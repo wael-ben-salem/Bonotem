@@ -21,6 +21,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\User\AuthController;
 use App\Http\Controllers\Api\Packaging\AuthPackagingController;
 use App\Http\Controllers\Api\Packaging\AuthPackagingCategoryController;
+use App\Http\Controllers\PersonnelController;
+use App\Http\Controllers\JourController;
+use App\Http\Controllers\PlanningController;
+use App\Http\Controllers\TypePersonnelController;
+use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\ChargeFixeController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -129,66 +136,9 @@ Route::post('/produit', [ProduitController::class, 'addProduit']);
 Route::get('/produit',[ProduitController::class,'produit']);
 Route::get('/produit/{id}',[ProduitController::class,'showProduit']);
 Route::put('/produit/{id}',[ProduitController::class,'updateProduit']);
-
+Route::post('/produits/{produitId}/associer-ingredients', [ProduitController::class, 'associerIngrédients']);
 
 //Unite
 Route::post('/unite', [UniteController::class, 'addUnite']);
 Route::get('/unite',[UniteController::class,'unite']);
-
-
-//Ingredient compose
-Route::post('/ingredientsCompose', [IngredientComposeController::class, 'addIngredientCompose']);
-Route::get('/ingredientsCompose', [IngredientComposeController::class, 'IngredientCompose']);
-Route::get('/ingredientsCompose/{id}', [IngredientComposeController::class, 'show']);
-
-Route::post('/ingredientsCompose/{id}', [IngredientComposeController::class, 'updateIngredientCompose']);
-Route::delete('/ingredientsCompose/{id}', [IngredientComposeController::class, 'destroy']);
-
-//Marchandise Packaging
-
-Route::post('/marchandisePackaging', [MarchandiseController::class, 'addPackaging']);
-Route::put('/marchandisePackaging/{id}',[MarchandiseController::class,'updatePackaging']);
-
-
-//Marchandise Ingredient
-Route::post('/marchandiseIngredient', [MarchandiseController::class, 'addIngredient']);
-Route::put('/marchandiseIngredient/{id}',[MarchandiseController::class,'updateIngredientMarchandise']);
-
-//Marchandise
-
-Route::get('/marchandise',[MarchandiseController::class,'marchandise']);
-Route::delete('/marchandise/{id}', [MarchandiseController::class, 'destroy']);
-Route::get('/marchandise/{id}',[MarchandiseController::class,'showMarchandise']);
-
-
-//Cartes
-Route::post('/cartes', [CartesController::class, 'store']);
-Route::get('/cartes', [CartesController::class, 'cartes']);
-Route::delete('/cartes/{id}', [CartesController::class, 'destroy']);
-Route::get('/cartes/{id}', [CartesController::class, 'show']);
-Route::put('/cartes/{id}', [CartesController::class, 'update']);
-
-
-//Ventes
-Route::get('/ventes', [VentesController::class, 'ventes']);
-Route::get('/ventes/{id}', [VentesController::class, 'show']);
-Route::delete('/ventes/{id}', [VentesController::class, 'destroy']);
-Route::post('/ventes', [VentesController::class, 'store']);
-Route::put('/ventes/{id}', [VentesController::class, 'update']);
-
-
-
-//Pertes
-Route::get('/pertes', [PerteController::class, 'perte']);
-Route::get('/pertes/{id}', [PerteController::class, 'show']);
-Route::delete('/pertes/{id}', [PerteController::class, 'destroy']);
-Route::post('/pertes', [PerteController::class, 'addPerte']);
-Route::put('/pertes/{id}', [PerteController::class, 'updatePerte']);
-
-//Cout
-Route::get('/couts', [CoutController::class, 'index']);
-Route::get('/couts/{id}', [CoutController::class, 'show']);
-Route::delete('/couts/{id}', [CoutController::class, 'destroy']);
-Route::post('/couts', [CoutController::class, 'addCout']);
-Route::put('/couts/{id}', [CoutController::class, 'updateCout']);
 
