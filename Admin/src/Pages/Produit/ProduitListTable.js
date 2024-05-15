@@ -8,7 +8,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { addProduit, deleteProduit, updateProduit,getAllProduit } from '../../store/produit/gitProduitSlice';
 import { getAllData} from '../../store/categorie/gitCategorySlice';
 import { getAllPackaging} from '../../store/Packagings/gitPackagingSlice';
-import { getAllDataIngredient } from '../../store/ingredient/GitIngredientSlice';
+import { getAllDataIngredient } from '../../store/ingredient/gitIngredientSlice';
 
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

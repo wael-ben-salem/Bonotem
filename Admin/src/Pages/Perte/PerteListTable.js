@@ -13,7 +13,7 @@ import { addPerte, deletePerte, getAllPerteData, getPerteDetails, updatePerte } 
 import {  getAllMarchandiseData } from '../../store/marchandise/gitMarchandiseIngredientSlice';
 
 import { getAllPackaging} from '../../store/Packagings/gitPackagingSlice';
-import { getAllDataIngredient } from '../../store/ingredient/GitIngredientSlice';
+import { getAllDataIngredient } from '../../store/ingredient/gitIngredientSlice';
 
 
 const PerteListTable = () => {

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Card, CardBody, CardHeader, Alert,Col, Container,  Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
 
 import Breadcrumbs from "../../components/Common/Breadcrumb";
-import {  getAllDataIngredient } from '../../store/ingredient/GitIngredientSlice';
+import {  getAllDataIngredient } from '../../store/ingredient/gitIngredientSlice';
 import { getAllUnite } from '../../store/Unite/gitUniteSlice';
 import { getAllFournisseur } from '../../store/fournisseur/gitFournisseurSlice';
 import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';

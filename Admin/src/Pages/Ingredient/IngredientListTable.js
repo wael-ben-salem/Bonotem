@@ -25,7 +25,7 @@ import {
     updateingredient,
   deleteIngredient,
   addIngredient,
-} from "../../store/ingredient/GitIngredientSlice";
+} from "../../store/ingredient/gitIngredientSlice";
 
 const IngredientTables = () => {
   const dispatch = useDispatch();

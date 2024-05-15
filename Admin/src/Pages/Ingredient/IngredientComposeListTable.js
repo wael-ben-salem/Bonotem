@@ -9,7 +9,7 @@ import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { addIngCompose, deleteIngCompose, getAllIngCompose, updateIngCompose } from '../../store/ingredient/GitIngredientComposerSlice';
-import { getAllDataIngredient } from '../../store/ingredient/GitIngredientSlice';
+import { getAllDataIngredient } from '../../store/ingredient/gitIngredientSlice';
 
 
 

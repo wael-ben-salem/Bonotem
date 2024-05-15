@@ -19,7 +19,7 @@ import gitPackagingReducer from "./Packagings/gitPackagingSlice";
 import gitPackagingCategorieReducer from "./Packagings/gitPackagingCategorie"; 
 import gitCategorieReducer from "./categorie/gitCategorySlice";
 import gitProduitReducer from "./produit/gitProduitSlice";
-import gitIngredientReducer from "./ingredient/GitIngredientSlice";
+import gitIngredientReducer from "./ingredient/gitIngredientSlice";
 import gitUniteReducer from "./Unite/gitUniteSlice";
 import gitMarchandiseIngredientReducer from "./marchandise/gitMarchandiseIngredientSlice";
 import gitMarchandisePackagingReducer from "./marchandise/gitMarchandisePackagingSlice";
