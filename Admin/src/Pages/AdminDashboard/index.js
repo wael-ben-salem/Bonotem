@@ -26,20 +26,9 @@ const Dashboard = () => {
             {/* Overview Chart */}
             <AdminOverView />
             {/* Social Source Chart */}
-            <AdminSocialSource />
           </Row>
 
-          <Row>
-            {/* Order Stats */}
-            <AdminOrderStatus />
-            {/* Notifications */}
-            <AdminNotifications />
-            {/* Revenue by Location Vector Map */}
-            <AdminRevenueByLocation />
-          </Row>
-
-          {/* Latest Transaction Table */}
-          <AdminLatestTransation />
+          
         </Container>
       </div>
     </React.Fragment>

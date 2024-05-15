@@ -16,7 +16,7 @@ const account = (state = initialState, action) => {
       return {
         ...state,
         user: action.payload, // Assuming payload contains user data
-        error: null // Reset error to null on successful registration
+        registrationError: false // Reset error to null on successful registration
       };
     case REGISTER_USER_FAILED:
       return {

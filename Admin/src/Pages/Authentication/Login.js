@@ -93,6 +93,10 @@ const Login = ({ login , user }) => {
       history("/admindashboard");
     } else if (userData.role === "restaurateur") {
       history("/dashboard");
+    }else if (userData.role === "manager"){
+
+      history("/test");
+
     }
   }
 

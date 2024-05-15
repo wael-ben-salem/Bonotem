@@ -10,7 +10,8 @@ const SidebarData = [
 
     },
     {
-        label: "Personnels et Planning",
+        label: "Personnel et Planning",
+        style: { fontSize: "10px" },
         icon: "mdi mdi-calendar-outline",
 
                subItem: [
@@ -19,17 +20,33 @@ const SidebarData = [
                     { sublabel: " TypePersonnels", link: "/typepersonnel" },
 
                 ],
+        subItem: [
+            { sublabel: "Planning", link: "/planning" },
+            { sublabel: "Type de Personnels", link: "/personnel" },
+        ],
     },
+    
+
+    
     {
             label: "Production",
             icon:   "bx bx-barcode",
             subItem: [
                 { sublabel: "Ingrédients", link: "/ingredient" },
+                { sublabel: "Packagings", link: "/packagings" },
                 { sublabel: "Ingrédients Composés", link: "/ingredientCompose" },
                 { sublabel: "Catégories", link: "/categorie" },
-                { sublabel: "Packagings", link: "/packaging" },
-                   { sublabel: "Packagings", link: "/packagings" },
-                    { sublabel: "Packagings_categorie", link: "/PackagingsCategorie" },
+
+                   
+
+            ],
+        },
+        {
+            label: "Marchandise",
+            icon: "ri-table-2",
+            subItem: [
+                { sublabel: "Ingrédients", link: "/marchandise-Ingredient" },
+                { sublabel: "Packagings", link: "/marchandise-Packaging" },
 
                    
 
@@ -105,7 +122,7 @@ const SidebarData = [
     },*/
 
     {
-        label: "Cartes et Produits",
+        label: "Carte et Produit",
         icon:   "bx bx-barcode",
         subItem: [
            
@@ -141,14 +158,14 @@ const SidebarData = [
         ],
     },*/
      {
-                label: "Ventes",
+                label: "Vente",
 
                       icon: "fas fa-chart-line",
                       url: "/vente",
 
             },
     {
-            label: "Dépenses",
+            label: "Dépense et Ventilation",
             icon: "ri-bar-chart-line",
             subItem: [
                 { sublabel: "Charges Fixes", link: "/chargefixe" },
@@ -159,26 +176,37 @@ const SidebarData = [
                 { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
             ],
         },
+            url:"/couts"
+        },
+
+
         {
-                label: "Fournisseurs",
+            label: "Perte",
+            icon: "mdi mdi-briefcase-variant-outline",
+            url: "/perte",
+
+        },
+
+
+        {
+                label: "Fournisseur",
                 icon: "ri-table-2",
-                subItem: [
-                    { sublabel: "Unités", link: "/tables-basic" },
-                    { sublabel: "Marchandises", link: "/tables-listjs" },
-                    { sublabel: "Références/Marques", link: "/table-datatables" },
-                ],
+                url: "/Fournisseur",
+
+                
             },
-   /* {
-        label: "Charts",
-        icon: "ri-bar-chart-line",
-        subItem: [
-            { sublabel: "Apex Charts", link: "/chart-apexcharts" },
-            { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
-            { sublabel: "Re Charts", link: "/chart-floatcharts" },
-            { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
-            { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
-        ],
-    },*/
+            
+//    {
+//         label: "Charts",
+//         icon: "ri-bar-chart-line",
+//         subItem: [
+//             { sublabel: "Apex Charts", link: "/chart-apexcharts" },
+//             { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
+//             { sublabel: "Re Charts", link: "/chart-floatcharts" },
+//             { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
+//             { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
+//         ],
+//     },
     /*{
         label: "Icons",
         icon: "ri-brush-line",

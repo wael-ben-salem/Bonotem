@@ -871,7 +871,7 @@ const ListTables = () => {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <div className="hstack gap-2 justify-content-end">
+                            <div className="hstack gap-2 justify-content-end">
                             <button type="button" className="btn btn-light" onClick={() => setmodal_list(false)}>Close</button>
                             <button type="submit" className="btn btn-success" id="add-btn">Add Customer</button>
                             {/* <button type="button" className="btn btn-success" id="edit-btn">Update</button> */}

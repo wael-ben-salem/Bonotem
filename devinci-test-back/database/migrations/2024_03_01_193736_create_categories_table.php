@@ -21,10 +21,7 @@ return new class extends Migration
             $table->string('photo')->nullable();
             $table->timestamps();
         });
-        Schema::table('produits', function (Blueprint $table) {
-            $table->unsignedBigInteger('id_categorie')->nullable();
-            $table->foreign('id_categorie')->references('id')->on('categories')->onDelete('cascade');
-        });
+
     }
 
     /**
@@ -32,10 +29,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('produits', function (Blueprint $table) {
-            $table->dropForeign(['id_categorie']);
-            $table->dropColumn('id_categorie');
-        });
+
 
         Schema::dropIfExists('categories');
     }

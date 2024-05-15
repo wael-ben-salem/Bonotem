@@ -1,102 +1,87 @@
-import React from "react";
-import { Card, CardBody, Col, Row } from "reactstrap";
+import React, { useEffect } from 'react';
+import { connect } from 'react-redux';
+import { getAllUserStatiqueData } from '../../store/user/gitUserStatitqueSlice';
+import { Card, CardBody, Col, Row } from 'reactstrap';
+import RadialChart1 from './AdminpanelChart1';
+import RadialChart2 from './AdminpanelChart2';
+import RadialChart3 from './AdminpanelChart3';
 
-import RadialChart1 from "./AdminpanelChart1";
-import RadialChart2 from "./AdminpanelChart2";
-import RadialChart3 from "./AdminpanelChart3";
+const UserPanel = ({ userStatistics, fetchUserStatistics }) => {
+  useEffect(() => {
+    fetchUserStatistics();
+  }, [fetchUserStatistics]);
 
-const UserPanel = () => {
+  const { totalRestaurateurs, totalManagers, totalAmountManagers, best_manager_name, num_users_by_best_manager } = userStatistics;
+
   return (
     <React.Fragment>
       <Row>
         <Col xl={3} sm={6}>
           <Card>
-            <CardBody>
+            <CardBody style={{ backgroundColor: 'white', padding: '20px' }}>
+            <br></br>
+
               <div className="d-flex text-muted">
                 <div className="flex-shrink-0 me-3 align-self-center">
                   <div id="radialchart-1" className="apex-charts" dir="ltr">
-                    <RadialChart1 />
+                    <RadialChart1 value={totalRestaurateurs} />
                   </div>
                 </div>
-
                 <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Users</p>
-                  <h5 className="mb-3">2.2k</h5>
-                  <p className="text-truncate mb-0">
-                    <span className="text-success me-2">
-                      {" "}
-                      0.02%{" "}
-                      <i className="ri-arrow-right-up-line align-bottom ms-1"></i>
-                    </span>{" "}
-                    From previous
-                  </p>
+                  <p className="mb-1">Nombre Total des Restaurateurs</p>
+                  <h5 className="mb-3">{totalRestaurateurs}<i className="ri-group-line" ></i></h5>
+                  {/* Additional statistics */}
                 </div>
               </div>
+              <br></br>
+              
             </CardBody>
           </Card>
         </Col>
 
         <Col xl={3} sm={6}>
           <Card>
-            <CardBody>
+            <CardBody style={{ backgroundColor: 'white', padding: '20px' }}>
+            <br></br>
+
               <div className="d-flex">
                 <div className="flex-shrink-0 me-3 align-self-center">
-                  <RadialChart2
-                    id="radialchart-2"
-                    className="apex-charts"
-                    dir="ltr"
-                  />
+                  <RadialChart2 value={totalManagers} className="apex-charts" dir="ltr" />
                 </div>
-
                 <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Views per minute</p>
-                  <h5 className="mb-3">50</h5>
-                  <p className="text-truncate mb-0">
-                    <span className="text-success me-2">
-                      {" "}
-                      1.7%{" "}
-                      <i className="ri-arrow-right-up-line align-bottom ms-1"></i>
-                    </span>{" "}
-                    From previous
-                  </p>
+                  <p className="mb-1">Nombre Total des Managers</p>
+                  <h5 className="mb-3">{totalManagers}<i className="ri-group-line" ></i></h5>
+                  {/* Additional statistics */}
                 </div>
               </div>
+              <br></br>
             </CardBody>
           </Card>
         </Col>
 
         <Col xl={3} sm={6}>
           <Card>
-            <CardBody>
+            <CardBody style={{ backgroundColor: 'white', padding: '20px' }}>
+            <br></br>
+
               <div className="d-flex text-muted">
                 <div className="flex-shrink-0 me-3 align-self-center">
-                  <RadialChart3
-                    id="radialchart-3"
-                    className="apex-charts"
-                    dir="ltr"
-                  />
+                  <RadialChart3 value={totalAmountManagers} className="apex-charts" dir="ltr" />
                 </div>
-
                 <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Bounce Rate</p>
-                  <h5 className="mb-3">24.03 %</h5>
-                  <p className="text-truncate mb-0">
-                    <span className="text-danger me-2">
-                      {" "}
-                      0.01%{" "}
-                      <i className="ri-arrow-right-down-line align-bottom ms-1"></i>
-                    </span>{" "}
-                    From previous
-                  </p>
+                  <p className="mb-1">Gestionnaires du montant total</p>
+                  <h5 className="mb-3">{totalAmountManagers.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}</h5>
+                  {/* Additional statistics */}
                 </div>
               </div>
+              <br></br>
             </CardBody>
           </Card>
         </Col>
 
         <Col xl={3} sm={6}>
           <Card>
-            <CardBody>
+            <CardBody style={{ backgroundColor: 'white',marginTop:'-3px'}}>
               <div className="d-flex text-muted">
                 <div className="flex-shrink-0 me-3 align-self-center">
                   <div className="avatar-sm">
@@ -106,16 +91,11 @@ const UserPanel = () => {
                   </div>
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">New Visitors</p>
-                  <h5 className="mb-3">435</h5>
-                  <p className="text-truncate mb-0">
-                    <span className="text-success me-2">
-                      {" "}
-                      0.01%{" "}
-                      <i className="ri-arrow-right-up-line align-bottom ms-1"></i>
-                    </span>{" "}
-                    From previous
-                  </p>
+                  <p className="mb-1"> Le Manager le plus Actif</p>
+                  <h5 className="mb-3">{best_manager_name}</h5>
+                  <p className="mb-1">Nombre de Restaurateurs de {best_manager_name} </p>
+                  <h5 className="mb-3">{num_users_by_best_manager}</h5>
+                  {/* Additional statistics */}
                 </div>
               </div>
             </CardBody>
@@ -126,4 +106,12 @@ const UserPanel = () => {
   );
 };
 
-export default UserPanel;
+const mapStateToProps = state => ({
+  userStatistics: state.gitUserStatique // Assuming the slice is named gitUserStatique
+});
+
+const mapDispatchToProps = {
+  fetchUserStatistics: getAllUserStatiqueData
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserPanel);

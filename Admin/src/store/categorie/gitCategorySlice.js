@@ -5,7 +5,7 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllData = createAsyncThunk("gitCategorie/getAllData", async () => {
+export const getAllData = createAsyncThunk("gitCategorie/getAllUnite", async () => {
     try {
       const response = await axios.get("/categorie");
       console.log("API response:", response);
@@ -21,7 +21,7 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllData", async () =
     "gitCategorie/updateCategorie",
     async ({ id, categorieData }) => {
         try {
-            const response = await axios.put(`/categorie/${id}`, categorieData);
+            const response = await axios.post(`/categori/${id}`, categorieData);
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -38,7 +38,7 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllData", async () =
       try {
         const response = await axios.get(`/categorie/${categorieId}`);
         console.log("API response:", response);
-        return response.categories;
+        return response;
       } catch (error) {
         console.error("API error:", error);
         throw error;
@@ -81,6 +81,10 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllData", async () =
         categories: [],
       loading: false,
       error: null,
+      Success: false, // Add this state for success message
+      errorMessage: "", // Add a state to store error message
+
+
     },
     reducers: {
       // Define your additional reducers here
@@ -111,46 +115,93 @@ export const getAllData = createAsyncThunk("gitCategorie/getAllData", async () =
         .addCase(updateCategorie.pending, (state) => {
           state.loading = true;
           state.error = null;
+          state.errorMessage = "";
+
         })
         .addCase(updateCategorie.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
-          console.log("Category Package updated:", action.payload);
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+          } else {
+            state.Success = true; // Set showSuccessMessage to true
+            setTimeout(() => {
+              state.Success = false; // Hide success message after 3 seconds
+            }, 3000);
+          }
           // You may want to update the state accordingly here
         })
         .addCase(updateCategorie.rejected, (state, action) => {
           state.loading = false;
-          state.error = action.error.message;
+          if (action.payload && action.payload.validation_errors) {
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+
+          } else {
+         state.errorMessage = "An error occurred. Please try again.";
+
+          }
         })
         .addCase(deleteCategorie.pending, (state) => {
           state.loading = true;
           state.error = null;
+          state.erroredMessage = "";
+
         })
         .addCase(deleteCategorie.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
           // Remove the deleted user from the state
-          state.categories = state.categories.filter(packaging => packaging.id !== action.payload);
-          console.log("Category Package deleted:", action.payload);
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = "Object.values(action.payload.validation_errors)[0][0]";
+          } else {
+            state.Success = true; // Set showSuccessMessage to true
+            setTimeout(() => {
+              state.Success = false; // Hide success message after 3 seconds
+            }, 3000);
+          }
         })
         .addCase(deleteCategorie.rejected, (state, action) => {
           state.loading = false;
-          state.error = action.error.message;
+          if (action.payload && action.payload.validation_errors) {
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+
+          } else {
+         state.errorMessage = "An error occurred. Please try again.";
+
+          }
         })
         .addCase(addCategorie.pending, (state) => {
           state.loading = true;
           state.error = null;
+          state.errorMessage = ""; // Reset error message
+
         })
         .addCase(addCategorie.fulfilled, (state, action) => {
           state.loading = false;
           state.error = null;
+          
           // Optionally, you can update state with the newly added user
          
-          console.log("Category Package added:", action.payload);
-        })
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+          } else {
+            state.Success = true; // Set showSuccessMessage to true
+            setTimeout(() => {
+              state.Success = false; // Hide success message after 3 seconds
+            }, 3000);
+          }        })
         .addCase(addCategorie.rejected, (state, action) => {
           state.loading = false;
           state.error = action.error.message;
+          if (action.payload.validation_errors) {
+            // If validation errors present, set error message accordingly
+            state.errorMessage = Object.values(action.payload.validation_errors)[0][0];
+          } else {
+            state.errorMessage = "An error occurred. Please try again."; // Generic error message
+          }
         });
     },
   });

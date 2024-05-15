@@ -22,6 +22,10 @@ class Categorie extends Model
 
 
 
+
+
+
+
     public function produits()
     {
         return $this->hasMany(Produit::class, 'id_categorie');

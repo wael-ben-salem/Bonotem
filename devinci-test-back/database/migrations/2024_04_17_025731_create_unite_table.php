@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('name_unite');
             $table->timestamps();
         });
+
     }
 
     /**
@@ -23,6 +24,8 @@ return new class extends Migration
      */
     public function down()
     {
+
+
         Schema::dropIfExists('unites');
     }
 };

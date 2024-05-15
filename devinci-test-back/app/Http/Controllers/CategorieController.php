@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Categorie;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 class CategorieController extends Controller
 {
@@ -26,17 +27,32 @@ class CategorieController extends Controller
      * Store a newly created resource in storage.
      */
     public function addCategorie(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'description' => 'required|string',
-        'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
-    ]);
+{$validator = Validator::make($request->all(), [
+    'name' => ['required', 'string','unique:categories','regex:/^[A-Za-z\s]+$/'],
+
+    'description' => 'required|string',
+    'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+], [
+    'name.required' => 'Le champ nom est requis.',
+    'name.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
+    'name.unique' => 'Ce nom de categorie existe déjà.',
+
+    'name.string' => 'Le champ nom doit être une chaîne de caractères.',
+    'name.max' => 'Le champ nom ne doit pas dépasser :max caractères.',
+    'description.required' => 'Le champ description est requis.',
+    'description.string' => 'Le champ description doit être une chaîne de caractères.',
+    'photo.required' => 'Le champ photo est requis.',
+
+    'photo.file' => 'Le champ photo doit être un fichier.',
+    'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+    'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
+]);
+
 
     if ($validator->fails()) {
-        return response()->json([
-            'validation_errors' => $validator->messages(),
-        ]);
+    return response()->json([
+        'validation_errors' => $validator->messages(),
+    ]);
     } else {
         $categorie = new Categorie();
         $categorie->name = $request->name;
@@ -82,53 +98,59 @@ class CategorieController extends Controller
     }
 
 
-    public function updateCategorie(Request $request, $id)
+
+ public function updateCategorie(Request $request, $id)
     {
-        try {
-            $categorie = Categorie::find($id);
+        $categorie = Categorie::findOrFail($id);
 
-            if(!$categorie){
-                return response()->json([
-                   'message'=>'Category Not Found.'
-                ],404);
-            }
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
+            'description' => 'required|string',
+            'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
 
-            $validator = Validator::make($request->all(), [
-                'name' => 'string|max:255',
-                'description' => 'string',
-                'photo' => 'nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // Image upload is optional
-            ]);
+        ], [
+            'name.required' => 'Le champ nom est requis.',
+            'name.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'validation_errors' => $validator->messages(),
-                ]);
-            } else {
-                $categorie->fill($request->except('photo'));
+            'name.string' => 'Le champ nom doit être une chaîne de caractères.',
+            'name.max' => 'Le champ nom ne doit pas dépasser :max caractères.',
+            'description.required' => 'Le champ description est requis.',
+            'photo.required' => 'Le champ photo est requis.',
 
-                // Handle the photo update if it's present in the request
-                if ($request->hasFile('photo')) {
-                    $photo = $request->file('photo');
-                    $filename = time() . '.' . $photo->getClientOriginalExtension();
-                    $photo->storeAs('public', $filename);
-                    $categorie->photo = $filename;
-                }
+            'photo.file' => 'Le champ photo doit être un fichier.',
+            'photo.mimes' => 'Le champ photo doit être un fichier de type : jpeg, png, jpg, gif ou svg.',
+            'photo.max' => 'Le champ photo ne doit pas dépasser :max kilo-octets.',
 
-                $categorie->save();
+            'description.string' => 'Le champ description doit être une chaîne de caractères.',
+        ]);
 
-                return response()->json([
-                    'message' => "Category successfully updated."
-                ],200);
-            }
-        } catch (\Exception $e) {
-            // Return Json Response
+
+        if ($validator->fails()) {
             return response()->json([
-                'message' => "Something went really wrong!"
-            ],500);
+                'validation_errors' => $validator->messages(),
+            ]);
+        }
+            else {
+            $categorie->name = $request->name;
+            $categorie->description = $request->description;
+
+            // Check if 'photo_url' exists in the request and update the photo attribute
+            if ($request->hasFile('photo')) {
+                $photo = $request->file('photo');
+                $filename = time() . '.' . $photo->getClientOriginalExtension();
+                $photo->storeAs('public', $filename);
+                $categorie->photo = $filename;
+            }
+
+            $categorie->save();
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Catégorie mise à jour',
+                'Categorie' => $categorie,
+            ]);
         }
     }
-
-
     /**
      * Remove the specified resource from storage.
      */

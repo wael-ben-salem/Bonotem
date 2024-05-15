@@ -12,10 +12,13 @@ import NonAuthLayout from "../Layout/NonAuthLayout";
 import VerticalLayout from "../Layout/VerticalLayout/index";
 import AdminHorizontalLayout from "../AdminLayout/HorizontalAdminLayout/index";
 import AdminVerticalLayout from "../AdminLayout/VerticalAdminLayout/index";
+import ManagerVerticalLayout from "../ManagerLayout/VerticalManagerLayout/index";
+import ManagerHorizontalLayout from "../ManagerLayout/HorizontalManagerLayout/index";
+
 
 import HorizontalLayout from "../Layout/HorizontalLayout/index";
-import { AuthProtected ,AuthAdminProtected } from "./AuthProtected";
-import { authProtectedRoutes,authAdminProtectedRoutes, publicRoutes } from "./routes";
+import { AuthProtected ,AuthAdminProtected, AuthManagerProtected } from "./AuthProtected";
+import { authProtectedRoutes,authAdminProtectedRoutes, publicRoutes, authManagerProtectedRoutes } from "./routes";
 
 const getLayout = (layoutType) => {
   let Layout = VerticalLayout;
@@ -56,6 +59,23 @@ const getAdminLayout = (AdminlayoutType) => {
 
 
 
+const getManagerLayout = (ManagerLayoutType) => {
+  let ManagerLayout = ManagerVerticalLayout;
+  switch (ManagerLayoutType) {
+      case layoutTypes.MANAGERVERTICAL:
+        ManagerLayout = AdminVerticalLayout;
+      break;
+      case layoutTypes.MANAGERHORIZONTAL:
+        ManagerLayout = ManagerHorizontalLayout ;
+      break;
+    default:
+      break;
+  }
+  return ManagerLayout;
+};
+
+
+
 const Index = () => {
 
   const { layoutType } = useSelector((state) => ({
@@ -64,9 +84,14 @@ const Index = () => {
   const { AdminlayoutType } = useSelector((state) => ({
     AdminlayoutType: state.Layout.AdminlayoutType,
   }));
+  const { ManagerLayoutType } = useSelector((state) => ({
+    ManagerLayoutType: state.Layout.ManagerLayoutType,
+  }));
 
   const Layout = getLayout(layoutType);
   const AdminLayout = getAdminLayout(AdminlayoutType);
+  const ManagerLayout = getManagerLayout(ManagerLayoutType);
+
 
 
   return (
@@ -108,6 +133,20 @@ const Index = () => {
                 <AuthAdminProtected>
                     <AdminLayout>{route.component}</AdminLayout>
                 </AuthAdminProtected>}
+              key={idx}
+              exact={true}
+            />
+            
+          ))}
+      </Route>
+      <Route>
+          {authManagerProtectedRoutes.map((route, idx) => (
+            <Route
+              path={route.path}
+              element={
+                <AuthManagerProtected>
+                    <ManagerLayout>{route.component}</ManagerLayout>
+                </AuthManagerProtected>}
               key={idx}
               exact={true}
             />

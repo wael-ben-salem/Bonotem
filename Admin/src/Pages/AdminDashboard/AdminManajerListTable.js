@@ -1,14 +1,68 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Breadcrumbs from "../../../components/Common/Breadcrumb";
-import { Button, Card, CardBody, CardHeader, Col, Container,  Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
+import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { Button, Card,Alert, CardBody, CardHeader, Col, Container,  Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
+import moment from 'moment';
 
-import { getAllData, updateUser , getUserDetails , deleteUser ,addUser} from '../../../store/user/gitUserSlice';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
+import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons';
+
+
+import { getAllData, updateUser , getUserDetails , deleteUser ,addUser} from '../../store/user/gitUserSlice';
 
 const AdminListTables = () => {
     const dispatch = useDispatch();
     const users = useSelector(state => state.gitUser.users);
+    const [hoverShow, setHoverShow] = useState(false);
+    const [hoverEdit, setHoverEdit] = useState(false);
+    const [hoverRemove, setHoverRemove] = useState(false);
+    const [hover, setHover] = useState(false);
+    const [currentPage, setCurrentPage] = useState(0);
+        const itemsPerPage = 4;
+        
+        const id = useSelector(state => state.login.user.id);
+
+        // Calcul du nombre total de pages
     
+        // Fonction pour diviser les éléments en pages
+        // Fonction pour diviser les éléments en pages avec filtrage
+const paginateProduits = () => {
+    // Filtrage des utilisateurs par rôle 'manager'
+    const filteredUsers = users.filter(user => user.role && user.role.name_role === 'manager');
+
+    // Calcul des index de pagination pour les utilisateurs filtrés
+    const startIndex = currentPage * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+
+    // Retourner les utilisateurs filtrés paginés
+    return filteredUsers.slice(startIndex, endIndex);
+};
+
+
+const filteredUsers = users.filter(user => user.role && user.role.name_role === 'manager');
+
+
+const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+
+  // Fonction pour changer de page
+  const changePage = (page) => {
+    setCurrentPage(page);
+};
+
+
+
+        const [modal_confirm_edit, setModalConfirmEdit] = useState(false);
+    const [modal_confirm_add, setModalConfirmAdd] = useState(false);
+
+
+
+    const { Success, errorMessage } = useSelector(state => ({
+        Success: state.gitUser.Success,
+        errorMessage: state.gitUser.errorMessage,
+        
+      }));
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
 
     const [modal_list, setmodal_list] = useState(false);
     const [editUser, setEditUser] = useState(null);
@@ -22,6 +76,8 @@ const AdminListTables = () => {
     const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
     const [modalAddUser, setModalAddUser] = useState(false);
     const [modalAddAdmin, setModalAddAdmin] = useState(false);
+    const [editedPhoto, setEditedPhoto] = useState(""); // Store the file itself, initialize as null
+    const [editedDate, setEditedDate] = useState(""); // Store the file itself, initialize as null
 
     const [newUserData, setNewUserData] = useState({
         name: '',
@@ -43,6 +99,33 @@ const AdminListTables = () => {
 
 
 
+    useEffect(() => {
+        if (Success) {
+    
+          setShowSuccessMessage(true);
+          setTimeout(() => {
+            setShowSuccessMessage(false);
+            window.location.reload()
+    
+          }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+        }
+      }, [Success]);
+      
+
+useEffect(() => {
+    if (errorMessage) {
+
+    setTimeout(() => {
+        window.location.reload()
+
+    }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }
+}, [errorMessage]);
+
+
+    
+
+
 
 
 
@@ -50,10 +133,7 @@ const AdminListTables = () => {
     const toggleAddUserModal = () => {
         setModalAddUser(!modalAddUser);
     };
-    const toggleAddAdminModal = () => {
-        setModalAddAdmin(!modalAddAdmin);
-    };
-
+   
     const toggleListModal = () => {
         setmodal_list(!modal_list);
     }
@@ -64,7 +144,12 @@ const AdminListTables = () => {
     const toggleShowModal = () => {
         setModalShow(!modal_show);
     }
-
+    const toggleConfirmAdd = (isOpen) => {
+        setModalConfirmAdd(isOpen);
+    }
+    const toggleConfirmEdit = (isOpen) => {
+        setModalConfirmEdit(isOpen);
+    }
 
 
 
@@ -90,21 +175,59 @@ const AdminListTables = () => {
         setEditedAdresse(user.adresse);
         setEditedNumero(user.numero);
         setEditedStatus(user.statut);
+        setEditedPhoto(user.photo); 
+        setEditedDate(user.date_abonnement);
+
         toggleListModal();
 
     };
 
    const handleUpdate = () => {
-    const updatedUser = {
-        id: editUser.id,
-        name: editedName,
-        email: editedEmail,
-        adresse: editedAdresse,
-        numero: editedNumero,
-        statut: editedStatus
-    };
-    dispatch(updateUser({ id: editUser.id, userData: updatedUser }));
-    toggleListModal();
+    
+    const formData = new FormData();
+    formData.append('id', editUser.id); // Append the file to the form data
+    formData.append('name', editedName); // Append the file to the form data
+    formData.append('email', editedEmail); // Append the file to the form data
+    formData.append('adresse', editedAdresse); // Append the file to the form data
+    formData.append('numero', editedNumero); // Append the file to the form data
+    formData.append('statut', editedStatus); // Append the file to the form data
+    formData.append('photo', editedPhoto); // Append the file to the form data
+    formData.append('date_abonnement', editedDate); // Append the file to the form data
+
+
+
+
+    dispatch(updateUser({ id: editUser.id, userupdate: formData }))
+    .then(() => {
+        // Réinitialiser l'état
+       
+
+    setEditUser({
+        nom: '',
+        email: '',
+        adresse: '', // Store the file itself, initialize as null
+        numero: '', // Store the file itself, initialize as null
+        statut: '', // Store the file itself, initialize as null
+        date_abonnement:'',
+        photo:null,
+        
+    });
+
+        // Fermer le modal
+        toggleListModal();
+
+        // Ouvrir le modal de confirmation
+        toggleConfirmEdit(true);
+    })
+    .catch(error => {
+        // Gérer l'erreur
+        console.error("Error updating Manager:", error);
+    })
+    .finally(() => {
+        // Désactiver le chargement après l'achèvement de l'action
+    });
+
+     
 }
 
 
@@ -122,7 +245,30 @@ const openShowModal = (user) => {
 
 
 const handleAddUser = () => {
-    dispatch(addUser(newUserData));
+    const formData = new FormData();
+
+    formData.append('name', newUserData.name); // Append the file to the form data
+    formData.append('email', newUserData.email); // Append the file to the form data
+    formData.append('adresse', newUserData.adresse); // Append the file to the form data
+    formData.append('numero', newUserData.numero); // Append the file to the form data
+    formData.append('statut', newUserData.statut); // Append the file to the form data
+    formData.append('id_creator', newUserData.id); // Append the file to the form data
+    formData.append('password', newUserData.password); // Append the file to the form data
+    formData.append('role_id', newUserData.role_id); // Append the file to the form data
+    formData.append('photo', newUserData.photo); // Append the file to the form data
+
+
+
+
+
+    dispatch(addUser({ id, formData }))
+    .then(() => {
+        
+    
+        // Réinitialiser l'état
+        
+
+    
     setNewUserData({
         name: '',
         email: '',
@@ -130,27 +276,27 @@ const handleAddUser = () => {
         numero: '',
         statut: '',
         role_id : '',
-        password:''
+        password:'',
+        photo:''
     });
-    toggleAddUserModal();
+            // Fermer le modal
+            toggleAddUserModal();
+    
+            // Ouvrir le modal de confirmation
+            toggleConfirmAdd(true);
+        })
+        .catch(error => {
+            // Gérer l'erreur
+            console.error("Error updating Manager:", error);
+        })
+        .finally(() => {
+            // Désactiver le chargement après l'achèvement de l'action
+        });
+     
 
 };
 
 
-const handleAddAdmin = () => {
-    dispatch(addUser(newUserData));
-    setNewUserData({
-        name: '',
-        email: '',
-        adresse: '',
-        numero: '',
-        statut: '',
-        role_id : '',
-        password:''
-    });
-    toggleAddAdminModal();
-
-};
 
 
 
@@ -164,20 +310,23 @@ const handleAddAdmin = () => {
                         <Col lg={12}>
                             <Card>
                                 <CardHeader>
-                                    <h4 className="card-title mb-0">Gérer les Utilisateurs</h4>
+                                    <h4 className="card-title mb-0">Gérer les Managers</h4>
                                 </CardHeader>
 
                                 <CardBody>
                                     <div id="customerList">
                                         <Row className="g-4 mb-3">
                                             <Col className="col-sm-auto">
-                                                <div className="d-flex gap-1">
-                                                <Button color="success" className="add-btn"  onClick={toggleAddUserModal} id="create-btn"><i className="ri-add-line align-bottom me-1"></i> Ajouter Restaurateur</Button>
-                                                <Button color="info" className="add-btn"  onClick={toggleAddAdminModal} id="create-btn"><i className="ri-add-line align-bottom me-1"></i> Ajouter Admin</Button>
-                                                    <Button color="soft-danger">
-                                                        {/* onClick="deleteMultiple()" */}
-                                                        <i className="ri-delete-bin-2-line"></i>
-                                                    </Button>
+                                                <div className="d-flex gap-10">
+                                                <Button  color="soft-info" className="btn btn-sm btn-info" onClick={toggleAddUserModal}
+                                                  onMouseEnter={() => setHover(true)}
+                                                  onMouseLeave={() => setHover(false)}
+                                                  id="create-btn">
+                                                 <i className={hover ? "ri-add-fill align-bottom me-1" : "ri-add-line align-bottom me-1"}></i>
+                                                  {hover ? "Manager" : ""}
+
+                                                </Button>
+                                                
                                                 </div>
                                             </Col>
                                             <Col className="col-sm">
@@ -200,18 +349,23 @@ const handleAddAdmin = () => {
                                                             </div>
                                                         </th>
                                                         <th className="sort" data-sort="User-Id">ID</th>
+                                                        <th className="sort" data-sort="User-name">Photo</th>
+
                                                         <th className="sort" data-sort="User-name">Nom</th>
                                                         <th className="sort" data-sort="User-email">Email</th>
-                                                        <th className="sort" data-sort="User-role">Role</th>
                                                         <th className="sort" data-sort="User-adresse">Adresse</th>
                                                         <th className="sort" data-sort="User-numero">Numéro de téléphone</th>
+                                                        <th className="sort" data-sort="User-role">Date Abonnement</th>
+
                                                         <th className="sort" data-sort="User-statut">Statut</th>
                                                         <th className="sort" data-sort="action">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="list form-check-all">
-                                                    {users && users.length > 0 ? 
-                                                        users.map(user => (
+                                                    {paginateProduits() && users.length > 0 ? 
+                                                        paginateProduits()
+
+                                                        .map(user => (
                                                             <tr key={user.id} >
                                                                 <th scope="row" onClick={() => openShowModal(user)}>
                                                                     <div className="form-check">
@@ -219,11 +373,28 @@ const handleAddAdmin = () => {
                                                                     </div>
                                                                 </th>
                                                                 <td onClick={() => openShowModal(user)}>{user.id}</td>
+                                                                <td onClick={() => openShowModal(user)}>
+                                                                    {user.photo ? (
+                                                                        <img
+                                                                        src={`${user.photo.replace('users', '')}`} // Supprimer le préfixe 'fournisseurs'
+                                                                        alt={user.name}
+                                                                        style={{
+                                                                            width: "50px",
+                                                                            height: "50px",
+                                                                            borderRadius: "50%", // Appliquer une bordure en cercle
+                                                                            objectFit: "cover", // S'assurer que l'image remplit correctement le cercle
+                                                                        }}
+                                                                        />
+                                                                    ) : (
+                                                                        "Pas de photo"
+                                                                    )}
+                                                                    </td>
                                                                 <td onClick={() => openShowModal(user)}>{user.name}</td>
                                                                 <td onClick={() => openShowModal(user)}>{user.email }</td>
-                                                                <td onClick={() => openShowModal(user)}>{user.role ? user.role.name_role : 'No'}</td> 
                                                                 <td onClick={() => openShowModal(user)}>{user.adresse}</td>
                                                                 <td>{user.numero && `+216 ${user.numero}`}</td>
+                                                                <td onClick={() => openShowModal(user)}>{moment(user.date_expiration_abonnement).format('LLLL')}</td>
+
                                                                 <td className="status" onClick={() => openShowModal(user)}>
                                                                     <span className={`badge badge-soft-${user.statut === 'activé' ? 'success' : 'danger'} text-uppercase`}>
                                                                         {user.statut}
@@ -231,15 +402,39 @@ const handleAddAdmin = () => {
                                                                 </td>
                                                                 <td>
                                                                     <div className="d-flex gap-2">
-                                                                        <div className="show">
-                                                                            <button className="btn btn-sm btn-dark show-item-btn" onClick={() => openShowModal(user)}>Details</button>
-                                                                        </div>
-                                                                        <div className="edit">
-                                                                            <button className="btn btn-sm btn-success edit-item-btn" onClick={() => openEditModal(user)}>Modifier</button>
-                                                                        </div>
-                                                                        <div className="remove">
-                                                                            <button className="btn btn-sm btn-danger remove-item-btn"onClick={() => { openDeleteModal(user); }} >Supprimer</button>
-                                                                        </div>
+                                                                    <Button
+                                                            color="soft-dark"
+                                                            size="sm"
+                                                            className="show-item-btn"
+                                                            onClick={() => openShowModal(user)}
+                                                            onMouseEnter={() => setHoverShow(true)}
+                                                            onMouseLeave={() => setHoverShow(false)}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEye} />
+                                                            {/* {hoverShow ? " Consulter" : ""} */}
+                                                        </Button>
+                                                        <Button
+                                                            color="soft-success"
+                                                            size="sm"
+                                                            className="edit-item-btn"
+                                                            onClick={() => openEditModal(user)}
+                                                            onMouseEnter={() => setHoverEdit(true)}
+                                                            onMouseLeave={() => setHoverEdit(false)}
+                                                        >
+                                                            <FontAwesomeIcon icon={faEdit} />
+                                                            {/* {hoverEdit ? " Modifier" : ""} */}
+                                                        </Button>
+                                                        <Button
+                                                            color="soft-danger"
+                                                            size="sm"
+                                                            className="remove-item-btn"
+                                                            onClick={() => openDeleteModal(user)}
+                                                            onMouseEnter={() => setHoverRemove(true)}
+                                                            onMouseLeave={() => setHoverRemove(false)}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTrashAlt} />
+                                                            {/* {hoverRemove ? " Supprimer" : ""} */}
+                                                        </Button>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -249,6 +444,15 @@ const handleAddAdmin = () => {
                                                     }
                                                 </tbody>
                                             </table>
+                                                            {/* Pagination */}
+                                                            <ul className="pagination">
+                                                            {/* Générer les boutons de pagination */}
+                                                    {Array.from({ length: Math.ceil(totalPages) }, (_, index) => (
+                                                        <li key={index} className={`page-item ${currentPage === index ? 'active' : ''}`}>
+                                                            <button className="page-link" onClick={() => changePage(index)}>{index + 1}</button>
+                                                        </li>
+                                                    ))}
+                                                </ul>
                                         </div>
                                     </div>
                                 </CardBody>
@@ -280,13 +484,13 @@ const handleAddAdmin = () => {
                                                 </div>
                                                 <div className="mb-3">
                                                     <label htmlFor="numero-field" className="form-label">Numéro de téléphone</label>
-                                                    <input type="text" id="numero-field" className="form-control" placeholder="Enter Phone Number" value={newUserData.numero} onChange={(e) => setNewUserData({ ...newUserData, numero: e.target.value })} required />
+                                                    <input type="tel" id="numero-field" className="form-control" placeholder="Entrez le numéro de téléphone" value={newUserData.numero} onChange={(e) => setNewUserData({ ...newUserData, numero: e.target.value })} required />
                                                 </div>
                                                 <div className="mb-3">
                                                     <label htmlFor="role_id-field" className="form-label">Role</label>
                                                     <select className="form-control" id="role_id-field" value={newUserData.role_id} onChange={(e) => setNewUserData({ ...newUserData, role_id: e.target.value })} required>
                                                         <option value="">Sélectionner Role</option>
-                                                        <option value="2">restaurateur</option>
+                                                        <option value="3">manager</option>
                                                       
                                                     </select>
                                                 
@@ -301,6 +505,18 @@ const handleAddAdmin = () => {
                                                         <option value="désactivé">désactivé</option>
                                                     </select>
                                                 </div>
+                                                <div className="mb-3">
+                                                <label htmlFor="photo-field" className="form-label">
+                                                  Photo
+                                                </label>
+                                                <input
+                                                  type="file"
+                                                  id="photo-field"
+                                                  className="form-control"
+                                                  onChange={(e) => setNewUserData({ ...newUserData, photo: e.target.files[0] })} // Handle file selection
+                                                  name="photo"
+                                                />
+                                              </div>
                                             </form>
                                         </ModalBody>
                                         <ModalFooter>
@@ -312,65 +528,7 @@ const handleAddAdmin = () => {
                                     </Modal>
 
 
-
-{/* Add Admin Modal */}
-<Modal isOpen={modalAddAdmin} toggle={toggleAddAdminModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddAdminModal}>Ajout Admin</ModalHeader>
-                                        <ModalBody>
-                                            <form className="tablelist-form">
-                                                <div className="mb-3">
-                                                    <label htmlFor="name-field" className="form-label">Nom</label>
-                                                    <input type="text" id="name-field" className="form-control" placeholder="Enter Name" value={newUserData.name} onChange={(e) => setNewUserData({ ...newUserData, name: e.target.value })} required />
-                                                </div>
-                                                <div className="mb-3">
-                                                    <label htmlFor="email-field" className="form-label">Email</label>
-                                                    <input type="email" id="email-field" className="form-control" placeholder="Enter Email" value={newUserData.email} onChange={(e) => setNewUserData({ ...newUserData, email: e.target.value })} required />
-                                                </div>
-                                                <div className="mb-3">
-                                                    <label htmlFor="password-field" className="form-label">Mot de passe</label>
-                                                    <input type="password" id="password-field" className="form-control" placeholder="Enter Password" value={newUserData.password} onChange={(e) => setNewUserData({ ...newUserData, password: e.target.value })} required />
-                                                </div>
-                                                <div className="mb-3">
-                                                    <label htmlFor="adresse-field" className="form-label">Adresse</label>
-                                                    <input type="text" id="adresse-field" className="form-control" placeholder="Enter Adresse" value={newUserData.adresse} onChange={(e) => setNewUserData({ ...newUserData, adresse: e.target.value })} required />
-                                                </div>
-                                                <div className="mb-3">
-                                                    <label htmlFor="numero-field" className="form-label">Numéro de téléphone</label>
-                                                    <input type="text" id="numero-field" className="form-control" placeholder="Enter Phone Number" value={newUserData.numero} onChange={(e) => setNewUserData({ ...newUserData, numero: e.target.value })} required />
-                                                </div>
-                                                <div className="mb-3">
-                                                    <label htmlFor="role_id-field" className="form-label">Role</label>
-                                                    <select className="form-control" id="role_id-field" value={newUserData.role_id} onChange={(e) => setNewUserData({ ...newUserData, role_id: e.target.value })} required>
-                                                        <option value="">Sélectionner Role</option>
-                                                        <option value="1">admin</option>
-                                                      
-                                                    </select>
-                                                
-                                                </div>
-
-                                                
-                                                <div className="mb-3">
-                                                    <label htmlFor="statut-field" className="form-label">Statut</label>
-                                                    <select className="form-control" id="statut-field" value={newUserData.statut} onChange={(e) => setNewUserData({ ...newUserData, statut: e.target.value })} required>
-                                                        <option value="">Statut</option>
-                                                        <option value="activé">activé</option>
-                                                        <option value="désactivé">désactivé</option>
-                                                    </select>
-                                                </div>
-                                            </form>
-                                        </ModalBody>
-                                        <ModalFooter>
-                                            <div className="hstack gap-2 justify-content-end">
-                                                <Button type="button" color="light" onClick={toggleAddAdminModal}>Fermer</Button>
-                                                <Button type="button" color="success" onClick={handleAddAdmin}>Ajouter</Button>
-                                            </div>
-                                        </ModalFooter>
-                                    </Modal>
-
-
-
-
-
+{/* 
 
 
 
@@ -400,6 +558,10 @@ const handleAddAdmin = () => {
                             <label htmlFor="numero-field" className="form-label">Numéro de téléphone</label>
                             <input type="text" id="numero-field" className="form-control" placeholder="Enter Phone Number" value={editedNumero} onChange={(e) => setEditedNumero(e.target.value)} required />
                         </div>
+                        <div className="mb-3">
+                            <label htmlFor="adresse-field" className="form-label">Date abonnement</label>
+                            <input type="datetime-local" id="adresse-field" className="form-control" placeholder="Enter Adresse" value={editedDate} onChange={(e) => setEditedDate(e.target.value)} required />
+                        </div>
 
                         <div>
                             <label htmlFor="status-field" className="form-label">Statut</label>
@@ -409,6 +571,32 @@ const handleAddAdmin = () => {
                                 <option value="désactivé">désactivé</option>
                             </select>
                         </div>
+                        <div className="mb-3 row align-items-center">
+    <div className="col-md-9">
+        <label htmlFor="photo-field" className="form-label">Photo</label>
+        <input
+            type="file"
+            id="photo-field"
+            className="form-control"
+            onChange={(e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    setEditedPhoto(file);
+                }
+            }}
+            name="photo"
+        />
+    </div>
+    <div className="col-md-2">
+        {editedPhoto && editedPhoto instanceof File && (
+            <img
+                src={URL.createObjectURL(editedPhoto)}
+                alt="Profile"
+                style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover" }}
+            />
+        )}
+    </div>
+</div>
                     </ModalBody>
                     <ModalFooter>
                         <div className="hstack gap-2 justify-content-end">
@@ -422,12 +610,93 @@ const handleAddAdmin = () => {
 
 
 
+
+        
+            {/* confirm add Modal */}
+
+            <Modal isOpen={modal_confirm_add} toggle={() => toggleConfirmAdd(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmAdd(false)}>Confirmer l'ajout</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Manager ajoutée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
+                <ModalFooter>
+                <Button color="secondary" onClick={() => toggleConfirmAdd(false)}>Retour</Button>
+                </ModalFooter>
+            </Modal>
+
+
+
+
+
+
+
+
+            <Modal isOpen={modal_confirm_edit} toggle={() => toggleConfirmEdit(false)} centered>
+    <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmEdit(false)}>Confirmer la modification</ModalHeader>
+    <ModalBody>
+        
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Manager modifiée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+    </ModalBody>
+    <ModalFooter>
+        <Button color="secondary" onClick={() => toggleConfirmEdit(false)}>Retour</Button>
+    </ModalFooter>
+</Modal>
+
+
+
+
+
+
+
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
                 <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Restaurateur</ModalHeader>
                 <ModalBody>
-                    {selectedUser && (
+                {selectedUser && (
                         <form className="tablelist-form">
+                             <div className="d-flex flex-column align-items-center" >
+        {selectedUser.photo ? (
+          <img
+            src={`${selectedUser.photo.replace('users', '')}`} // Supprimer le préfixe 'fournisseurs'
+            alt={selectedUser.name}
+            style={{ width: "50px", height: "50px" ,
+            borderRadius: "50%", // Appliquer une bordure en cercle
+            objectFit: "cover",
+            }}
+            className="mb-3"
+          />
+        ) : (
+          <p className="mb-3">Pas de photo</p>
+        )}
+        <p className="mb-0">{selectedUser.name}</p>
+      </div>
                             <div className="mb-3">
                                 <label htmlFor="username-field" className="form-label">Nom</label>
                                 <input type="text" id="username-field" className="form-control" value={selectedUser.name} readOnly />
@@ -444,6 +713,16 @@ const handleAddAdmin = () => {
                                 <label htmlFor="numero-field" className="form-label">Numéro de téléphone</label>
                                 <input type="text" id="numero-field" className="form-control" value={selectedUser.numero} readOnly />
                             </div>
+                            <div className="mb-3">
+    <label htmlFor="numero-field" className="form-label">Date d'abonnement</label>
+    <input
+        type="text"
+        id="numero-field"
+        className="form-control"
+        value={moment(selectedUser.date_expiration_abonnement).format('LLLL')}
+        readOnly
+    />
+</div>
                             <div>
                                 <label htmlFor="status-field" className="form-label">Statut</label>
                                 <div className="status">
@@ -466,10 +745,28 @@ const handleAddAdmin = () => {
             </Modal>
 
 
-            {/* Remove Modal */}
-            <Modal isOpen={modal_delete} toggle={toggleDeleteModal} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleDeleteModal}>Confirmer la suppression</ModalHeader>
-                <ModalBody>
+            {/* Suppression Modal */}
+      <Modal isOpen={modal_delete} toggle={() => toggleDeleteModal(false)} centered>
+        <ModalHeader className="bg-light p-3"toggle={() => toggleDeleteModal(false)} >
+          Confirmer la suppression
+        </ModalHeader>
+        <ModalBody>
+        {Success ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
+                <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
+                    Manager suprimée avec succès
+                </Alert>
+            </div>
+        ) : null}
+        {errorMessage  ? (
+            <div className="text-center">
+                <FontAwesomeIcon icon={faTimesCircle} style={{ color: 'red', fontSize: '3em' }} />
+                <div className="alert alert-danger" style={{ width:'80%' , margin: '20px auto 0'}}>{errorMessage}</div>
+            </div>
+        ) : null}
+        
+>
                     {selectedUser && (
                         <p>Êtes-vous sûr de vouloir supprimer l'utilisateur {selectedUser.name}?</p>
                     )}

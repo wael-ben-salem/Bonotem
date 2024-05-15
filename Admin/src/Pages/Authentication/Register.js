@@ -26,6 +26,7 @@ function Register  (props)  {
   const navigate = useNavigate();
 
   const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
+  const [ErrorHandler, setErrorHandler] = useState(false); // Define showSuccessMessage state
 
 
   const validation = useFormik({
@@ -66,10 +67,13 @@ function Register  (props)  {
   }, [dispatch]);
   useEffect(() => {
     if (user) {
+      setErrorHandler({ hasError: false, message: "" }); // Reset error handler
+
       setShowSuccessMessage(true);
       setTimeout(() => {
         setShowSuccessMessage(false);
-        navigate("/");
+        window.location.reload()
+
       }, 3000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
     }
   }, [user, navigate]);
@@ -108,7 +112,7 @@ function Register  (props)  {
                                     
                                 ) : null}
 
-                                {registrationError && registrationError ? (
+                                {registrationError && !user && !showSuccessMessage ? (
                                     <Alert color="danger">An error occurred</Alert>
 
                                 ) : true}

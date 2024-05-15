@@ -2,6 +2,7 @@ import {
   
   LOGINADMIN_SUCCESS,
   LOGINUSER_SUCCESS,
+  LOGINMANAGER_SUCCESS,
   LOGOUT_USER,
   LOGOUT_USER_SUCCESS,
   API_ERROR,
@@ -33,9 +34,15 @@ export const LoginAuthAction = (loginState, history, setErrorHandler) => {
           dispatch({ type: LOGINUSER_SUCCESS, payload: response });
 
           history("/dashboard");
-        } else {
+        } else if ((statut === "activé") && (role === "manager")){
+          localStorage.setItem("authUser", JSON.stringify(response));
+
+          dispatch({ type: LOGINMANAGER_SUCCESS, payload: response });
+          history("/test");
+        }else{
           dispatch({ type: LOGINUSER_SUCCESS, payload: response });
           history("/pages-404");
+
         }
 
       } else {
@@ -61,6 +68,12 @@ export const LoginAuthAction = (loginState, history, setErrorHandler) => {
 export const loginSuccess = user => {
   return {
     type: LOGINUSER_SUCCESS,
+    payload: user,
+  }
+}
+export const loginManagerSuccess = user => {
+  return {
+    type: LOGINMANAGER_SUCCESS,
     payload: user,
   }
 }

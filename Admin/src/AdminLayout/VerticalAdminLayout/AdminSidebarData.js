@@ -6,10 +6,22 @@ const AdminSidebarData = [
 
     },
     {
+        label: "Dashboard",
+        icon: "bx bx-line-chart",
+        url: "/admindashboard",
+
+    },
+
+
+    {
         label: "Liste",
-        icon: "bx bx-line-chart-down",
+        icon: "mdi mdi-account",
+
         subItem: [
-        { sublabel: "Liste des utilisateurs", link: "/tables-adminlistjs" },
+        { sublabel: "Managers", link: "/adminlistjs-tables" },
+
+        { sublabel: "Restaurateurs", link: "/tables-adminlistjs" },
+
         ],
 
     },

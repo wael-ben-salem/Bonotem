@@ -2,11 +2,20 @@
 
 
 use App\Http\Controllers\API\User\RoleController;
-use App\Http\Controllers\CarteController;
+use App\Http\Controllers\CartesController;
 use App\Http\Controllers\CategorieController;
+use App\Http\Controllers\CoutController;
 use App\Http\Controllers\FournisseurController;
+use App\Http\Controllers\IngredientComposeController;
 use App\Http\Controllers\IngredientController;
+use App\Http\Controllers\IngredientProduitController;
+use App\Http\Controllers\MarchandiseController;
+use App\Http\Controllers\PerteController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\UniteController;
+use App\Http\Controllers\UserStatisticsController;
+use App\Http\Controllers\VentesController;
+use App\Models\Ventes;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\User\AuthController;
@@ -39,8 +48,12 @@ Route::post("register", [AuthController::class , 'register']);
 Route::post('login', [AuthController::class ,'login']);
 Route::get('user', [AuthController::class ,'user']);
 Route::get('user/{id}', [AuthController::class ,'showUser']);
-Route::put('usersupdate/{id}', [AuthController::class, 'updateUser']);
-Route::post("adduser", [AuthController::class , 'addUser']);
+Route::post('usersupdate/{id}', [AuthController::class, 'updateUser']);
+Route::post("adduser/{id}", [AuthController::class , 'addUser']);
+Route::post("addmanageruser/{id}", [AuthController::class , 'addManagerUser']);
+Route::post('usersmanagerupdate/{id}', [AuthController::class, 'updateManagerUser']);
+
+Route::get('/user-statistics', [UserStatisticsController::class, 'getUserStatistics']);
 
 Route::delete('deleteuser/{id}', [AuthController::class, 'deleteUser']);
 
@@ -65,7 +78,7 @@ Route::get("packaging", [AuthPackagingController::class, 'packaging']);
 Route::get("packaging/{id}", [AuthPackagingController::class ,'showPackaging']);
 
 Route::post("addpackaging", [AuthPackagingController::class, 'createpackaging']);
-Route::put("updatepackaging/{id}", [AuthPackagingController::class, 'updatePackaging']);
+Route::post("updatepackaging/{id}", [AuthPackagingController::class, 'updatePackaging']);
 Route::delete("deletepackaging/{id}", [AuthPackagingController::class, 'deletePackage']);
 
 
@@ -98,29 +111,24 @@ Route::delete("deleterole/{id}", [RoleController::class, 'deleteRole']);
 Route::post('/categori', [CategorieController::class, 'addCategorie']);
 Route::get('/categorie',[CategorieController::class,'Categorie']);
 Route::get('/categorie/{id}',[CategorieController::class,'showCategorie']);
-Route::put('/categorie/{id}', [CategorieController::class, 'updateCategorie']);
+Route::post('/categori/{id}', [CategorieController::class, 'updateCategorie']);
 Route::delete('/categorie/{id}', [CategorieController::class, 'deleteCategorie']);
 
-//Carte
-Route::delete('/carte/{id}', [CarteController::class, 'destroy']);
-Route::post('/carte', [CarteController::class, 'store']);
-Route::get('/carte',[CarteController::class,'index']);
-Route::get('/carte/{id}',[CarteController::class,'show']);
-Route::put('/carte/{id}',[CarteController::class,'update']);
+
 
 //ingredient
 Route::delete('/ingredients/{id}', [IngredientController::class, 'destroy']);
-Route::post('/ingredients', [IngredientController::class, 'store']);
-Route::get('/ingredients',[IngredientController::class,'index']);
+Route::post('/ingredients', [IngredientController::class, 'addIngredient']);
+Route::get('/ingredients',[IngredientController::class,'ingredient']);
 Route::get('/ingredients/{id}',[IngredientController::class,'show']);
-Route::put('/ingredients/{id}',[IngredientController::class,'update']);
+Route::post('/ingredients/{id}',[IngredientController::class,'updateIngredient']);
 
 //fournisseur
 Route::delete('/fournisseurs/{id}', [FournisseurController::class, 'destroy']);
 Route::post('/fournisseurs', [FournisseurController::class, 'store']);
-Route::get('/fournisseurs',[FournisseurController::class,'index']);
+Route::get('/fournisseurs',[FournisseurController::class,'fournisseur']);
 Route::get('/fournisseurs/{id}',[FournisseurController::class,'show']);
-Route::put('/fournisseurs/{id}',[FournisseurController::class,'update']);
+Route::post('/fournisseurs/{id}',[FournisseurController::class,'update']);
 
 //Produit
 Route::delete('/produit/{id}', [ProduitController::class, 'destroy']);
@@ -130,53 +138,7 @@ Route::get('/produit/{id}',[ProduitController::class,'showProduit']);
 Route::put('/produit/{id}',[ProduitController::class,'updateProduit']);
 Route::post('/produits/{produitId}/associer-ingredients', [ProduitController::class, 'associerIngrédients']);
 
+//Unite
+Route::post('/unite', [UniteController::class, 'addUnite']);
+Route::get('/unite',[UniteController::class,'unite']);
 
-// Personnel
-Route::get('/personnel', [PersonnelController::class, 'personnel']);
-Route::get("/personnel/{id}", [PersonnelController::class ,'showPersonnel']);
-Route::get('/salaries',[PersonnelController::class ,'getSalaryOverview']);
-Route::post('/addpersonnel', [PersonnelController::class, 'addPersonnel']);
-Route::put("/updatepersonnel/{id}", [PersonnelController::class, 'updatePersonnel']);
-Route::delete("/deletepersonnel/{id}", [PersonnelController::class, 'deletePersonnel']);
-
-//type_personnel/
-Route::get('/type_personnel',[TypePersonnelController::class,'TypePersonnel']);
-Route::get('/type_personnel/{id}',[TypePersonnelController::class,'showTypePersonnel']);
-
-Route::post('/addtype_personnel', [TypePersonnelController::class, 'addTypePersonnel']);
-Route::put('/updatetype_personnel/{id}',[TypePersonnelController::class,'updateTypePersonnel']);
-Route::delete('/deletetype_personnel/{id}', [TypePersonnelController::class, 'deleteTypePersonnel']);
-
-
-// Planning
-Route::get('/planning', [PlanningController::class, 'planning']);
-Route::get('/planning/{id}', [PlanningController::class ,'showPlanning']);
-Route::delete('/planning/personnel/{id}',  [PlanningController::class ,'deleteAllPlanningsForPersonnel']);
-Route::put('/planning/personnel/{id}',[PlanningController::class,'updateAllPlanningsForPersonnel']);
-Route::post('/addplanning', [PlanningController::class, 'addPlanning']);
-Route::put("/updateplanning/{id}", [PlanningController::class, 'updatePlanning']);
-Route::delete("/deleteplanning/{id}", [PlanningController::class, 'deletePlanning']);
-
-//Jour
-Route::get('/jour', [JourController::class, 'jour']);
-Route::get("/jour/{id}", [JourController::class ,'showJour']);
-
-Route::post('/addjour', [JourController::class, 'addJour']);
-Route::put("/updatejour/{id}", [JourController::class, 'updateJour']);
-Route::delete("/deletejour/{id}", [JourController::class, 'deleteJour']);
-
-//Presence
-Route::get('/presence', [PresenceController::class, 'presence']);
-Route::get("/presence/{id}", [PresenceController::class ,'showPresence']);
-
-Route::post('/addpresence', [PresenceController::class, 'addPresence']);
-Route::put("/updatepresence/{id}", [PresenceController::class, 'updatePresence']);
-Route::delete("/deletepresence/{id}", [PresenceController::class, 'deletePresence']);
-
-//Charge Fixe
-Route::get('/charge_fixe', [ChargeFixeController::class, 'ChargeFixe']);
-Route::get("/charge_fixe/{id}", [ChargeFixeController::class ,'showChargeFixe']);
-
-Route::post('/addcharge_fixe', [ChargeFixeController::class, 'addChargeFixe']);
-Route::put("/updatecharge_fixe/{id}", [ChargeFixeController::class, 'updateChargeFixe']);
-Route::delete("/deletecharge_fixe/{id}", [ChargeFixeController::class, 'deleteChargeFixe']);
