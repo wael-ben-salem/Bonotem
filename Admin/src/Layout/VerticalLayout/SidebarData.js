@@ -16,6 +16,7 @@ const SidebarData = [
                subItem: [
                     { sublabel: "Planning", link: "/planning" },
                     { sublabel: " Personnels", link: "/personnel" },
+                    { sublabel: " TypePersonnels", link: "/typepersonnel" },
 
                 ],
     },
@@ -150,6 +151,7 @@ const SidebarData = [
             label: "Dépenses",
             icon: "ri-bar-chart-line",
             subItem: [
+                { sublabel: "Charges Fixes", link: "/chargefixe" },
                 { sublabel: "Apex Charts", link: "/chart-apexcharts" },
                 { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
                 { sublabel: "Re Charts", link: "/chart-floatcharts" },

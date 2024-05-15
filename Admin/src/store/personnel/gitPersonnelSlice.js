@@ -54,6 +54,15 @@ export const deletePersonnel = createAsyncThunk(
         }
     }
 );
+export const OverViewData = createAsyncThunk('gitPersonnel/fetchSalaries', async (period) => {
+    try {
+        const response = await axios.get(`/salaries?groupBy=${period}`);
+        return response.data;
+    } catch (error) {
+        console.error('API error:', error);
+        throw error;
+    }
+});
 
 // Add new personnel
 export const addPersonnel = createAsyncThunk('gitPersonnel/addPersonnel', async (formData) => {
@@ -131,19 +140,17 @@ export const gitPersonnelSlice = createSlice({
             .addCase(addPersonnel.pending, (state) => {
                 state.loading = true;
                 state.error = null;
-              })
-              .addCase(addPersonnel.fulfilled, (state, action) => {
+            })
+            .addCase(addPersonnel.fulfilled, (state, action) => {
                 state.loading = false;
                 state.error = null;
-               
-               
+
                 console.log("Personnel added:", action.payload);
-              })
-              .addCase(addPersonnel.rejected, (state, action) => {
+            })
+            .addCase(addPersonnel.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.error.message;
-              });
-      
+            });
     },
 });
 

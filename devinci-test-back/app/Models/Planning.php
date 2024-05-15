@@ -9,7 +9,7 @@ class Planning extends Model {
 
     use HasFactory;
 
-    protected $fillable = ['personnel_id', 'jour_id', 'heure_debut', 'heure_fin'];
+    protected $fillable = ['personnel_id', 'jour_id', 'heure_debut', 'heure_fin','taux_heure'];
 
 
     public function personnel() {

@@ -9,9 +9,9 @@ class Jour extends Model
 {
     use HasFactory;
     protected $table = 'jours';
-    
+
     protected $fillable = [
-        'nom',
+        'name',
     ];
     public function plannings() {
 

@@ -18,8 +18,8 @@ import {
   faEye,
   faEdit,
   faTrashAlt,
-  faPlus,
-  faPlusCircle,
+
+
 } from "@fortawesome/free-solid-svg-icons";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import {
@@ -27,6 +27,8 @@ import {
   updatePlanning,
   deletePlanning,
   addPlanning,
+  deleteAllPlanningsForPersonnel,
+  updateAllPlanningsForPersonnel,
 } from "../../store/planning/gitPlanningSlice";
 import { getAllPersonnel } from "../../store/personnel/gitPersonnelSlice";
 import { getAllJours } from "../../store/jour/gitJourSlice";
@@ -36,19 +38,6 @@ const PlanningTables = () => {
   const plannings = useSelector((state) => state.gitPlanning.plannings);
   const personnels = useSelector((state) => state.gitPersonnel.personnel);
   const jours = useSelector((state) => state.gitJours.jours);
-  const [selectedPlanningId, setSelectedPlanningId] = useState(null);
-  const [modalShow, setModalShow] = useState(false);
-  const [selectedPlanning, setSelectedPlanning] = useState(null);
-  const [modalDelete, setModalDelete] = useState(false);
-  const [hover, setHover] = useState(false);
-  const [modalAddPlanning, setModalAddPlanning] = useState(false);
-  const [modalEdit, setModalEdit] = useState(false);
-  const [hoverShow, setHoverShow] = useState(false);
-  const [hoverEdit, setHoverEdit] = useState(false);
-  const [hoverRemove, setHoverRemove] = useState(false);
-    const [selectedJour, setSelectedJour] = useState('');
-    const [heureDebut, setHeureDebut] = useState('');
-    const [heureFin, setHeureFin] = useState('');
   const semaine = [
     "Lundi",
     "Mardi",
@@ -58,117 +47,17 @@ const PlanningTables = () => {
     "Samedi",
     "Dimanche",
   ];
-  const [newPlanningData, setNewPlanningData] = useState({
-    personnel_id: "",
-    jour_id: "",
-    heure_debut: "",
-    heure_fin: "",
-  });
-  useEffect(() => {
-    dispatch(getAllData());
-    dispatch(getAllPersonnel());
-    dispatch(getAllJours());
-  }, [dispatch]);
-  const toggleAddPlanningModal = () => {
-    setModalAddPlanning(!modalAddPlanning);
-  };
-  const toggleModal = (modalState, setModalState) => setModalState(!modalState);
-
-  const openShowModal = (planning) => {
-    setSelectedPlanning(planning);
-    setModalShow(true);
-  };
-  const toggleModalEdit = () => {
-    setModalEdit(!modalEdit);
-  };
-
- /* const updateJourDetails = (jour) => {
-    console.log(jour); 
-    setSelectedJour(jour.nom);
-    setHeureDebut(jour.heure_debut || '');
-    setHeureFin(jour.heure_fin || '');
-
-  };
-  const handleJourChange = (event) => {
-    const jourNom = event.target.value;
-    const jour = selectedPlanning.jours.find(j => j.nom === jourNom);
-    if (jour) updateJourDetails(jour);
-  };*/
- 
-
-  const openEditModal = (planning) => {
-    setSelectedPlanning(planning);
-    setModalEdit(true); 
-  };
-  const openDeleteModal = (planning) => {
-    if (planning && planning.id) {
-      setSelectedPlanning(planning);
-      toggleModal(modalDelete, setModalDelete);
-    } else {
-      console.error("Attempted to open delete modal with invalid planning data");
-    }
-  };
-  const handleUpdatePlanning = () => {
-    if (selectedPlanning) {
-      dispatch(updatePlanning({
-        id: selectedPlanning.id,
-        planningData: selectedPlanning,
-      }));
-      setModalEdit(false); 
-    }
-  };
-  const toggleDeleteModal = () => {
-    setModalDelete(!modalDelete);
-  };
-  const handleRemove = () => {
-    dispatch(deletePlanning(selectedPlanning.id));
-    toggleDeleteModal();
-  };
-  const handleDeletePlanning = () => {
-    dispatch(deletePlanning(selectedPlanning.id));
-    toggleModal(modalDelete, setModalDelete);
-  };
-  const handleAddPlanning = () => {
-    const formData = new FormData();
-    formData.append("personnel_id", newPlanningData.personnel_id);
-    formData.append("jour_id", newPlanningData.jour_id);
-    formData.append("heure_debut", newPlanningData.heure_debut);
-    formData.append("heure_fin", newPlanningData.heure_fin);
-
-    console.log("Dispatching addPlanning with:", Object.fromEntries(formData)); 
-
-    dispatch(addPlanning(formData));
-
-    setNewPlanningData({
-      personnel_id: "",
-      jour_id: "",
-      heure_debut: "",
-      heure_fin: "",
-    });
-    toggleAddPlanningModal();
-  };
- 
-  
-   /* const handleChange = (e) => {
-      const { name, value } = e.target;
-      setFormData(prev => ({ ...prev, [name]: value }));
-    };*/
-  
-   /* const handleSubmit = () => {
-      onUpdate(formData);
-      toggle(); // Close modal after update
-    };*/
-
   const groupedPlannings = plannings.reduce((acc, planning) => {
-    const { personnel, jour, heure_debut, heure_fin } = planning;
+    const { personnel, jour, heure_debut, heure_fin ,taux_heure} = planning;
     if (personnel && personnel.type_personnel && personnel.type_personnel.nom) {
-      const dayName = jour ? jour.nom : "Unknown";
+      const dayName = jour ? jour.name : "Unknown";
       const safePersonnelId = personnel.id || "Unknown";
       if (!acc[safePersonnelId]) {
         acc[safePersonnelId] = {
           personnel,
           days: {},
           type_personnel: personnel.type_personnel.nom,
+          taux_heure,
         };
         semaine.forEach((day) => {
           acc[safePersonnelId].days[day] = "-";
@@ -181,18 +70,290 @@ const PlanningTables = () => {
     }
     return acc;
   }, {});
+  const [showAddSuccessModal, setShowAddSuccessModal] = useState(false);
+  const [modalShow, setModalShow] = useState(false);
+  const [selectedPlanning, setSelectedPlanning] = useState(null);
+  const [selectedDay, setSelectedDay] = useState('');
+  const [modalDelete, setModalDelete] = useState(false);
+  const [hover, setHover] = useState(false);
+  const [modalAddPlanning, setModalAddPlanning] = useState(false);
+  const [selectedPersonnel, setSelectedPersonnel] = useState(null);
+  const [selectedDayData, setSelectedDayData] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(4);
+  const [dayData, setDayData] = useState({ heure_debut: '', heure_fin: '' });
+  const [hoverShow, setHoverShow] = useState(false);
+  const [hoverEdit, setHoverEdit] = useState(false);
+  const [hoverRemove, setHoverRemove] = useState(false);
+   const toggleModal = (modalState, setModalState) => setModalState(!modalState);
+   const [modalEdit, setModalEdit] = useState(false);
+  
+   const indexOfLastItem = currentPage * itemsPerPage;
+   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+   const currentItems = Object.values(groupedPlannings).slice(indexOfFirstItem, indexOfLastItem);
+   const totalPages = Math.ceil(Object.values(groupedPlannings).length / itemsPerPage);
+   const renderPageNumbers = Array.from({ length: totalPages }, (_, i) => i + 1).map(number => (
+    <button key={number} onClick={() => setCurrentPage(number)} disabled={currentPage === number}>
+      {number}
+    </button>
+  ));
+  const changePage = (pageNumber) => {
+    setCurrentPage(pageNumber);
+};
+   const [editData, setEditData] = useState({
+    personnel_id: "",
+    jour_id: "",
+    heure_debut: "",
+    heure_fin: "",
+    taux_heure: "",
+  });
+ 
+
+  const [newPlanningData, setNewPlanningData] = useState({
+    personnel_id: "",
+    jour_id: "",
+    heure_debut: "",
+    heure_fin: "",
+    taux_heure:"",
+  });
+  useEffect(() => {
+    dispatch(getAllData());
+    dispatch(getAllPersonnel());
+    dispatch(getAllJours());
+    console.log("Selected Planning:", selectedPlanning);
+    console.log("Selected Day:", selectedDay);
+  }, [dispatch,selectedPlanning, selectedDay]);
+  const toggleModalEdit = () => {
+    setModalEdit(prev => !prev);  
+};
+const handleUpdatePlanning = () => {
+  if (!selectedPlanning || !selectedDay) {
+    console.error("Error: Necessary data is undefined.", { planning: selectedPlanning, day: selectedDay });
+    return;
+  }
+
+
+  if (!selectedPlanning.id || !selectedPlanning.personnel_id || !selectedDay) {
+    console.error("Error: Planning ID, Personnel ID, or Day is undefined.", { 
+      id: selectedPlanning.id, 
+      personnel_id: selectedPlanning.personnel_id,
+      day: selectedDay
+    });
+    return;
+  }
+
+  const updatedPlanningData = {
+    ...selectedPlanning,
+    personnel_id: selectedPlanning.personnel_id,
+    jour_id: selectedDay,
+    heure_debut: dayData.heure_debut,
+    heure_fin: dayData.heure_fin
+  };
+
+  dispatch(updatePlanning({ id: selectedPlanning.id, planningData: updatedPlanningData }));
+};
+
+const onChangeDay = (event) => {
+  const day = event.target.value;
+  setSelectedDay(day);
+
+  const dayInfo = selectedPlanning.days[day];
+  if (dayInfo) {
+    const [heure_debut, heure_fin] = dayInfo.split(' - ');
+    setDayData({
+      heure_debut: heure_debut.trim(),
+      heure_fin: heure_fin.trim()
+    });
+  } else {
+    setDayData({ heure_debut: '', heure_fin: '' });
+  }
+};
+const formatTime = (timeString) => {
+  if (!timeString || timeString === '-') return ''; // Return empty string if no time provided or if placeholder
+  const time = timeString.split(':'); 
+  return `${time[0]}:${time[1]}`; 
+};
+
+const onChange = (e) => {
+  const selectedDayId = e.target.value;
+  setSelectedDay(selectedDayId);
+
+  
+  const jourInfo = plannings.find(planning => planning.jour_id === selectedDayId);
+
+  if (jourInfo) {
+      setEditData({
+          ...editData,
+          heure_debut: jourInfo.heure_debut,
+          heure_fin: jourInfo.heure_fin
+      });
+  } else {
+      console.log('No jour info found for the selected day');
+      setEditData({
+          ...editData,
+          heure_debut: '',
+          heure_fin: ''
+      });
+  }
+};
+  /*const handleUpdatePlanning = () => {
+    if (selectedPlanning && selectedPlanning.id) {
+      const updatedData = {
+        personnel_id: selectedPlanning.personnel.id,
+        jour_id: selectedPlanning.jour.id,
+        heure_debut: editData.heure_debut,
+        heure_fin: editData.heure_fin,
+        taux_heure: editData.taux_heure,
+      };
+      dispatch(updatePlanning(selectedPlanning.id, updatedData)); // Assurez-vous que votre action Redux d'updatePlanning prend les arguments id et data
+      setModalEdit(false);
+    } else {
+      console.error('Error: Selected planning or planning ID is undefined.');
+    }
+  };*/
+  const handleChangeDay = (event) => {
+    const day = event.target.value;
+    setSelectedDay(day);
+  
+    const dayString = selectedPlanning.days[day] || '-';
+    const times = dayString.split(' - ');
+    setDayData({
+      heure_debut: times[0] || '',
+      heure_fin: times[1] || ''
+    });
+  };
+
+  /*const handleUpdateAllPlannings = () => {
+    if (selectedPersonnel) {
+      jours.forEach(jour => {
+        const jourData = editData[jour.name];
+        if (jourData && jourData.heure_debut && jourData.heure_fin) {
+          const updatePayload = {
+            personnelId: selectedPersonnel.id,
+            planningData: {
+              jour_id: jourData.jour_id,
+              heure_debut: jourData.heure_debut,
+              heure_fin: jourData.heure_fin,
+              taux_heure: jourData.taux_heure
+            }
+          };
+          dispatch(updateAllPlanningsForPersonnel(updatePayload));
+        }
+      });
+      setModalEdit(false);
+    }
+  };*/
+
+  const openEditModal = (planning) => {
+   
+    if (!planning || !planning.personnel || !planning.personnel.id || !planning.days) {
+        console.error("Incomplete planning data", planning);
+        return; 
+    }
+
+  
+    const exampleDayKey = Object.keys(planning.days)[0]; 
+    const exampleDayData = planning.days[exampleDayKey];
+
+    setSelectedPlanning(planning);
+    setEditData({
+        personnel_id: planning.personnel.id,
+        jour_id: exampleDayKey, 
+        heure_debut: exampleDayData.split(' - ')[0],
+        heure_fin: exampleDayData.split(' - ')[1],
+        taux_heure: planning.taux_heure
+    });
+
+    toggleModalEdit(true);
+};
+
+const toggleAddPlanningModal = () => {
+  if (modalAddPlanning) {
+      
+      setNewPlanningData({
+          personnel_id: "",
+          jour_id: "",
+          heure_debut: "",
+          heure_fin: "",
+          taux_heure: ""
+      });
+  }
+  setModalAddPlanning(!modalAddPlanning);
+};
+  
+  const openShowModal = (planning) => {
+    setSelectedPlanning(planning);
+    setModalShow(true);
+  };
+
+
+  const openDeleteModal = (planning) => {
+    setSelectedPlanning(planning);
+    setSelectedPersonnel(planning.personnel);
+    setModalDelete(true);
+  };
+
+  const handleDeletePlanning = () => {
+    if (selectedPlanning && selectedPlanning.id) {
+      dispatch(deletePlanning(selectedPlanning.id));
+      setModalDelete(false);
+    }
+  };
+
+  const handleDeleteAllPlannings = () => {
+    if (selectedPersonnel && selectedPersonnel.id) {
+
+        dispatch(deleteAllPlanningsForPersonnel(selectedPersonnel.id));
+        setModalDelete(false);
+
+    }
+  };
+
+
+  const handleAddPlanning = () => {
+    const formData = new FormData();
+    formData.append("personnel_id", newPlanningData.personnel_id);
+    formData.append("jour_id", newPlanningData.jour_id);
+    formData.append("heure_debut", newPlanningData.heure_debut);
+    formData.append("heure_fin", newPlanningData.heure_fin);
+    formData.append("taux_heure", newPlanningData.taux_heure);
+
+    console.log("Dispatching addPlanning with:", Object.fromEntries(formData));
+
+    dispatch(addPlanning(formData));
+    setShowAddSuccessModal(true);
+    setNewPlanningData({
+      personnel_id: "",
+      jour_id: "",
+      heure_debut: "",
+      heure_fin: "",
+      taux_heure:"",
+    });
+    toggleAddPlanningModal();
+  };
+  useEffect(() => {
+    if (showAddSuccessModal) {
+        const timer = setTimeout(() => {
+            setShowAddSuccessModal(false);
+        }, 5000); 
+        return () => clearTimeout(timer);
+    }
+}, [showAddSuccessModal]);
+
+
+ 
 
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid>
-          <Breadcrumbs title="Tables" breadcrumbItem="Gérer Planning" />
+          <Breadcrumbs title="Tables" breadcrumbItem="Plannings" />
 
           <Row>
             <Col lg={12}>
-              <Card>
+            <Card>
                 <CardHeader>
-                  <h4 className="card-title mb-0">Gérer Planning</h4>
+                 
                 </CardHeader>
                 <CardBody>
                   <div className="d-flex justify-content-between align-items-center mb-4">
@@ -236,6 +397,7 @@ const PlanningTables = () => {
                               />
                             </div>
                           </th>
+                          
                           <th className="sort" data-sort="Personnel-Id">
                             Personnel
                           </th>
@@ -245,13 +407,16 @@ const PlanningTables = () => {
                           {semaine.map((day) => (
                             <th key={day}>{day}</th>
                           ))}
+                          <th className="sort" data-sort="TauxHeure">
+                            Taux Heure
+                          </th>
                           <th>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {Object.values(groupedPlannings).map((item, index) => (
+                      {currentItems.map((item, index) => (
                           <tr key={index}>
-                            <td scope="row">
+                            <td >
                               <div className="form-check">
                                 <input
                                   className="form-check-input"
@@ -265,46 +430,65 @@ const PlanningTables = () => {
                             <td>{item.personnel.name}</td>
                             <td>{item.type_personnel}</td>
                             {semaine.map((day) => (
-                              <td key={day}>{item.days[day]}</td>
+                              <td key={day}>{item.days[day] ? formatTime(item.days[day].split(' - ')[0]) + ' - ' + formatTime(item.days[day].split(' - ')[1]) : '-'}</td>
                             ))}
+                            <td>{item.taux_heure}</td>
                             <td>
-                              <div className="d-flex gap-3">
-                                <Button
-                                  color="dark"
-                                  size="sm"
-                                  onClick={() => openShowModal(item)}
-                                  onMouseEnter={() => setHoverShow(true)}
-                                  onMouseLeave={() => setHoverShow(false)}
-                                >
-                                  <FontAwesomeIcon icon={faEye} />
-                                  {hoverShow ? " Consulter" : ""}
-                                </Button>
-                                <Button
-                                  color="success"
-                                  size="sm"
-                                  onClick={() => openEditModal(item)}
-                                  onMouseEnter={() => setHoverEdit(true)}
-                                  onMouseLeave={() => setHoverEdit(false)}
-                                >
-                                  <FontAwesomeIcon icon={faEdit} />
-                                  {hoverEdit ? " Modifier" : ""}
-                                </Button>
-                                <Button
-                                  color="danger"
-                                  size="sm"
-                                  onClick={() => openDeleteModal(item)}
-                                  onMouseEnter={() => setHoverRemove(true)}
-                                  onMouseLeave={() => setHoverRemove(false)}>
-                                  <FontAwesomeIcon icon={faTrashAlt} />
-                                  {hoverRemove ? " Supprimer" : ""}
-                                </Button>
-                              </div>
+                            
+                                  <div className=" d-flex  gap-4">
+                                    <Button
+                                      color="soft-dark"
+                                      size="sm"
+                                      className="show-item-btn"
+                                      onClick={() => openShowModal(item)}
+                                      onMouseEnter={() => setHoverShow(true)}
+                                      onMouseLeave={() => setHoverShow(false)}
+                                    >
+                                      <FontAwesomeIcon icon={faEye} />
+                                      {hoverShow ? " Consulter" : ""}
+                                    </Button>
+                                    <Button
+                                      color="soft-success"
+                                      size="sm"
+                                      className="edit-item-btn"
+                                      onClick={() => openEditModal(item)}
+                                      onMouseEnter={() => setHoverEdit(true)}
+                                      onMouseLeave={() => setHoverEdit(false)}
+                                    >
+                                      <FontAwesomeIcon icon={faEdit} />
+                                      {hoverEdit ? " Modifier" : ""}
+                                    </Button>
+
+                                    <Button
+                                      color="soft-danger"
+                                      size="sm"
+                                      className="remove-item-btn"
+                                      onClick={() => openDeleteModal(item)}
+                                      onMouseEnter={() => setHoverRemove(true)}
+                                      onMouseLeave={() => setHoverRemove(false)}
+                                    >
+                                      <FontAwesomeIcon icon={faTrashAlt} />
+                                      {hoverRemove ? " Supprimer" : ""}
+                                    </Button>
+                                  </div>
+                                
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+                    <ul className="pagination">
+    {Array.from({ length: Math.ceil(totalPages) }, (_, index) => (
+        <li key={index} className={`page-item ${currentPage === index + 1 ? 'active' : ''}`}>
+            <button className="page-link" onClick={() => changePage(index + 1)}>{index + 1}</button>
+        </li>
+    ))}
+</ul>
                   </div>
+                   
+                    
+    
+
                 </CardBody>
               </Card>
             </Col>
@@ -314,7 +498,7 @@ const PlanningTables = () => {
       {/* Show Planning Modal */}
       <Modal isOpen={modalShow} toggle={() => setModalShow(!modalShow)} centered>
         <ModalHeader toggle={() => setModalShow(!modalShow)}>
-          Détails du Planning
+          Détails Planning
         </ModalHeader>
         <ModalBody>
           {selectedPlanning ? (
@@ -344,7 +528,7 @@ const PlanningTables = () => {
         <ModalHeader
           toggle={() => toggleModal(modalAddPlanning, setModalAddPlanning)}
         >
-          Ajouter un nouveau Planning
+          Ajout
         </ModalHeader>
         <ModalBody>
           <form>
@@ -391,7 +575,7 @@ const PlanningTables = () => {
                 <option value="">Sélectionner un jour</option>
                 {jours.map((jour) => (
                   <option key={jour.id} value={jour.id}>
-                    {jour.nom}
+                    {jour.name}
                   </option>
                 ))}
               </select>
@@ -428,85 +612,138 @@ const PlanningTables = () => {
                 placeholder="Enter Heure Fin"
               />
             </div>
+            <div className="form-group">
+              <label htmlFor="taux_heure">Taux Heure:</label>
+              <input
+                type="text"
+                className="form-control"
+                id="taux_heure"
+                value={newPlanningData.taux_heure}
+                onChange={(e) =>
+                  setNewPlanningData({
+                    ...newPlanningData,
+                    taux_heure: e.target.value,
+                  })
+                }
+                placeholder="Enter Taux heure"
+              />
+            </div>
           </form>
         </ModalBody>
         <ModalFooter>
-          <Button color="primary" onClick={handleAddPlanning}>
-            Ajouter
-          </Button>
-          <Button
+        <Button
             color="secondary"
             onClick={() => toggleModal(modalAddPlanning, setModalAddPlanning)}
           >
             Annuler
           </Button>
-        </ModalFooter>
-      </Modal>
-
-      {/* Edit Planning Modal */}
-    {/* <Modal isOpen={modalEdit} toggle={toggleModalEdit} centered>
-        <ModalHeader toggle={toggleModalEdit}>Modifier le Planning</ModalHeader>
-        <ModalBody>
-        <form>
-          <div>
-            <label for="personnel_id">Personnel:</label>
-            <input type="select" name="personnel_id" id="personnel_id" value={formData.personnel_id} onChange={handleChange}>
-              {personnels.map(personnel => (
-                <option key={personnel.id} value={personnel.id}>{personnel.name}</option>
-              ))}
-            </input>
-          </div>
-          <div>
-            <label for="jour_id">Jour:</label>
-            <input type="select" name="jour_id" id="jour_id" 
-                  value={selectedPlanning.jour_id}
-                  onChange={(e) => setSelectedPlanning({...selectedPlanning, jour_id: e.target.value})}>
-                  {jours.map(jour => (
-                    <option key={jour.id} value={jour.id}>{jour.nom}</option>
-                  ))}
-                </input>
-          </div>
-          <div>
-          <label for="heure_debut">Heure Début:</label>
-                <input type="time" name="heure_debut" id="heure_debut" 
-                  value={selectedPlanning.heure_debut}
-                  onChange={(e) => setSelectedPlanning({...selectedPlanning, heure_debut: e.target.value})} />
-          </div>
-          <div>
-          <label for="heure_fin">Heure Fin:</label>
-                <input type="time" name="heure_fin" id="heure_fin" 
-                  value={selectedPlanning.heure_fin}
-                  onChange={(e) => setSelectedPlanning({...selectedPlanning, heure_fin: e.target.value})} />
-          </div>
-        </form>
-      </ModalBody>
-      <ModalFooter>
-      <Button color="primary" onClick={() => handleUpdatePlanning(selectedPlanning)}>Mettre à jour</Button>
-            <Button color="secondary" onClick={() => setModalEdit(false)}>Annuler</Button>
-      </ModalFooter>
-                  </Modal>*/}
-
-      {/* Delete Planning Modal */}
-      <Modal
-        isOpen={modalDelete}
-        toggle={() => toggleModal(modalDelete, setModalDelete)}
-      >
-        <ModalHeader toggle={() => toggleModal(modalDelete, setModalDelete)}>
-          Supprimer le Planning
-        </ModalHeader>
-        <ModalBody>Êtes-vous sûr de vouloir supprimer ce planning?</ModalBody>
-        <ModalFooter>
-          <Button color="danger" onClick={handleDeletePlanning}>
-            Supprimer
+          <Button color="primary" onClick={handleAddPlanning}>
+            Enregistrer
           </Button>
-          <Button
-            color="secondary"
-            onClick={handleRemove}
-          >
-            Annuler
-          </Button>
+         
         </ModalFooter>
+        
       </Modal>
+       {/* Success Modal */}
+      <Modal isOpen={showAddSuccessModal} toggle={() => setShowAddSuccessModal(false)} centered>
+    <ModalHeader   toggle={() => setShowAddSuccessModal(false)} >
+        Success
+    </ModalHeader>
+    <ModalBody>
+        Planning ajouté avec succès!
+    </ModalBody>
+    <ModalFooter>
+        <Button color="primary" onClick={() => setShowAddSuccessModal(false)}>OK</Button>
+    </ModalFooter>
+</Modal>
+      {/* Update Planning Modal */}
+      <Modal isOpen={modalEdit} toggle={() => setModalEdit(false)} centered>
+  <ModalHeader toggle={() => setModalEdit(false)}>
+    Modifier Planning pour {selectedPlanning ? selectedPlanning.personnel.name : "le personnel sélectionné"}
+  </ModalHeader>
+  <ModalBody>
+    <form>
+    <div className="mb-3">
+        <label htmlFor="personnel_id" className="form-label">Personnel:</label>
+        <select
+          className="form-control"
+          id="personnel_id"
+          value={editData.personnel_id}
+          onChange={(e) => setEditData({ ...editData, personnel_id: e.target.value })}
+        >
+          {personnels.map((personnel) => (
+            <option key={personnel.id} value={personnel.id}>{personnel.name}</option>
+          ))}
+        </select>
+      </div>
+
+      <div className="mb-3">
+        <label htmlFor="day_select">Jour:</label>
+        <select
+  id="day_select"
+  className="form-control"
+  value={selectedDay}
+  onChange={onChangeDay}
+  disabled={!selectedPlanning} // Disable selection if no planning is selected
+>
+  {jours.map(jour => (
+    <option key={jour.name} value={jour.name}>{jour.name}</option>
+  ))}
+</select>
+      </div>
+      <div className="mb-3">
+        <label htmlFor="heure_debut">Heure Début:</label>
+        <input
+          type="time"
+          className="form-control"
+          id="heure_debut"
+          value={dayData.heure_debut || ''}
+          onChange={(e) => setDayData({...dayData, heure_debut: e.target.value})}
+        />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="heure_fin">Heure Fin:</label>
+        <input
+          type="time"
+          className="form-control"
+          id="heure_fin"
+          value={dayData.heure_fin || ''}
+          onChange={(e) => setDayData({...dayData, heure_fin: e.target.value})}
+        />
+      </div>
+      <div className="mb-3">
+        <label htmlFor="taux_heure">Taux Heure:</label>
+        <input
+          type="text"
+          className="form-control"
+          id="taux_heure"
+          value={editData.taux_heure || ''}
+          onChange={(e) => setEditData({ ...editData, taux_heure: e.target.value })}
+        />
+      </div>
+
+    </form>
+  </ModalBody>
+  <ModalFooter>
+  <Button color="secondary" onClick={() => setModalEdit(false)}>Annuler</Button>
+    <Button color="primary" onClick={() => handleUpdatePlanning()}>Mettre à jour</Button>
+  </ModalFooter>
+</Modal>
+{/* Delete Modal*/ }
+      <Modal isOpen={modalDelete} toggle={() => setModalDelete(!modalDelete)} centered>
+  <ModalHeader toggle={() => setModalDelete(!modalDelete)}>Supprimer</ModalHeader>
+  <ModalBody>
+  Êtes-vous sûr de vouloir supprimer ce planning?
+  </ModalBody>
+  <ModalFooter>
+    <Button color="danger" onClick={handleDeleteAllPlannings}>
+      Supprimer
+    </Button>
+    <Button color="secondary" onClick={() => setModalDelete(false)}>Fermer</Button>
+  </ModalFooter>
+</Modal>
+
+
     </React.Fragment>
   );
 };

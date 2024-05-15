@@ -20,6 +20,7 @@ import gitIngredientReducer from "./ingredient/gitIngredientSlice";
 import gitPlanningReducer from "./planning/gitPlanningSlice";
 import gitPersonnelReducer from "./personnel/gitPersonnelSlice";
 import gitTypePersonnelReducer from "./typepersonnel/gitTypePersonnelSlice";
+import gitChargeFixeReducer from './chargefixe/gitChargeFixeSlice';
 import gitJourReducer from "./jour/gitJourSlice";
 import AdminTable from "./auth/Tables/reducer";
 const rootReducer = combineReducers({
@@ -39,6 +40,7 @@ const rootReducer = combineReducers({
  gitPlanning:gitPlanningReducer,
  gitPersonnel:gitPersonnelReducer,
  gitTypePersonnel: gitTypePersonnelReducer,
+ gitchargefixe: gitChargeFixeReducer,
   gitJours:gitJourReducer,
   gitUser: gitUserReducer, // Assign gitUserReducer to the key 'gitUser'
   AdminTable,

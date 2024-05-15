@@ -24,7 +24,7 @@ class Personnel extends Model
         return $this->belongsTo(TypePersonnel::class, 'type_personnel_id');
     }
 
-    public function planning() {
+    public function plannings() {
         return $this->hasMany(Planning::class, 'personnel_id');
     }
 
@@ -32,5 +32,5 @@ class Personnel extends Model
     {
         return $this->hasMany(Presence::class);
     }
-    
+
 }

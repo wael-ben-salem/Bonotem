@@ -12,6 +12,8 @@ import AdminDashboard from "../Pages/AdminDashboard";
 import Planning from "../Pages/Planning/PlanningListTable.js";
 // Import Personnel
 import Personnel from "../Pages/Personnel/PersonnelListTable.js";
+import TypePersonnel from "../Pages/TypePersonnel/TypePersonnelListTable.js";
+import ChargesFixes from "../Pages/ChargeFixe/ChargeFixeListTable.js"; 
 // Import Planning
 //import Planning from "../Pages/Planning/PlanningListTable.js";
 // Import Catégorie
@@ -100,8 +102,12 @@ const authProtectedRoutes = [
   // Calender
   { path: "/planning", component: <Planning /> },
 
-   // Calender
+   // Personnel
    { path: "/personnel", component: <Personnel/> },
+   //Typepersonnel
+   { path: "/typepersonnel", component: <TypePersonnel/> },
+   // Chargefixe
+   { path: "/chargefixe", component: <ChargesFixes/> },
    // Catégorie
     { path: "/categorie", component: <Categorie /> },
      // Produit

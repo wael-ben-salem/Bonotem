@@ -64,6 +64,30 @@ class PersonnelController extends Controller
             'personnel' => $personnel,
         ], 200);
     }
+    public function getSalaryOverview(Request $request)
+    {
+        $groupBy = $request->input('groupBy', 'month'); // Default to month
+
+        switch ($groupBy) {
+            case 'day':
+                $format = '%Y-%m-%d';
+                break;
+            case 'week':
+                $format = '%X-%V';
+                break;
+            case 'month':
+            default:
+                $format = '%Y-%m';
+                break;
+        }
+
+        $salaries = Personnel::selectRaw("DATE_FORMAT(created_at, '$format') as period, SUM(salaire) as totalSalary")
+                             ->groupBy('period')
+                             ->orderBy('period', 'asc')
+                             ->get();
+
+        return response()->json($salaries);
+    }
 
     public function showPersonnel($id)
 {

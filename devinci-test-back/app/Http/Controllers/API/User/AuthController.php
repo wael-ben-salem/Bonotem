@@ -15,58 +15,52 @@ class AuthController extends Controller
 
 
 
-    public function register(Request $request)
-    {
-        // Vérifier si l'ID de l'emballage existe dans la table packagings
-        $existingRole = Role::find($request->role_id);
+   public function register(Request $request)
+       {
+           // Vérifier si l'ID de l'emballage existe dans la table packagings
 
 
 
-        // Si l'ID de l'emballage existe, valider et créer la catégorie d'emballage
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email'=>'required|max:191|unique:users,email',
-            'password'=> 'required|min:8',
-            // Ajoutez d'autres règles de validation si nécessaire
-        ]);
+           // Si l'ID de l'emballage existe, valider et créer la catégorie d'emballage
+           $validator = Validator::make($request->all(), [
+               'name' => 'required',
+               'email'=>'required|max:191|unique:users,email',
+               'password'=> 'required|min:8',
+               // Ajoutez d'autres règles de validation si nécessaire
+           ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'validation_errors' => $validator->messages(),
-            ], 422);
-        } else  if (!$existingRole) {
-            return response()->json([
-                'status' => 404,
-                'message' => 'Role id not found',
-            ], 404);
-        }else {
-            try {
-                $user = User::create([
-                    'name' => $request->name,
-                    'email'=> $request->email,
-                    'password'=> Hash::make($request->password),
-                    'role_id' => $request->role_id
-                ]);
+           if ($validator->fails()) {
+               return response()->json([
+                   'validation_errors' => $validator->messages(),
+               ], 422);
+           } else {
+               try {
+                   $user = User::create([
+                       'name' => $request->name,
+                       'email'=> $request->email,
+                       'password'=> Hash::make($request->password),
 
-                $token = $user->createToken($user-> email.'_Token') -> plainTextToken;
-                return response() ->json([
-                        'status' => 200,
-                        'username' => $user->name,
-                        'id_role' => $user->role_id,
-                        'token' => $token ,
-                        'message' => 'Registered Success',
+                   ]);
 
-                ],200);
-            } catch (\Exception $e) {
-                // Gérer les erreurs d'insertion dans la base de données
-                return response()->json([
-                    'status' => 500,
-                    'message' => 'Error adding Role to User: ' . $e->getMessage(),
-                ], 500);
+                   $token = $user->createToken($user-> email.'_Token') -> plainTextToken;
+                   return response() ->json([
+                           'status' => 200,
+                           'username' => $user->name,
+                           'token' => $token ,
+                           'message' => 'Registered Success',
 
-            }
-        }
-    }
+                   ],200);
+               } catch (\Exception $e) {
+                   // Gérer les erreurs d'insertion dans la base de données
+                   return response()->json([
+                       'status' => 500,
+                       'message' => 'Error adding Role to User: ' . $e->getMessage(),
+                   ], 500);
+
+               }
+           }
+       }
+
 
 
 

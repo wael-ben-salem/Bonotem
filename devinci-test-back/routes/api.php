@@ -17,6 +17,7 @@ use App\Http\Controllers\JourController;
 use App\Http\Controllers\PlanningController;
 use App\Http\Controllers\TypePersonnelController;
 use App\Http\Controllers\PresenceController;
+use App\Http\Controllers\ChargeFixeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,7 +134,7 @@ Route::post('/produits/{produitId}/associer-ingredients', [ProduitController::cl
 // Personnel
 Route::get('/personnel', [PersonnelController::class, 'personnel']);
 Route::get("/personnel/{id}", [PersonnelController::class ,'showPersonnel']);
-
+Route::get('/salaries',[PersonnelController::class ,'getSalaryOverview']);
 Route::post('/addpersonnel', [PersonnelController::class, 'addPersonnel']);
 Route::put("/updatepersonnel/{id}", [PersonnelController::class, 'updatePersonnel']);
 Route::delete("/deletepersonnel/{id}", [PersonnelController::class, 'deletePersonnel']);
@@ -149,8 +150,9 @@ Route::delete('/deletetype_personnel/{id}', [TypePersonnelController::class, 'de
 
 // Planning
 Route::get('/planning', [PlanningController::class, 'planning']);
-Route::get("/planning/{id}", [PlanningController::class ,'showPlanning']);
-
+Route::get('/planning/{id}', [PlanningController::class ,'showPlanning']);
+Route::delete('/planning/personnel/{id}',  [PlanningController::class ,'deleteAllPlanningsForPersonnel']);
+Route::put('/planning/personnel/{id}',[PlanningController::class,'updateAllPlanningsForPersonnel']);
 Route::post('/addplanning', [PlanningController::class, 'addPlanning']);
 Route::put("/updateplanning/{id}", [PlanningController::class, 'updatePlanning']);
 Route::delete("/deleteplanning/{id}", [PlanningController::class, 'deletePlanning']);
@@ -170,3 +172,11 @@ Route::get("/presence/{id}", [PresenceController::class ,'showPresence']);
 Route::post('/addpresence', [PresenceController::class, 'addPresence']);
 Route::put("/updatepresence/{id}", [PresenceController::class, 'updatePresence']);
 Route::delete("/deletepresence/{id}", [PresenceController::class, 'deletePresence']);
+
+//Charge Fixe
+Route::get('/charge_fixe', [ChargeFixeController::class, 'ChargeFixe']);
+Route::get("/charge_fixe/{id}", [ChargeFixeController::class ,'showChargeFixe']);
+
+Route::post('/addcharge_fixe', [ChargeFixeController::class, 'addChargeFixe']);
+Route::put("/updatecharge_fixe/{id}", [ChargeFixeController::class, 'updateChargeFixe']);
+Route::delete("/deletecharge_fixe/{id}", [ChargeFixeController::class, 'deleteChargeFixe']);
