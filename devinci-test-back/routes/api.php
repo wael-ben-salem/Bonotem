@@ -16,6 +16,7 @@ use App\Http\Controllers\PersonnelController;
 use App\Http\Controllers\PerteController;
 use App\Http\Controllers\PlanningController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\StatisticsController;
 use App\Http\Controllers\TypePersonnelController;
 use App\Http\Controllers\UniteController;
 use App\Http\Controllers\UserStatisticsController;
@@ -60,6 +61,9 @@ Route::delete('deleteuser/{id}', [AuthController::class, 'deleteUser']);
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+Route::get('/statistics', [StatisticsController::class, 'UserStatistics']);
+
 
 Route::post('logout', [AuthController::class ,'logout']) -> middleware ('auth:sanctum');
 
