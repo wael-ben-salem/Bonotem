@@ -66,7 +66,7 @@ const UserPanel = ({ userStatistics, fetchUserStatistics }) => {
 
               <div className="d-flex text-muted">
                 <div className="flex-shrink-0 me-3 align-self-center">
-                  <RadialChart3 value={totalAmountManagers} className="apex-charts" dir="ltr" />
+                  <RadialChart3 value={totalAmountManagers|| '0'} className="apex-charts" dir="ltr" />
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1">Gestionnaires du montant total</p>
@@ -92,9 +92,9 @@ const UserPanel = ({ userStatistics, fetchUserStatistics }) => {
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1"> Le Manager le plus Actif</p>
-                  <h5 className="mb-3">{best_manager_name}</h5>
+                  <h5 className="mb-3">{best_manager_name || '0'}</h5>
                   <p className="mb-1">Nombre de Restaurateurs de {best_manager_name} </p>
-                  <h5 className="mb-3">{num_users_by_best_manager}</h5>
+                  <h5 className="mb-3">{num_users_by_best_manager|| '0'}</h5>
                   {/* Additional statistics */}
                 </div>
               </div>

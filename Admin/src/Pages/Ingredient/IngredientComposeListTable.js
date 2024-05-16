@@ -27,9 +27,9 @@ const IngredientComposeListTable = () => {
 
 
 
-    const [ setHoverShow] = useState(false);
-    const [ setHoverEdit] = useState(false);
-    const [ setHoverRemove] = useState(false);
+    const [hoverShow, setHoverShow] = useState(false);
+    const [hoverEdit, setHoverEdit] = useState(false);
+    const [ hoverRemove, setHoverRemove] = useState(false);
     const [hover, setHover] = useState(false);
 
 
