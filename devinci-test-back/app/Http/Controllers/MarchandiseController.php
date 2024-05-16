@@ -65,7 +65,7 @@ class MarchandiseController extends Controller
         // Calculate the stock quantity for the new Marchandise
     $stockQuantity = $request->quantite_achetee;
     if ($latestMarchandise) {
-        $stockQuantity = ($latestMarchandise->quantite_achetee +$stockQuantity )-$latestMarchandise->quantite_en_stock ;
+        $stockQuantity = ($latestMarchandise->quantite_achetee +$stockQuantity )-$latestMarchandise->quantite_consomee;
         // Create a new Marchandise instance
         $marchandise = Marchandise::create([
             'nom' => $request->nom,
@@ -169,7 +169,7 @@ class MarchandiseController extends Controller
 
         $stockQuantity = $request->quantite_achetee;
         if ($previousMarchandise) {
-            $stockQuantity = ($previousMarchandise->quantite_achetee + $stockQuantity) - $previousMarchandise->quantite_en_stock;
+            $stockQuantity = ($previousMarchandise->quantite_achetee + $stockQuantity) - $previousMarchandise->quantite_consomee;
 
         // Update the Marchandise instance
         $marchandise->update([
@@ -271,7 +271,7 @@ class MarchandiseController extends Controller
         $latestMarchandise = Marchandise::where('id_packaging', $request->id_packaging)->latest()->first();
         $stockQuantity = $request->quantite_achetee;
         if ($latestMarchandise) {
-            $stockQuantity = ($latestMarchandise->quantite_achetee +$stockQuantity )-$latestMarchandise->quantite_en_stock ;
+            $stockQuantity = ($latestMarchandise->quantite_achetee +$stockQuantity )-$latestMarchandise->quantite_consomee ;
             // Create a new Marchandise instance
             $marchandise = Marchandise::create([
                 'nom' => $request->nom,
@@ -386,7 +386,7 @@ class MarchandiseController extends Controller
 
         $stockQuantity = $request->quantite_achetee;
         if ($previousMarchandise) {
-        $stockQuantity = ($previousMarchandise->quantite_achetee + $stockQuantity) - $previousMarchandise->quantite_en_stock;
+        $stockQuantity = ($previousMarchandise->quantite_achetee + $stockQuantity) - $previousMarchandise->quantite_consomee;
 
         // Update the Marchandise instance
         $marchandise->update([

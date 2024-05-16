@@ -36,6 +36,7 @@ class VentesController extends Controller
                 'quantite.min' => 'Le champ quantité doit être d\'au moins :min.',
             ]);
 
+
             if ($validator->fails()) {
                 return response()->json([
                     'validation_errors' => $validator->messages(),
@@ -44,6 +45,113 @@ class VentesController extends Controller
                 $carte = Cartes::findOrFail($request->id_carte);
                 $quantiteDemandee = $request->quantite;
 
+
+
+                $ingredients = $carte->produit->ingredients;
+                $packagings = $carte->produit->packagings;
+                // Si la carte n'a que des ingrédients
+        if ($ingredients->isNotEmpty() && $packagings->isEmpty()) {
+            // Traitement des ingrédients uniquement
+            foreach ($ingredients as $ingredient) {
+                $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
+
+                $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+            }
+            $validator->after(function ($validator) use ( $marchandiseIngredient, $quantiteRequiseIngredient) {
+                if ( is_null($marchandiseIngredient)) {
+                    $validator->errors()->add('quantite', 'Pas de stock d ingredient pour cette quantité.');
+                } elseif (($marchandiseIngredient->quantite_achetee - $marchandiseIngredient->quantite_consomee) < $quantiteRequiseIngredient) {
+                    $validator->errors()->add('quantite', 'Quantité insuffisante d ingredient pour ce produit.');
+                }
+            });
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'validation_errors' => $validator->messages(),
+                ]);
+            }else{
+                $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+
+                        // Enregistrer la vente
+                        $vente = new Ventes();
+                        $vente->id_carte = $request->id_carte;
+                        $vente->id_produit = $carte->id_produit;
+                        $vente->id_categorie = $carte->id_categorie;
+                        $vente->quantite = $quantiteDemandee;
+                        $vente->prixTTC = $prixTTC;
+                        $vente->save();
+
+                        // Mettre à jour les quantités consommées et en stock dans les marchandises
+                        $quantiteConsomeeIngredientTotal = 0;
+                        $quantiteEnStockIngredientTotal = 0;
+                        foreach ($ingredients as $ingredient) {
+                            $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
+                            $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+                            $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
+                            $marchandiseIngredient->quantite_en_stock = ($marchandiseIngredient->quantite_achetee + $marchandiseIngredient->quantite_en_stock)-  $quantiteRequiseIngredient;
+                            $marchandiseIngredient->save();
+                            $quantiteConsomeeIngredientTotal += $marchandiseIngredient->quantite_consomee;
+                            $quantiteEnStockIngredientTotal += $marchandiseIngredient->quantite_en_stock;
+                        }
+
+
+
+
+            }
+
+
+        }else if ($packagings->isNotEmpty() && $ingredients->isEmpty()) {
+            // Traitement des emballages uniquement
+            foreach ($packagings as $packaging) {
+                $marchandisePackaging = Marchandise::where('id_packaging', $packaging->id)->latest()->first();
+
+                $quantiteRequisePackaging = $packaging->pivot->nombre_package * $quantiteDemandee;
+            }
+
+            $validator->after(function ($validator) use ($marchandisePackaging, $quantiteRequisePackaging) {
+                if (is_null($marchandisePackaging) ) {
+                    $validator->errors()->add('quantite', 'Pas de stock de packaging pour cette quantité.');
+                } elseif (($marchandisePackaging->quantite_achetee - $marchandisePackaging->quantite_consomee) < $quantiteRequisePackaging) {
+                    $validator->errors()->add('quantite', 'Quantité insuffisante de packaging pour ce produit.');
+                }
+            });
+
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'validation_errors' => $validator->messages(),
+                ]);
+            }
+
+
+        else{
+            $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+
+                        // Enregistrer la vente
+                        $vente = new Ventes();
+                        $vente->id_carte = $request->id_carte;
+                        $vente->id_produit = $carte->id_produit;
+                        $vente->id_categorie = $carte->id_categorie;
+                        $vente->quantite = $quantiteDemandee;
+                        $vente->prixTTC = $prixTTC;
+                        $vente->save();
+
+
+
+                        $quantiteConsomeePackagingTotal = 0;
+                        $quantiteEnStockPackagingTotal = 0;
+                        foreach ($packagings as $packaging) {
+                            $marchandisePackaging = Marchandise::where('id_packaging', $packaging->id)->latest()->first();
+                            $quantiteRequisePackaging = $packaging->pivot->nombre_package * $quantiteDemandee;
+                            $marchandisePackaging->quantite_consomee += $quantiteRequisePackaging;
+                            $marchandisePackaging->quantite_en_stock = ($marchandisePackaging->quantite_achetee + $marchandisePackaging->quantite_en_stock)-  $quantiteRequisePackaging;
+                            $marchandisePackaging->save();
+                            $quantiteConsomeePackagingTotal += $marchandisePackaging->quantite_consomee;
+                            $quantiteEnStockPackagingTotal += $marchandisePackaging->quantite_en_stock;
+                        }
+        }
+
+        }else {
                 // Vérifiez si les ingrédients nécessaires sont disponibles en quantité suffisante dans les marchandises
                 $ingredients = $carte->produit->ingredients;
                 foreach ($ingredients as $ingredient) {
@@ -63,12 +171,34 @@ class VentesController extends Controller
 
 
 
+                $validator->after(function ($validator) use ($marchandisePackaging, $marchandiseIngredient, $quantiteRequisePackaging, $quantiteRequiseIngredient) {
+                    if (is_null($marchandisePackaging)  ) {
+                        $validator->errors()->add('quantite', 'Pas de stock de packaging pour cette quantité.');
+                    }else if (is_null($marchandiseIngredient)){
+                        $validator->errors()->add('quantite', 'Pas de stock d ingredient pour cette quantité.');
 
-                    if ((($marchandisePackaging->quantite_achetee - $marchandisePackaging->quantite_consomee) < $quantiteRequisePackaging)||(($marchandiseIngredient->quantite_achetee - $marchandiseIngredient->quantite_consomee) < $quantiteRequiseIngredient)) {
+                    }else if (($marchandisePackaging->quantite_achetee - $marchandisePackaging->quantite_consomee) < $quantiteRequisePackaging){
+                        $validator->errors()->add('quantite', 'Quantité insuffisante de packaging pour ce produit.');
+
+                    }
+
+
+
+                    elseif (($marchandiseIngredient->quantite_achetee - $marchandiseIngredient->quantite_consomee) < $quantiteRequiseIngredient) {
+                        $validator->errors()->add('quantite', 'Quantité insuffisante d ingredient pour ce produit.');
+                    }
+                });
+
+
+
+                    if ($validator->fails()) {
                         return response()->json([
-                            'message' => 'Il n\'y a pas assez de quantité disponible pour ce produit.',
-                        ], 400);
-                    }else{
+                            'validation_errors' => $validator->messages(),
+                        ]);
+                    }
+
+
+                else{
                         $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
 
                         // Enregistrer la vente
@@ -104,7 +234,7 @@ class VentesController extends Controller
                             $quantiteConsomeePackagingTotal += $marchandisePackaging->quantite_consomee;
                             $quantiteEnStockPackagingTotal += $marchandisePackaging->quantite_en_stock;
                         }
-
+                    }
                         return response()->json([
                             'id_produit' => $carte->id_produit,
                             'id_categorie' => $carte->id_categorie,
@@ -204,6 +334,243 @@ public function update(Request $request , $id)
 
         $ingredients = $carte->produit->ingredients;
         $packagings = $carte->produit->packagings;
+         // Mettre à jour les quantités consommées et en stock dans les marchandises
+         $quantiteIngredientConsomeeTotal = 0;
+         $quantitePackagingConsomeeTotal = 0;
+         $quantitePackagingEnStockTotal = 0;
+         $quantiteIngredientEnStockTotal = 0;
+
+        if ($ingredients->isNotEmpty() && $packagings->isEmpty()) {
+            foreach ($ingredients as $ingredient) {
+                $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
+
+                $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+                $quantiteRequiseAvantIngredient = $ingredient->pivot->quantite * $quantiteAvant;
+
+            }
+            $validator->after(function ($validator) use ( $marchandiseIngredient, $quantiteRequiseAvantIngredient, $quantiteRequiseIngredient) {
+
+            if (is_null($marchandiseIngredient)){
+                $validator->errors()->add('quantite', 'Pas de stock d ingredient pour cette quantité.');
+
+            }else if((($marchandiseIngredient->quantite_achetee - ($marchandiseIngredient->quantite_consomee - $quantiteRequiseAvantIngredient)) < $quantiteRequiseIngredient) ) {
+                $validator->errors()->add('quantite', 'Quantité insuffisante d ingredeint pour ce produit.');
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json([
+                'validation_errors' => $validator->messages(),
+            ]);
+        }else{
+              // Mettre à jour la vente existant
+              $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+
+              // Mettre à jour la vente existante
+              $vente = Ventes::findOrFail($id);
+              $vente->id_carte = $request->id_carte;
+              $vente->id_produit = $carte->id_produit;
+              $vente->id_categorie = $carte->id_categorie;
+              $vente->quantite = $quantiteDemandee;
+
+              $vente->prixTTC = $prixTTC;
+              $vente->save();
+
+
+              foreach ($ingredients as $ingredient) {
+                $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
+                $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+                $quantiteRequiseAvantIngredient = $ingredient->pivot->quantite * $quantiteAvant;
+                if(($marchandiseIngredient ->quantite_consomee == null) && ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient < 0)){
+                    $marchandiseIngredient->quantite_consomee = -($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                    $marchandiseIngredient->quantite_en_stock =  $marchandiseIngredient ->quantite_en_stock + ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                    $marchandiseIngredient->save();
+
+                    $quantiteIngredientEnStockTotal =$marchandiseIngredient->quantite_en_stock ;
+                    $quantiteIngredientConsomeeTotal = $marchandiseIngredient->quantite_consomee;
+
+                }else if(($marchandiseIngredient ->quantite_consomee == null) && ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient > 0) ){
+                    $marchandiseIngredient->quantite_consomee = $quantiteRequiseIngredient - $quantiteRequiseAvantIngredient;
+
+                    $marchandiseIngredient ->quantite_en_stock = $marchandiseIngredient ->quantite_en_stock - ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                    $marchandiseIngredient->save();
+
+                    $quantiteIngredientEnStockTotal =$marchandiseIngredient->quantite_en_stock ;
+                    $quantiteIngredientConsomeeTotal = $marchandiseIngredient->quantite_consomee;
+
+                }else if(($marchandiseIngredient ->quantite_consomee !== null) && ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient < 0) ){
+
+                $marchandiseIngredient->quantite_consomee = -($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                $marchandiseIngredient->quantite_en_stock  = $marchandiseIngredient ->quantite_en_stock - ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                $marchandiseIngredient->save();
+                $quantiteIngredientConsomeeTotal = $marchandiseIngredient->quantite_consomee;
+                $quantiteIngredientEnStockTotal = $marchandiseIngredient->quantite_en_stock;
+
+            }else if(($marchandiseIngredient ->quantite_consomee !== null) && ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient > 0) ){
+                $marchandiseIngredient->quantite_consomee = $quantiteRequiseIngredient - $quantiteRequiseAvantIngredient;
+                $marchandiseIngredient->quantite_en_stock  = $marchandiseIngredient ->quantite_en_stock - ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                $marchandiseIngredient->save();
+                $quantiteIngredientConsomeeTotal = $marchandiseIngredient->quantite_consomee;
+                $quantiteIngredientEnStockTotal = $marchandiseIngredient->quantite_en_stock;
+
+            }else {
+                $marchandiseIngredient->quantite_en_stock  = $marchandiseIngredient ->quantite_en_stock + ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                $marchandiseIngredient->save();
+                $quantiteIngredientEnStockTotal = $marchandiseIngredient->quantite_en_stock;
+
+
+
+            }
+
+
+
+        }
+        return response()->json([
+            'id_produit' => $carte->id_produit,
+            'id_categorie' => $carte->id_categorie,
+            'quantite' => $quantiteDemandee,
+            'prixTTC' => $prixTTC,
+            'quantiteIngredientConsomeeTotal' => $quantiteIngredientConsomeeTotal,
+            'quantiteIngredientEnStockTotal' => $quantiteIngredientEnStockTotal,
+            'message' => "Vente enregistrée avec succès."
+        ], 200);
+
+
+    }
+
+
+        }else if ($packagings->isNotEmpty() && $ingredients->isEmpty()) {
+            foreach ($packagings as $packaging) {
+                $marchandisePackaging = Marchandise::where('id_packaging', $packaging->id)->latest()->first();
+
+                $quantiteRequisePackaging = $packaging->pivot->nombre_package * $quantiteDemandee;
+                $quantiteRequiseAvantPackaging = $packaging->pivot->nombre_package * $quantiteAvant;
+
+            }
+
+            $validator->after(function ($validator) use ($marchandisePackaging, $quantiteRequisePackaging,$quantiteRequiseAvantPackaging) {
+
+                if(is_null($marchandisePackaging)){
+                    $validator->errors()->add('quantite', 'Pas de stock de packaging pour cette quantité.');
+
+
+
+            }else if ((($marchandisePackaging->quantite_achetee -( $marchandisePackaging->quantite_consomee - $quantiteRequiseAvantPackaging)) < $quantiteRequisePackaging)) {
+
+                    $validator->errors()->add('quantite', 'Quantité insuffisante de packaging pour ce produit.');
+
+                }
+            });
+
+
+
+                if ($validator->fails()) {
+                    return response()->json([
+                        'validation_errors' => $validator->messages(),
+                    ]);
+                }else{
+
+                      // Mettre à jour la vente existant
+                 $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+
+                 // Mettre à jour la vente existante
+                 $vente = Ventes::findOrFail($id);
+                 $vente->id_carte = $request->id_carte;
+                 $vente->id_produit = $carte->id_produit;
+                 $vente->id_categorie = $carte->id_categorie;
+                 $vente->quantite = $quantiteDemandee;
+
+                 $vente->prixTTC = $prixTTC;
+                 $vente->save();
+
+
+
+
+                 foreach ($packagings as $packaging) {
+                    $marchandisePackaging = Marchandise::where('id_packaging', $packaging->id)->latest()->first();
+                    $quantiteRequisePackaging = $packaging->pivot->nombre_package * $quantiteDemandee;
+                    $quantiteRequiseAvanatPackaging = $packaging->pivot->nombre_package * $quantiteAvant;
+
+
+                    if(($marchandisePackaging ->quantite_consomee == null) && ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging < 0)){
+
+                        $marchandisePackaging->quantite_consomee = -($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
+                        $marchandisePackaging->quantite_en_stock =  $marchandisePackaging ->quantite_en_stock + ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
+                        $marchandisePackaging->save();
+
+                        $quantitePackagingEnStockTotal = $marchandisePackaging ->quantite_en_stock ;
+
+                        $quantitePackagingConsomeeTotal = $marchandisePackaging->quantite_consomee;
+
+                    }else if(($marchandisePackaging ->quantite_consomee == null) && ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging > 0) ){
+                        $marchandisePackaging->quantite_consomee = $quantiteRequisePackaging - $quantiteRequiseAvanatPackaging;
+                        $marchandisePackaging ->quantite_en_stock = $marchandisePackaging ->quantite_en_stock - ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
+                        $marchandisePackaging->save();
+                        $quantitePackagingEnStockTotal = $marchandisePackaging ->quantite_en_stock ;
+                        $quantitePackagingConsomeeTotal = $marchandisePackaging->quantite_consomee;
+
+
+
+
+
+                    }elseif(($marchandisePackaging ->quantite_consomee !== null) && ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging < 0) ){
+                        $marchandisePackaging->quantite_consomee = -($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
+                        $marchandisePackaging->quantite_en_stock  = $marchandisePackaging ->quantite_en_stock - ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
+                        $marchandisePackaging->save();
+                        $quantitePackagingEnStockTotal = $marchandisePackaging ->quantite_en_stock ;
+                        $quantitePackagingConsomeeTotal = $marchandisePackaging->quantite_consomee;
+
+                    }else if(($marchandisePackaging ->quantite_consomee !== null) && ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging > 0) ){
+                        $marchandisePackaging->quantite_consomee = $quantiteRequisePackaging - $quantiteRequiseAvanatPackaging;
+                        $marchandisePackaging->quantite_en_stock  = $marchandisePackaging ->quantite_en_stock - ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
+                        $marchandisePackaging->save();
+                        $quantitePackagingConsomeeTotal = $marchandisePackaging->quantite_consomee;
+                        $quantitePackagingEnStockTotal = $marchandisePackaging->quantite_en_stock;
+
+
+                    }else {
+                        $marchandisePackaging->quantite_en_stock  = $marchandisePackaging ->quantite_en_stock + ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
+                        $marchandisePackaging->save();
+                        $quantitePackagingEnStockTotal = $marchandisePackaging->quantite_en_stock;
+
+
+
+                    }
+
+
+                }
+                return response()->json([
+                    'id_produit' => $carte->id_produit,
+                    'id_categorie' => $carte->id_categorie,
+                    'quantite' => $quantiteDemandee,
+                    'prixTTC' => $prixTTC,
+                    'quantite_consomeePackaging_total' => $quantitePackagingConsomeeTotal,
+                    'quantite_en_stockPackaging_total' => $quantitePackagingEnStockTotal,
+                    'message' => "Vente enregistrée avec succès."
+                ], 200);
+
+                }
+
+
+
+
+
+
+
+
+
+        }else{
+
+
+
+
+
+
+
+
+
+
+
 
         foreach ($ingredients as $ingredient) {
             $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
@@ -219,10 +586,34 @@ public function update(Request $request , $id)
             $quantiteRequiseAvantPackaging = $packaging->pivot->nombre_package * $quantiteAvant;
 
         }
-            if ((($marchandiseIngredient->quantite_achetee - ($marchandiseIngredient->quantite_consomee - $quantiteRequiseAvantIngredient)) < $quantiteRequiseIngredient) && (($marchandisePackaging->quantite_achetee -( $marchandisePackaging->quantite_consomee - $quantiteRequiseAvantPackaging)) < $quantiteRequisePackaging)) {
+
+        $validator->after(function ($validator) use ($marchandisePackaging, $marchandiseIngredient, $quantiteRequiseAvantIngredient, $quantiteRequisePackaging, $quantiteRequiseIngredient,$quantiteRequiseAvantPackaging) {
+
+            if(is_null($marchandisePackaging)){
+                $validator->errors()->add('quantite', 'Pas de stock de packaging pour cette quantité.');
+
+
+
+        }else if (is_null($marchandiseIngredient)){
+            $validator->errors()->add('quantite', 'Pas de stock d ingredient pour cette quantité.');
+
+        }
+
+        else if ((($marchandiseIngredient->quantite_achetee - ($marchandiseIngredient->quantite_consomee - $quantiteRequiseAvantIngredient)) < $quantiteRequiseIngredient) ) {
+                $validator->errors()->add('quantite', 'Quantité insuffisante d ingredeint pour ce produit.');
+            }else if ((($marchandisePackaging->quantite_achetee -( $marchandisePackaging->quantite_consomee - $quantiteRequiseAvantPackaging)) < $quantiteRequisePackaging)) {
+
+                $validator->errors()->add('quantite', 'Quantité insuffisante de packaging pour ce produit.');
+
+            }
+        });
+
+
+
+            if ($validator->fails()) {
                 return response()->json([
-                    'message' => 'Il n\'y a pas assez de quantité disponible pour ce produit.',
-                ], 400);
+                    'validation_errors' => $validator->messages(),
+                ]);
             }else{
 
 
@@ -240,11 +631,7 @@ public function update(Request $request , $id)
                  $vente->save();
 
 
-                // Mettre à jour les quantités consommées et en stock dans les marchandises
-                $quantiteIngredientConsomeeTotal = 0;
-                $quantitePackagingConsomeeTotal = 0;
-                $quantitePackagingEnStockTotal = 0;
-                $quantiteIngredientEnStockTotal = 0;
+
                 foreach ($ingredients as $ingredient) {
                     $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
                     $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
@@ -347,7 +734,7 @@ public function update(Request $request , $id)
 
                     }
 
-
+                }
                 }
 
                 return response()->json([
