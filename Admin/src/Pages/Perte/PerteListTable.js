@@ -496,7 +496,6 @@ return(
         
         
         <div className="mb-3">
-    <h5>Ajouter Ingrédient</h5>
     <div className="mb-3">
         <label htmlFor="name_ingredient-field" className="form-label">Ingrédient:</label>
         <select
@@ -533,7 +532,6 @@ return(
 
 {/* Ajouter Packaging */}
 <div className="mb-3">
-    <h5>Ajouter Packaging</h5>
     <div className="mb-3">
         <label htmlFor="name_packaging-field" className="form-label">Packaging:</label>
         <select

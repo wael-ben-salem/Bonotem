@@ -84,6 +84,10 @@ class AuthController extends Controller
         $users = User::with('role')->get(); // Load the role information
         return response()->json($users);
     }
+    public function usertoken (Request $request)   {
+        $users = person::with('role')->get(); // Load the role information
+        return response()->json($users);
+    }
     // public function register(Request $request)
     // {
     //     $validator = Validator::make($request->all(), [
@@ -157,9 +161,11 @@ class AuthController extends Controller
                     'message' => 'Produit non trouvé',
                 ], 404);
             } else {
+
                 // Extraction de la première partie de l'e-mail du créateur
                 $creatorEmailParts = explode('@', $user->email);
                 $creatorPrefix = $creatorEmailParts[0];
+
 
                 // Création du nouvel e-mail en utilisant le préfixe
                 $newEmail = $creatorPrefix . '_' .$request->email ; // Mettre en place la variable email_domain pour définir le domaine
@@ -180,11 +186,20 @@ class AuthController extends Controller
                     'numero' => $request->numero,
                     'role_id' => $existingRole->id, // Définir le rôle à "restaurateur"
                     'id_creator'=> $id, // Change to $id
-                    'date_abonnement' => $user->date_abonnement,
+                    'date_abonnement' => now(),
                     'date_expiration_abonnement' => $user->date_expiration_abonnement // Nouvelle donnée
 
                 ]);
+                if ($request->hasFile('photo')) {
+                    $photo = $request->file('photo');
+                    $filename = time() . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('public', $filename);
+                    $newUser->photo = $filename;
+                }
+                $newUser->save();
 
+                $user->montant=  $user->montant + 5;
+                $user->save();
 
                 $token = $newUser->createToken($newUser->email.'_Token')->plainTextToken;
 
@@ -244,6 +259,8 @@ class AuthController extends Controller
                 'message' => 'Role name not found',
             ], 404);
         } else {
+            $montant = ($request->role_id == 1) ? 5 : (($request->role_id == 3) ? 10 : 0);
+
             // Définir la date d'expiration de l'abonnement (30 minutes plus tard)
             $dateAbonnement = Carbon::parse($request->input('date_abonnement'));
             $dateExpirationAbonnement = $dateAbonnement->addMinutes(10);
@@ -258,7 +275,9 @@ class AuthController extends Controller
                 'role_id' => $request->role_id,
                 'id_creator'=> $id,
                 'date_abonnement' => now(),
-                'date_expiration_abonnement' => $dateExpirationAbonnement // Nouvelle donnée
+                'date_expiration_abonnement' => $dateExpirationAbonnement, // Nouvelle donnée
+                'montant' => $montant // Nouvelle colonne pour le montant
+
             ]);
             if ($request->hasFile('photo')) {
                 $photo = $request->file('photo');
@@ -279,50 +298,93 @@ class AuthController extends Controller
                 'message' => 'added Success',
             ],200);
         }
-    }public function updateUser(Request $request, $id)
-    {
-
-
-        // Valider les données de la requête
-
-        {
-            // Trouver l'utilisateur
-            $user = User::find($id);
-            if (!$user) {
-                return response()->json([
-                    'message' => 'Utilisateur non trouvé.'
-                ], 404);
-            }else{
-
-                 // Mettre à jour les données de l'utilisateur
-            $user->update($request->all());
-
-            // Vérifier si date_abonnement a été modifié dans la requête
-            if ($request->has('date_abonnement')) {
-                // Mettre à jour la date_abonnement avec la date de mise à jour
-                $dateAbonnement = Carbon::parse($request->input('date_abonnement'));
-                $user->update(['date_abonnement' => $dateAbonnement]);
-
-                // Recalculer date_expiration_abonnement en ajoutant 10 minutes à la nouvelle date_abonnement
-                $dateExpirationAbonnement = $dateAbonnement->addMinutes(10);
-                $user->update(['date_expiration_abonnement' => $dateExpirationAbonnement]);
-            }
-
-            // Mettre à jour le statut des utilisateurs avec le même id_creator que l'utilisateur en cours de mise à jour
-            User::where('id_creator', $user->id)->update(['statut' => $request->statut]);
-
-            return response()->json([
-                'message' => "Utilisateur mis à jour avec succès.",
-                'id' => $user->id
-            ], 200);
-
-
-
-            }
-
-
-        }
     }
+
+    public function updateUser(Request $request, $id)
+{
+    // Find the user
+    $user = User::find($id);
+    if (!$user) {
+        return response()->json([
+            'message' => 'User not found.'
+        ], 404);
+    }
+
+    // Validate the request data
+    $validator = Validator::make($request->all(), [
+        'name' => 'required',
+        'email' => 'required|max:191|',
+        'password' => 'nullable|min:8', // Password is optional for update
+        'statut' => 'required',
+        'adresse' => 'required',
+        'numero' => 'required|min:8',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'validation_errors' => $validator->messages(),
+        ], 400);
+    }
+
+    // Update the user data
+    $user->name = $request->name;
+    $user->email = $request->email;
+    if ($request->has('password')) {
+        $user->password = Hash::make($request->password);
+    }
+    $user->statut = $request->statut;
+    $user->adresse = $request->adresse;
+    $user->numero = $request->numero;
+    if ($request->has('date_abonnement')) {
+        // Mettre à jour la date_abonnement avec la date de mise à jour
+        $dateAbonnement = Carbon::parse($request->input('date_abonnement'));
+        $user->update(['date_abonnement' => $dateAbonnement]);
+
+        // Recalculer date_expiration_abonnement en ajoutant 10 minutes à la nouvelle date_abonnement
+        $dateExpirationAbonnement = $dateAbonnement->addMinutes(10);
+        $user->update(['date_expiration_abonnement' => $dateExpirationAbonnement]);
+        User::where('id_creator', $user->id)->update(['date_abonnement' => $dateAbonnement]);
+        User::where('id_creator', $user->id)->update(['date_expiration_abonnement' => $dateExpirationAbonnement]);
+    }
+    User::where('id_creator', $user->id)->update(['statut' => $request->statut]);
+
+
+
+
+        // If photo is updated, handle it
+    if ($request->hasFile('photo')) {
+    $photo = $request->file('photo');
+    $filename = time() . '.' . $photo->getClientOriginalExtension();
+    $photo->storeAs('public', $filename);
+    $user->photo = $filename;
+}
+
+
+    $user->save();
+
+
+
+    // Generate a new token for the updated user
+    $token = $user->createToken($user->email.'_Token')->plainTextToken;
+
+    return response()->json([
+        'status' => 200,
+        'username' => $user->name,
+        'id_role' => $user->role_id,
+        'id_creator' => $user->id_creator,
+        'token' => $token,
+        'message' => 'User updated successfully.',
+    ], 200);
+}
+
+
+
+
+
+
+
+
+
 
 
     public function updateManagerUser(Request $request, $id)
@@ -379,17 +441,26 @@ class AuthController extends Controller
                     'name' => $newUsername,
                     'email'=> $newEmail,
                     'password'=> Hash::make($request->password),
-                    'statut' => $request->statut,
                     'adresse' => $request->adresse,
                     'numero' => $request->numero,
-                    'role_id' => $request->role_id,
                     'date_abonnement' => $user->date_abonnement,
                     'date_expiration_abonnement' => $user->date_expiration_abonnement // Nouvelle donnée
 
                 ]);
 
+
+                 // If photo is updated, handle it
+                if ($request->hasFile('photo')) {
+                    $photo = $request->file('photo');
+                    $filename = time() . '.' . $photo->getClientOriginalExtension();
+                    $photo->storeAs('public', $filename);
+                    $user->photo = $filename;
+                }
+
+
+                 $user->save();
+
                 // Mettre à jour le statut des utilisateurs avec le même id_creator que l'utilisateur en cours de mise à jour
-                User::where('id_creator', $user->id)->update(['statut' => $request->statut]);
 
                 return response()->json([
                     'message' => "Utilisateur mis à jour avec succès.",
@@ -423,9 +494,6 @@ class AuthController extends Controller
             'message' => "User successfully deleted."
         ],200);
     }
-
-
-
     public function login(Request $request){
         $validator = Validator::make($request->all(), [
             'email' => 'required|max:191',
@@ -436,56 +504,47 @@ class AuthController extends Controller
             'password.required' => 'Le champ mot de passe est requis.'
         ]);
 
-
-
         if ($validator->fails()) {
             return response()->json([
                 'validation_errors' => $validator->messages(),
             ]);
-
-
-        }else{
+        } else {
             $user = User::where('email', $request->email)->first();
 
-            if (! $user || ! Hash::check($request->password, $user->password)) {
-                return response() ->json([
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json([
                     'status'=> 401,
                     'message'=> 'Invalid Credentials',
                 ]);
-            }
-            else{
+            } else {
+                // Set the default value of last_used_at before creating the token
+                $lastUsedAt = now();
 
-                if ($user->role->name_role === "admin" )//Admin
-                {
-                    $token = $user->createToken($user-> email.'_AdminToken' , ['server:admin'])-> plainTextToken;
-
+                if ($user->role->name_role === "admin") {
+                    $token = $user->createToken($user->email.'_AdminToken', ['server:admin'])->plainTextToken;
+                } else {
+                    $token = $user->createToken($user->email.'_Token', ['restauratuer'])->plainTextToken;
                 }
-                else{
-                $token = $user->createToken($user-> email.'_Token', ['restauratuer']) -> plainTextToken;
-                }
-                return response() ->json([
-                        'status' => 200,
-                        'username' => $user->name,
-                        'id' => $user->id ,
-                        'token' => $token ,
-                        'message' => 'Logged Success',
-                        'role' => $user->role->name_role ,
-                        'statut' => $user->statut,
 
+                // Update last_used_at only if the token was just created
+                $tokenModel = $user->tokens()->where('name', $user->email.'_Token')->latest()->first();
+                if ($tokenModel && $tokenModel->created_at == $tokenModel->updated_at) {
+                    $tokenModel->update(['last_used_at' => $lastUsedAt]);
+                }
+
+                return response()->json([
+                    'status' => 200,
+                    'username' => $user->name,
+                    'id' => $user->id ,
+                    'token' => $token ,
+                    'photo' => $user->photo ,
+                    'email' => $user->email ,
+                    'message' => 'Logged Success',
+                    'role' => $user->role->name_role ,
+                    'statut' => $user->statut,
                 ]);
-
             }
-
-
         }
-
-
-
-
-
-
-
-
     }
 
 

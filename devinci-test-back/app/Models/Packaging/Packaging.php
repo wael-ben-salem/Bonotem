@@ -52,7 +52,7 @@ class Packaging extends Model
     }
     public function produits()
     {
-        return $this->belongsToMany(Produit::class, 'packaging_produit', 'id_packaging' )
+        return $this->belongsToMany(Produit::class, 'packaging_produit', 'id_packaging','id_produit' )
                     ->withPivot('nombre_package');
     }
 
