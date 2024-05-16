@@ -221,10 +221,10 @@ const handleAddPackaging = () => {
     const formData = new FormData();
     formData.append('name_packaging', newPackagingData.name_packaging);
     formData.append('dimension', newPackagingData.dimension);
-    formData.append('', newPackagingData.photo); // Append the file to the form data
+    formData.append('photo', newPackagingData.photo); // Append the file to the form data
     
 
-    dispatch(addPackaging(newPackagingData))
+    dispatch(addPackaging(formData))
     .then(() => {
         
     

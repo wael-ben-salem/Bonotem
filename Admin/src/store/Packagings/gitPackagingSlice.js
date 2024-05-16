@@ -63,9 +63,9 @@ export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async
   
 
 
-  export const addPackaging = createAsyncThunk("gitPackaging/addPackaging", async (packagingData) => {
+  export const addPackaging = createAsyncThunk("gitPackaging/addPackaging", async (formData) => {
     try {
-      const response = await axios.post("/addpackaging", packagingData);
+      const response = await axios.post("/addpackaging", formData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added user data
     } catch (error) {
