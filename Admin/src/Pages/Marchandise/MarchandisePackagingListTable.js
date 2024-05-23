@@ -70,6 +70,7 @@ const MarchandisePackagingListTable = () => {
     const [modal_confirm_add_marchandise, setModalConfirmAddMarchandise] = useState(false);
 
 
+    const [errors, setErrors] = useState({});
 
     
     
@@ -112,18 +113,19 @@ const MarchandisePackagingListTable = () => {
         }
     }, [errorMessage]);
     
-    
+    const id = useSelector(state => state.login.user.id);
+
 
         
         useEffect(() => {
-            dispatch(getAllPackaging());
+            dispatch(getAllPackaging(id));
             dispatch(getAllUnite());
-            dispatch(getAllMarchandiseData());
-            dispatch(getAllFournisseur());
+            dispatch(getAllMarchandiseData(id));
+            dispatch(getAllFournisseur(id));
 
 
 
-        }, [dispatch]);
+        }, [dispatch,id]);
 
         useEffect(() => {
             if (Success) {
@@ -162,14 +164,78 @@ const MarchandisePackagingListTable = () => {
         const toggleConfirmAddMarchandise = (isOpen) => {
             setModalConfirmAddMarchandise(isOpen);
         }
+
         const toggleConfirmEdit = (isOpen) => {
             setModalConfirmEdit(isOpen);
         }
         
         
+       
+        const validate = (data) => {
+            const errors = {};
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth(); // Mois actuel (0-indexed)
         
+        // Début du mois en cours
+        const startOfMonth = new Date(year, month, 1);
+        // Fin du mois en cours
+        const endOfMonth = new Date(year, month + 1, 0);
+    
+        // Vérifier que la date est fournie et est valide
+        if (!data.date_achat) {
+            errors.date_achat = "La date est requise.";
+        } else {
+            const inputDate = new Date(data.date_achat);
+            
+            if (isNaN(inputDate)) {
+                errors.date_achat = "La date est invalide.";
+            } else if (inputDate < startOfMonth || inputDate > endOfMonth) {
+                errors.date_achat = `La date doit être comprise entre le ${startOfMonth.toLocaleDateString()} et le ${endOfMonth.toLocaleDateString()}.`;
+            }
+        }
         
+            if (!data.nom) {
+                errors.nom = "Le nom est requis.";
+            } else if (!/^[A-Za-z\s]+$/.test(data.nom)) {
+                errors.nom = "Le nom doit contenir uniquement des lettres et des espaces.";
+            }
         
+            if (!data.reference) {
+                errors.reference = "La Référence est requise.";
+            }
+        
+            if (!data.quantite_achetee) {
+                errors.quantite_achetee = "La quantité achetée est requise.";
+            } else if (isNaN(data.quantite_achetee) || data.quantite_achetee < 0) {
+                errors.quantite_achetee = "La quantité achetée doit être un nombre entier positif.";
+            }
+        
+           
+        
+            if (!data.id_fournisseur) {
+                errors.id_fournisseur = "La sélection des fournisseurs est requise.";
+            }
+        
+            if (!data.unite_id) {
+                errors.unite_id = "La sélection des Unités est requise.";
+            }
+        
+            if (!data.prix) {
+                errors.prix = "Le prix est requis.";
+            } else if (isNaN(data.prix) || data.prix < 0) {
+                errors.prix = "Le prix doit être un nombre positif.";
+            }
+        
+            if (!data.id_packaging) {
+                errors.id_packaging = "La sélection des ingrédients est requise.";
+            }
+        
+            return errors;
+        };
+        
+    
+    
         
         
         const openDeleteModal = (marchandisepackaging) => {
@@ -208,6 +274,16 @@ const MarchandisePackagingListTable = () => {
         };
 
         const handleUpdate = () => {
+            const errors = validate({date_achat: editedDateMarchandise, prix: editedPrixMarchandise,quantite_achetee: editedQuantiteAcheteeMarchandise, id_packaging: editedNamePackaging, nom: editedNameMarchandise, reference: editedRefMarchandise, id_fournisseur: editedNameFournisseur, unite_id: editedUnitIngredient });
+            if (Object.keys(errors).length > 0) {
+                setErrors(errors);
+                return;
+            }
+        
+            // Clear previous errors if any
+            setErrors({});
+
+
             const updatePackagingMarchandise = {
                 id: editMarchandise.id,
                 nom:editedNameMarchandise,
@@ -290,6 +366,16 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 
             
             const handleAddIngredientMarchandise = () => {
+                const errors = validate({date_achat: newIngredientMarchandiseData.date_achat, prix: newIngredientMarchandiseData.prix,quantite_achetee: newIngredientMarchandiseData.quantite_achetee, id_packaging: newIngredientMarchandiseData.id_packaging, nom: newIngredientMarchandiseData.nom, reference: newIngredientMarchandiseData.reference, id_fournisseur: newIngredientMarchandiseData.id_fournisseur, unite_id: newIngredientMarchandiseData.unite_id });
+                if (Object.keys(errors).length > 0) {
+                    setErrors(errors);
+                    return;
+                }
+            
+                // Clear previous errors if any
+                setErrors({});
+    
+                
                 const formData = new FormData();
 
                 formData.append('id_packaging', newIngredientMarchandiseData.id_packaging); // Utiliser id_ingredient au lieu de name_ingredient
@@ -302,7 +388,8 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                 formData.append('id_fournisseur', newIngredientMarchandiseData.id_fournisseur);
                 formData.append('date_achat', newIngredientMarchandiseData.date_achat);
                 
-                dispatch(addMarchandisePackaging(formData))
+                dispatch(addMarchandisePackaging({ id: id, formData }))
+
 
                 .then(() => {
         
@@ -417,7 +504,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                             <th className="sort" data-sort="Marchandise-quantite">Nombre de package En Stock</th>
                             <th className="sort" data-sort="Marchandise-quantite">Nombre de package Utilisés</th>
 
-                            <th className="sort" data-sort="Marchandise-prix">Prix</th>
+                            <th className="sort" data-sort="Marchandise-prix">Prix Unitaire</th>
                             <th className="sort" data-sort="Marchandise-date">Date achat</th>
                                                             
                                                             <th className="sort" data-sort="action">Action</th>
@@ -535,10 +622,14 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                                             <div className="mb-3">
                                                     <label htmlFor="name_marchandise-field" className="form-label">Nom Marchandise</label>
                                                     <input type="text" id="name_marchandise-field" className="form-control" placeholder="Enter Name" value={newIngredientMarchandiseData.nom} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, nom: e.target.value })} required />
+                                                    {errors.nom && <div className="text-danger">{errors.nom}</div>}
+
                                                 </div>
                                                 <div className="mb-3">
                                                     <label htmlFor="name_ref-field" className="form-label">Referance</label>
                                                     <input type="text" id="name_ref-field" className="form-control" placeholder="Enter Referance" value={newIngredientMarchandiseData.reference} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, reference: e.target.value })} required />
+                                                    {errors.reference && <div className="text-danger">{errors.reference}</div>}
+
                                                 </div>
                                                                                               
                                                 <div className="mb-3">
@@ -557,6 +648,8 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
         </option>
     ))}
 </select>
+{errors.id_packaging && <div className="text-danger">{errors.id_packaging}</div>}
+
 
             </div>
             {/* <div className="mb-3">
@@ -592,6 +685,8 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 
                     ))}
                 </select>
+                {errors.unite_id && <div className="text-danger">{errors.unite_id}</div>}
+
             </div>
             <div className="mb-3">
                 <label htmlFor="id_founisseur-field" className="form-label">Nom du fournisseur :</label>
@@ -610,18 +705,27 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 
                     ))}
                 </select>
+                {errors.id_fournisseur && <div className="text-danger">{errors.id_fournisseur}</div>}
+
             </div>
             <div className="mb-3">
              <label htmlFor="qunatite-field" className="form-label">Quantite Achetée</label>
             <input type="number" id="qunatite-field" className="form-control" placeholder="Enter Quantite" value={newIngredientMarchandiseData.quantite_achetee} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, quantite_achetee: e.target.value })} required />
+            {errors.quantite_achetee && <div className="text-danger">{errors.quantite_achetee}</div>}
+
             </div>
             <div className="mb-3">
              <label htmlFor="prix-field" className="form-label">Prix</label>
             <input type="number" id="prix-field" className="form-control" placeholder="Enter Prix" value={newIngredientMarchandiseData.prix} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, prix: e.target.value })} required />
+            {errors.prix && <div className="text-danger">{errors.prix}</div>}
+
+            
             </div>
             <div className="mb-3">
              <label htmlFor="date-field" className="form-label">Date d'achat</label>
             <input type="date" id="date-field" className="form-control" placeholder="Enter date" value={newIngredientMarchandiseData.date_achat} onChange={(e) => setNewIngredientMarchandiseData({ ...newIngredientMarchandiseData, date_achat: e.target.value })} required />
+            {errors.date_achat && <div className="text-danger">{errors.date_achat}</div>}
+
             </div>
                                                 
 
@@ -652,17 +756,21 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Marchandise </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 <form className="tablelist-form">
                 
                 <ModalBody>
                     <div className="mb-3">
                         <label htmlFor="name_marchandise-field" className="form-label">Nom Marchandise</label>
                         <input type="text" id="name_marchandise-field" className="form-control" placeholder="Entrer Nom" value={editedNameMarchandise} onChange={(e) => setEditedNameMarchandise(e.target.value)} required />
+                        {errors.nom && <div className="text-danger">{errors.nom}</div>}
+
                     </div>
                     <div className="mb-3">
                         <label htmlFor="ref-field" className="form-label">Referance</label>
                         <input type="text" id="ref-field" className="form-control" placeholder="Entrer Referance" value={editedRefMarchandise} onChange={(e) => setEditedRefMarchandise(e.target.value)} required />
+                        {errors.reference && <div className="text-danger">{errors.reference}</div>}
+
                     </div>
                     <div className="mb-3">
             <label htmlFor="name_ingredient-field" className="form-label">Packaging:</label>
@@ -678,6 +786,8 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                     </option>
                 ))}
             </select>
+            {errors.id_packaging && <div className="text-danger">{errors.id_packaging}</div>}
+
         </div>
         <div className="mb-3">
             <label htmlFor="dimension-field" className="form-label">Dimension:</label>
@@ -690,6 +800,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
             disabled
             
             />
+            
         </div>
 
 
@@ -701,12 +812,16 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                 value={editedUnitIngredient}
                 onChange={(e) => setEditedUnitIngredient(e.target.value)}
             >
+                 <option value="">Sélectionner une Unité</option>
+
                 {unites.map((unite) => (
                     <option key={unite.id} value={unite.id}>
                         {unite.name_unite}
                     </option>
                 ))}
             </select>
+            {errors.unite_id && <div className="text-danger">{errors.unite_id}</div>}
+
         </div>
         <div className="mb-3">
             <label htmlFor="name_fournisseur-field" className="form-label">Fournisseur:</label>
@@ -716,17 +831,23 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                 value={editedNameFournisseur}
                 onChange={(e) => setEditedNameFournisseur(e.target.value)}
             >
+                  <option value="">Sélectionner un fournisseur</option>
+
                 {fournisseurs.map((fournisseur) => (
                     <option key={fournisseur.id} value={fournisseur.id}>
                         {fournisseur.nom}
                     </option>
                 ))}
             </select>
+            {errors.id_fournisseur && <div className="text-danger">{errors.id_fournisseur}</div>}
+
         </div>
 
                     <div className="mb-3">
                         <label htmlFor="quantite-field" className="form-label">Quantité Achetée</label>
                         <input type="number" id="quantite-field" className="form-control" placeholder="Enter la =quatité" value={editedQuantiteAcheteeMarchandise || "0" } onChange={(e) => setEditedQuantiteAcheteeMarchandise(e.target.value)} required />
+                        {errors.quantite_achetee && <div className="text-danger">{errors.quantite_achetee}</div>}
+
                     </div>
                     <div className="mb-3">
                         <label htmlFor="quantite-field" className="form-label">Nombre de Package En Stock</label>
@@ -739,10 +860,14 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                     <div className="mb-3">
                         <label htmlFor="prix-field" className="form-label">Prix</label>
                         <input type="number" id="prix-field" className="form-control" placeholder="Enter la prix" value={editedPrixMarchandise} onChange={(e) => setEditedPrixMarchandise(e.target.value)} required />
+                        {errors.prix && <div className="text-danger">{errors.prix}</div>}
+
                     </div>
                     <div className="mb-3">
                         <label htmlFor="date-field" className="form-label">Date d'achat</label>
                         <input type="date" id="date-field" className="form-control" placeholder="Enter la date" value={editedDateMarchandise} onChange={(e) => setEditedDateMarchandise(e.target.value)} required />
+                        {errors.date_achat && <div className="text-danger">{errors.date_achat}</div>}
+
                     </div>
                      
                     
@@ -765,7 +890,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
 
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Marchandise</ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail </ModalHeader>
                 <ModalBody>
                     {selectedPackagingMarchandise && (
                         <form className="tablelist-form">
@@ -837,7 +962,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
         
             {/* confirm add Modal */}
 
-            <Modal isOpen={modal_confirm_add} toggle={() => toggleConfirmAddMarchandise(false)} centered>
+            <Modal isOpen={modal_confirm_add_marchandise} toggle={() => toggleConfirmAddMarchandise(false)} centered>
     <ModalHeader className="bg-light p-3" toggle={() => toggleConfirmAddMarchandise(false)}>Confirmer l'ajout</ModalHeader>
     <ModalBody>
         

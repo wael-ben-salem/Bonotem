@@ -8,51 +8,117 @@ use App\Models\Personnel;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use stdClass;
 
 class ChargeFixeController extends Controller
 {
-    public function ChargeFixe()
+    public function getAllChargeFix($id)
     {
-        $charges = ChargeFixe::all();
-        return response()->json($charges);
+        // Récupérer les personnels pour le même id_creator
+        $personnels = Personnel::where('id_creator', $id)->get();
+
+        // Calculer le salaire total des personnels
+        $totalSalaire = $personnels->sum('salaire');
+
+        // Ajouter une seule entrée pour les salaires de tous les personnels
+        $personnelCharge = null;
+        if ($totalSalaire > 0) {
+            $personnelCharge = new stdClass();
+            $personnelCharge->nom = 'Personnel';
+            $personnelCharge->id_creator = $id;
+
+            // Obtenir le mois et l'année actuels
+            $currentMonth = date('m');
+            $currentYear = date('Y');
+
+            // Construire la date de paiement pour le personnel
+            $personnelCharge->date_paiement = "01/$currentMonth/$currentYear au " . date("t/$currentMonth/$currentYear");
+
+            $personnelCharge->montant = $totalSalaire;
+            $personnelCharge->frequence = 'hebdomadaire';
+        }
+
+        // Récupérer les lignes de ChargeFixe pour le même id_creator
+        $chargeFixes = ChargeFixe::where('id_creator', $id)->get();
+
+        // Créer une liste pour les charges fixes
+        $charges = [];
+
+        // Ajouter les lignes de ChargeFixe dans la réponse
+        $chargeFixes->each(function ($chargeFixe) use (&$charges) {
+            $charge = new stdClass();
+            $charge->id = $chargeFixe->id;
+            $charge->nom = $chargeFixe->nom;
+            $charge->id_creator = $chargeFixe->id_creator;
+            $charge->date_paiement = $chargeFixe->date_paiement;
+            $charge->montant = $chargeFixe->montant;
+            $charge->frequence = $chargeFixe->frequence;
+
+            $charges[] = $charge;
+        });
+
+        // Ajouter les charges de personnel à la fin
+        if ($personnelCharge) {
+            $charges[] = $personnelCharge;
+        }
+
+        return response()->json($charges, 200);
     }
 
-    public function addChargeFixe(Request $request)
+
+
+    public function store(Request $request, $id)
     {
-        // Validate incoming data
-        $validatedData = $request->validate([
-            'nom' => 'required|string|max:255',
+
+        $validator = Validator::make($request->all(), [
+            'nom' => [
+                'required',
+                'regex:/^[A-Za-z\s]+$/',
+                function ($attribute, $value, $fail) use ($id) {
+                    $existingCategory = ChargeFixe::where('nom', $value)
+                        ->where('id_creator', $id)
+                        ->first();
+
+                    if ($existingCategory) {
+                        $fail('Ce nom de catégorie existe déjà pour cet utilisateur.');
+                    }
+                }
+            ],
             'frequence' => 'required|string',
             'date_paiement' => 'required|date',
-            'montant' => 'sometimes|numeric'
+            'montant' => 'required'
+        ], [
+            'nom.required' => 'Le champ nom est requis.',
+            'nom.regex' => 'Le champ nom doit contenir uniquement des lettres et des espaces.',
+            'date_paiement.required' => 'Le champ date est requis.',
+            'date_paiement.date' => 'Le champ date doit être une date valide.',
+            'montant.required' => 'Le champ chiffre est requis.',
+            'montant.min' => 'Le champ chiffre doit être supérieur ou égal à 0.',
+            'frequence.required' => 'Le champ frequence est requis.',
+
         ]);
 
-        // Calculate total salaries only if the charge name is "Charge de personnels"
-        if ($request->nom === 'Charge de personnels') {
-            $totalSalaires = DB::table('personnels')->sum('salaire');
-            $validatedData['montant'] = $totalSalaires;
-        } else {
-            // Use the provided montant or default to 0 if not provided
-            $validatedData['montant'] = $request->montant ?? 0;
-        }
-
-        try {
-            // Create a new fixed charge in the database
-            $chargeFixe = ChargeFixe::create($validatedData);
-
-            // Return a JSON response
+        if ($validator->fails()) {
             return response()->json([
-                'success' => true,
-                'message' => 'Charge fixe ajoutée avec succès.',
-                'data' => $chargeFixe
+                'validation_errors' => $validator->messages(),
             ]);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erreur lors de l\'ajout de la charge fixe: ' . $e->getMessage()
-            ], 500);
+        } else {
+            // Les données sont valides, on peut les utiliser directement
+            $charge = new ChargeFixe();
+            $charge->nom = $request->input('nom');
+            $charge->frequence = $request->input('frequence');
+            $charge->date_paiement = $request->input('date_paiement');
+            $charge->montant = $request->input('montant');
+            $charge->id_creator = $id;
+
+            $charge->save();
+
+            return response()->json($charge, 201);
         }
     }
+
+
+
 
     public function updateChargeFixe(Request $request, $id)
     {
@@ -66,7 +132,19 @@ class ChargeFixeController extends Controller
             'montant' => 'sometimes|numeric',
             'frequence' => 'required|string',
             'date_paiement' => 'required|date'
+        ], [
+            'nom.required' => 'Le champ nom est requis.',
+            'nom.regex' => 'Le champ nom doit contenir uniquement des lettres et des espaces.',
+            'date_paiement.required' => 'Le champ date est requis.',
+            'date_paiement.date' => 'Le champ date doit être une date valide.',
+            'montant.required' => 'Le champ chiffre est requis.',
+            'montant.numeric' => 'Le champ chiffre doit être un nombre.',
+            'montant.min' => 'Le champ chiffre doit être supérieur ou égal à 0.',
+            'frequence.required' => 'Le champ frequence est requis.',
+
         ]);
+
+
 
         if ($validator->fails()) {
             return response()->json(['validation_errors' => $validator->messages()], 422);
@@ -101,5 +179,13 @@ class ChargeFixeController extends Controller
 
         $chargefixe->delete();
         return response()->json(['message' => 'chargefixe successfully deleted'], 200);
+    }
+
+
+    public function show($id)
+    {
+        $charge = ChargeFixe::findOrFail($id);
+
+        return response()->json($charge, 200);
     }
 }

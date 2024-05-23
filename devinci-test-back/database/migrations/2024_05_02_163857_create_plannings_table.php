@@ -13,6 +13,8 @@ return new class extends Migration
             $table->time('heure_debut');
             $table->time('heure_fin');
             $table->decimal('taux_heure', 8, 2);
+            $table->integer('id_creator')->nullable();
+
             $table->timestamps();
             $table->foreign('personnel_id')->references('id')->on('personnels')->onDelete('cascade');
             $table->foreign('jour_id')->references('id')->on('jours')->onDelete('cascade');

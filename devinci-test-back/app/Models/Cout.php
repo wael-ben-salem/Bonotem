@@ -11,7 +11,7 @@ class Cout extends Model
     use HasFactory;
 
 
-    protected $fillable = ['detail', 'montant', 'type','date','id_depense','id_ventilation'];
+    protected $fillable = ['detail', 'montant', 'type','date','id_depense','id_ventilation','id_creator'];
 
 
     public function coutable(): MorphTo

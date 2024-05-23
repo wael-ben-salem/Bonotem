@@ -38,6 +38,7 @@ const Packagings = () => {
     const [editedNamePackaging, setEditedNamePackaging] = useState('');
     const [editedDimension, setEditedDimension] = useState('');
     const [editedPhoto, setEditedPhoto] = useState(""); // Store the file itself, initialize as null
+    const [errors, setErrors] = useState({});
 
     const [modal_show, setModalShow] = useState(false); // State for Show Modal
     const [selectedPackaging, setSelectedPackaging] = useState(null); // State to store selected 
@@ -73,12 +74,13 @@ const Packagings = () => {
         const changePage = (page) => {
             setCurrentPage(page);
         };
-        
+        const id = useSelector(state => state.login.user.id);
+
     
     
     useEffect(() => {
-        dispatch(getAllPackaging());
-    }, [dispatch]);
+        dispatch(getAllPackaging(id));
+    }, [dispatch, id]);
 
 
 
@@ -169,8 +171,38 @@ const toggleConfirmEdit = (isOpen) => {
         toggleListModal();
 
     };
+    const validate = (data) => {
+        const errors = {};
+    
+        if (!data.name_packaging) {
+            errors.name_packaging = "Le nom du packaging est requis.";
+        } else if (!/^[A-Za-z\s]+$/.test(data.name_packaging)) {
+            errors.name_packaging = "Le nom du packaging doit contenir uniquement des lettres et des espaces.";
+        }
+    
+        if (!data.dimension) {
+            errors.dimension = "La dimension du packaging est requise.";
+        } else if (!/^\d*\.?\d+\s*[a-zA-Z]+$/.test(data.dimension)) {
+            errors.dimension = "La dimension du packaging doit être au format numérique avec une unité de mesure valide, par exemple '24cm', '2 m', '3.5 kg', etc.";
+        }
+        
+    
+        if (!data.photo) {
+            errors.photo = "La photo du packaging est requise.";
+        }
+    
+        return errors;
+    };
 
    const handleUpdate = () => {
+    const errors = validate({ name_Packaging: editedNamePackaging, photo: editedPhoto , dimension: editedDimension });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
     
     const formData = new FormData();
     formData.append('name_packaging', editedNamePackaging);
@@ -218,13 +250,23 @@ const openShowModal = (packaging) => {
 
 
 const handleAddPackaging = () => {
+    const errors = validate({ name_packaging: newPackagingData.name_packaging, photo: newPackagingData.photo, dimension: newPackagingData.dimension });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
+
     const formData = new FormData();
     formData.append('name_packaging', newPackagingData.name_packaging);
     formData.append('dimension', newPackagingData.dimension);
     formData.append('photo', newPackagingData.photo); // Append the file to the form data
     
-
-    dispatch(addPackaging(formData))
+    
+    
+    dispatch(addPackaging({ id: id, formData }))
     .then(() => {
         
     
@@ -307,8 +349,8 @@ return(
                                                                 <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                                                             </div>
                                                         </th>
-                                                        <th className="sort" data-sort="Packaging-Id">ID</th>
-                                                        <th className="sort" data-sort="Packaging-name_packaging">Nom Packaging</th>
+                                                        {/* <th className="sort" data-sort="Packaging-Id">ID</th> */}
+                                                        <th className="sort" data-sort="Packaging-name_packaging">Nom </th>
                                                         <th className="sort" data-sort="Packaging-nombre_package">Dimension</th> 
                                                         <th className="sort" data-sort="Packaging-photo">Photo</th> 
     
@@ -335,7 +377,7 @@ return(
                                                         <input className="form-check-input" type="checkbox" onClick={() => openShowModal(packaging)} name="chk_child" value="option1" />
                                                     </div>
                                                 </th>
-                                                <td onClick={() => openShowModal(packaging)}>{packaging.id}</td>
+                                                {/* <td onClick={() => openShowModal(packaging)}>{packaging.id}</td> */}
                                                 <td onClick={() => openShowModal(packaging)}>{packaging.name_packaging}</td>
                                                 <td onClick={() => openShowModal(packaging)}>{packaging.dimension}</td>
                                                 <td onClick={() => openShowModal(packaging)}>
@@ -419,16 +461,20 @@ return(
             </div>
             {/* Add Packaging Modal */}
             <Modal isOpen={modalAddPackaging} toggle={toggleAddPackagingModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddPackagingModal}>Ajout Packaging</ModalHeader>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddPackagingModal}>Ajout </ModalHeader>
                                         <ModalBody>
                                             <form className="tablelist-form">
                                                 <div className="mb-3">
-                                                    <label htmlFor="name_packaging-field" className="form-label">Nom Packaging</label>
+                                                    <label htmlFor="name_packaging-field" className="form-label">Nom </label>
                                                     <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newPackagingData.name_packaging} onChange={(e) => setNewPackagingData({ ...newPackagingData, name_packaging: e.target.value })} required />
+                                                    {errors.name_packaging && <div className="text-danger">{errors.name_packaging}</div>}
+
                                                 </div>
                                                 <div className="mb-3">
                                                     <label htmlFor="nombre_package-field" className="form-label">Dimension</label>
                                                     <input type="text" id="nombre_package-field" className="form-control" placeholder="Enter Le nombre du package" value={newPackagingData.dimension} onChange={(e) => setNewPackagingData({ ...newPackagingData, dimension: e.target.value })} required />
+                                                    {errors.dimension && <div className="text-danger">{errors.dimension}</div>}
+
                                                 </div>
                                                 <div className="mb-3">
                                                 <label htmlFor="photo-field" className="form-label">
@@ -441,6 +487,8 @@ return(
                                                   onChange={(e) => setNewPackagingData({ ...newPackagingData, photo: e.target.files[0] })} // Handle file selection
                                                   name="photo"
                                                 />
+                                                                {errors.photo && <div className="text-danger">{errors.photo}</div>}
+
                                               </div>
                                                
                                                      
@@ -462,17 +510,21 @@ return(
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Packaging </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 <form className="tablelist-form">
                     <ModalBody>
                         <div className="mb-3">
                             <label htmlFor="name_packaging-field" className="form-label">Nom</label>
                             <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedNamePackaging} onChange={(e) => setEditedNamePackaging(e.target.value)} required />
+                            {errors.name_packaging && <div className="text-danger">{errors.name_packaging}</div>}
+
                         </div>
 
                         <div className="mb-3">
                             <label htmlFor="dimension-field" className="form-label">Dimension </label>
                             <input type="text" id="dimension-field" className="form-control" placeholder="Enter Nombre de Package" value={editedDimension} onChange={(e) => setEditedDimension(e.target.value)} required />
+                            {errors.dimension && <div className="text-danger">{errors.dimension}</div>}
+
                         </div>
                         <div className="mb-3 row align-items-center">
     <div className="col-md-9">
@@ -484,6 +536,8 @@ return(
             onChange={(e) => setEditedPhoto(e.target.files[0])}
             name="photo"
         />
+                        {errors.photo && <div className="text-danger">{errors.photo}</div>}
+
     </div>
     <div className="col-md-2    ">
         {selectedPackaging && selectedPackaging.photo && (
@@ -513,7 +567,7 @@ return(
 
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail</ModalHeader>
                 <ModalBody>
                     {selectedPackaging && (
                         <form className="tablelist-form">

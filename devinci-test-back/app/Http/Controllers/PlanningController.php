@@ -11,13 +11,14 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
 class PlanningController extends Controller {
-    public function planning() {
+    public function planning($id) {
         // Chargement en avance des relations personnel, jour et typePersonnel
-        $plannings = Planning::with(['personnel', 'personnel.typePersonnel', 'jour'])->get();
+        $plannings = Planning::with(['personnel', 'personnel.typePersonnel', 'jour'])->where('id_creator', $id)
+        ->get();
         return response()->json($plannings);
     }
 
-    public function addPlanning(Request $request) {
+    public function addPlanning(Request $request,$id) {
         $validator = Validator::make($request->all(), [
             'jour_id' => 'required|exists:jours,id',
             'heure_debut' => 'required|date_format:H:i',
@@ -36,6 +37,8 @@ class PlanningController extends Controller {
                 'heure_fin' => $request->heure_fin,
                 'taux_heure' => $request->taux_heure,
                 'personnel_id' => $request->personnel_id,
+                'id_creator' => $id,
+
             ]);
 
             return response()->json([

@@ -12,16 +12,16 @@ class FournisseurController extends Controller
     /**
      *Liste tous les fournisseurs disponibles.
      */
-    public function fournisseur()
+    public function fournisseur($id)
     {
-        $fournisseurs = Fournisseur::all();
+        $fournisseurs = Fournisseur::where('id_creator', $id)->get();
         return response()->json($fournisseurs);
     }
 
     /**
      * Ajout un nouveau fournisseur après une validation .
      */
-    public function store(Request $request)
+    public function store(Request $request,$id)
     {
         Log::info($request->all());
         $validator = Validator::make($request->all(), [
@@ -53,6 +53,9 @@ class FournisseurController extends Controller
         $fournisseur->nom = $request->nom;
         $fournisseur->num_telephone = $request->num_telephone;
         $fournisseur->email = $request->email;
+        $fournisseur->id_creator = $id;
+
+
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo');
             $filename = time() . '.' . $photo->getClientOriginalExtension();

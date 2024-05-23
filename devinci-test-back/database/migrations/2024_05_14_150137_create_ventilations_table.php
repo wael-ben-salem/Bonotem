@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('ventilations', function (Blueprint $table) {
             $table->id();
+            $table->integer('id_creator')->nullable();
+
 
             $table->timestamps();
         });

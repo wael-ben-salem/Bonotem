@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllFournisseur = createAsyncThunk("gitFournisseur/getAllUnite", async () => {
+export const getAllFournisseur = createAsyncThunk("gitFournisseur/getAllUnite", async (id) => {
     try {
-      const response = await axios.get("/fournisseurs");
+      const response = await axios.get(`/fournisseurs/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -21,7 +21,7 @@ export const getAllFournisseur = createAsyncThunk("gitFournisseur/getAllUnite", 
     "gitFournisseur/updateFournisseur",
     async ({ id, fournisseurData }) => {
         try {
-            const response = await axios.post(`/fournisseurs/${id}`, fournisseurData);
+            const response = await axios.post(`/updatefournisseurs/${id}`, fournisseurData);
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -36,7 +36,7 @@ export const getAllFournisseur = createAsyncThunk("gitFournisseur/getAllUnite", 
     "gitFournisseur/getPackaging_FournisseurDetails",
     async (fournisseurId) => {
       try {
-        const response = await axios.get(`/fournisseurs/${fournisseurId}`);
+        const response = await axios.get(`/fournisseursshow/${fournisseurId}`);
         console.log("API response:", response);
         return response.categories;
       } catch (error) {
@@ -63,9 +63,9 @@ export const getAllFournisseur = createAsyncThunk("gitFournisseur/getAllUnite", 
   
 
 
-  export const addFournisseur = createAsyncThunk("gitFournisseur/addPackaging_Fournisseur", async (formData) => {
+  export const addFournisseur = createAsyncThunk("gitFournisseur/addPackaging_Fournisseur", async ({id, formData}) => {
     try {
-      const response = await axios.post("/fournisseurs", formData);
+      const response = await axios.post(`/fournisseurs/${id}`, formData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added user data
     } catch (error) {

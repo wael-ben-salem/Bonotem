@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIngCompose", async () => {
+export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIngCompose", async (id) => {
     try {
-      const response = await axios.get("/ingredientsCompose");
+      const response = await axios.get(`/ingredientsCompose/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -21,7 +21,7 @@ export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIng
     "gitIngredientCompose/updateIngCompose",
     async ({ id ,formData,insertedProduitIngredient }) => {
         try {
-            const response = await axios.post(`/ingredientsCompose/${id}` ,formData,insertedProduitIngredient );
+            const response = await axios.post(`/updateingredientsCompose/${id}` ,formData,insertedProduitIngredient );
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -36,7 +36,7 @@ export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIng
     "gitIngredientCompose/getIngComposeDetails",
     async (ingComposeId) => {
       try {
-        const response = await axios.get(`/ingredientsCompose/${ingComposeId}`);
+        const response = await axios.get(`/showingredientsCompose/${ingComposeId}`);
         console.log("API response:", response);
         return response.ingredientcomposes;
       } catch (error) {
@@ -50,7 +50,7 @@ export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIng
     "gitIngredientCompose/deleteIngCompose",
     async (ingComposeId) => {
       try {
-        const response = await axios.delete(`/produit/${ingComposeId}`);
+        const response = await axios.delete(`/ingredientsCompose/${ingComposeId}`);
         console.log("API response:", response);
         return ingComposeId; // Return the ID of the deleted user
       } catch (error) {
@@ -63,9 +63,9 @@ export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIng
   
 
 
-  export const addIngCompose = createAsyncThunk("gitIngredientCompose/addIngCompose", async (newIngComposeData,insertedProduitIngredient,rejectWithValue) => {
+  export const addIngCompose = createAsyncThunk("gitIngredientCompose/addIngCompose", async ({id, newIngComposeData, insertedProduitIngredient, rejectWithValue}) => {
     try {
-      const response = await axios.post("/ingredientsCompose", newIngComposeData,insertedProduitIngredient,rejectWithValue);
+      const response = await axios.post(`/ingredientsCompose/${id}`, newIngComposeData,insertedProduitIngredient,rejectWithValue);
       console.log("API response:", response);
       return response; // Assuming the API returns the added product data
     } catch (error) {

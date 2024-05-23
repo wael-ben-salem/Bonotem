@@ -56,6 +56,7 @@ const IngredientTables = () => {
     photo: null, // Store the file itself, initialize as null
 
   });
+  const [errors, setErrors] = useState({});
 
   const [hoverShow, setHoverShow] = useState(false);
     const [hoverEdit, setHoverEdit] = useState(false);
@@ -81,11 +82,12 @@ const IngredientTables = () => {
   const changePage = (page) => {
       setCurrentPage(page);
   };
-  
+  const id = useSelector(state => state.login.user.id);
+
 
   useEffect(() => {
-    dispatch(getAllDataIngredient());
-  }, [dispatch]);
+    dispatch(getAllDataIngredient(id));
+  }, [dispatch,id]);
 
 
   useEffect(() => {
@@ -166,8 +168,31 @@ const toggleConfirmEdit = (isOpen) => {
 
     toggleListModal();
   };
+  const validate = (data) => {
+    const errors = {};
+
+    if (!data.name_ingredient) {
+      errors.name_ingredient = "Le nom de l'ingrédient est requis.";
+  } else if (!/^[A-Za-z\s]+$/.test(data.name_ingredient)) {
+      errors.name_ingredient = "Le nom de l'ingrédient doit contenir uniquement des lettres et des espaces.";
+  }
+    if (!data.photo) {
+        errors.photo = "La photo de l'ingrédient est requise.";
+    }
+
+    return errors;
+};
 
   const handleUpdate = () => {
+    const errors = validate({ name_ingredient: editedName, photo: editedPhoto });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
+
    
     const formData = new FormData();
     formData.append('id', editIngredient.id);
@@ -207,12 +232,23 @@ const toggleConfirmEdit = (isOpen) => {
   const toggleModal = (modal, setModal) => setModal(!modal);
 
   const handleAddIngredient = () => {
+    const errors = validate({ name_ingredient: newIngredientData.name_ingredient, photo: newIngredientData.photo });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
+
+
+
     const formData = new FormData();
 
     formData.append('name_ingredient', newIngredientData.name_ingredient);
     formData.append('photo', newIngredientData.photo); // Append the file to the form data
 
-    dispatch(addIngredient(formData))
+    dispatch(addIngredient({ id: id, newIngredientData: formData }))
 
     .then(() => {
         
@@ -300,11 +336,11 @@ const toggleConfirmEdit = (isOpen) => {
                                 />
                               </div>
                             </th>
-                            <th className="sort" data-sort="User-Id">
+                            {/* <th className="sort" data-sort="User-Id">
                               Id
-                            </th>
+                            </th> */}
                             <th className="sort" data-sort="User-name">
-                              Nom Ingredient
+                              Nom 
                             </th>
                             <th className="sort" data-sort="Categorie-photo">photo</th>
 
@@ -341,9 +377,9 @@ const toggleConfirmEdit = (isOpen) => {
                                     />
                                   </div>
                                 </th>
-                                <td onClick={() => openShowModal(ingredient)}>
+                                {/* <td onClick={() => openShowModal(ingredient)}>
                                   {ingredient.id}
-                                </td>
+                                </td> */}
                                 <td onClick={() => openShowModal(ingredient)}>
                                   {ingredient.name_ingredient}
                                 </td>
@@ -426,63 +462,46 @@ const toggleConfirmEdit = (isOpen) => {
         </Container>
       </div>
       {/* Ajout Modal */}
-      <Modal
-        isOpen={modalAddIngredient}
-        toggle={toggleAddIngredientModal}
-        centered
-      >
-        <ModalHeader className="bg-light p-3" toggle={toggleAddIngredientModal}>
-          Ajouter Ingredient
-        </ModalHeader>
-        <ModalBody>
-          <form className="tablelist-form">
+      <Modal isOpen={modalAddIngredient} toggle={toggleAddIngredientModal} centered>
+    <ModalHeader className="bg-light p-3" toggle={toggleAddIngredientModal}>
+        Ajout
+    </ModalHeader>
+    <ModalBody>
+        <form className="tablelist-form">
             <div className="mb-3">
-              <label htmlFor="name-field" className="form-label">
-                Nom Ingredient
-              </label>
-              <input
-                type="text"
-                id="name-field"
-                className="form-control"
-                placeholder="Enter Name"
-                value={newIngredientData.name_ingredient}
-                onChange={(e) =>
-                  setNewIngredientData({
-                    ...newIngredientData,
-                    name_ingredient: e.target.value,
-                  })
-                }
-                required
-              />
+                <label htmlFor="name-field" className="form-label">
+                    Nom 
+                </label>
+                <input
+                    type="text"
+                    id="name-field"
+                    className="form-control"
+                    placeholder="Enter Name"
+                    value={newIngredientData.name_ingredient}
+                    onChange={(e) => setNewIngredientData({ ...newIngredientData, name_ingredient: e.target.value })}
+                    required
+                />
+                {errors.name_ingredient && <div className="text-danger">{errors.name_ingredient}</div>}
             </div>
             <div className="mb-3">
-                                                <label htmlFor="photo-field" className="form-label">
-                                                  Photo
-                                                </label>
-                                                <input
-                                                  type="file"
-                                                  id="photo-field"
-                                                  className="form-control"
-                                                  onChange={(e) => setNewIngredientData({ ...newIngredientData, photo: e.target.files[0] })} // Handle file selection
-                                                  name="photo"
-                                                />
-                                              </div>
-          </form>
-        </ModalBody>
-        <ModalFooter>
-          <div className="hstack gap-2 justify-content-end">
-            <Button
-              type="button"
-              color="secondary"
-              onClick={toggleAddIngredientModal}
-            >
-              Annuler
-            </Button>
-            <button type="button" className="btn btn-primary" onClick={handleAddIngredient}>Ajouter</button>
-
-          </div>
-        </ModalFooter>
-      </Modal>
+                <label htmlFor="photo-field" className="form-label">Photo</label>
+                <input
+                    type="file"
+                    id="photo-field"
+                    className="form-control"
+                    onChange={(e) => setNewIngredientData({ ...newIngredientData, photo: e.target.files[0] })}
+                    name="photo"
+                    required
+                />
+                {errors.photo && <div className="text-danger">{errors.photo}</div>}
+            </div>
+        </form>
+    </ModalBody>
+    <ModalFooter>
+        <Button type="button" color="secondary" onClick={toggleAddIngredientModal}>Annuler</Button>
+        <button type="button" className="btn btn-primary" onClick={handleAddIngredient}>Ajouter</button>
+    </ModalFooter>
+</Modal>
 
       {/* Modification Modal */}
       <Modal isOpen={modal_list} toggle={toggleListModal} centered>
@@ -492,13 +511,13 @@ const toggleConfirmEdit = (isOpen) => {
           toggle={toggleListModal}
         >
           {" "}
-          Modification D'ingredient{" "}
+          Modification{" "}
         </ModalHeader>
         <form className="tablelist-form">
           <ModalBody>
             <div className="mb-3">
               <label htmlFor="username-field" className="form-label">
-                Nom Ingredient{" "}
+                Nom {" "}
               </label>
               <input
                 type="text"
@@ -509,6 +528,8 @@ const toggleConfirmEdit = (isOpen) => {
                 onChange={(e) => setEditedName(e.target.value)}
                 required
               />
+            {errors.name_ingredient && <div className="text-danger">{errors.name_ingredient}</div>}
+
             </div>
             <div className="mb-3 row align-items-center">
     <div className="col-md-9">
@@ -520,6 +541,8 @@ const toggleConfirmEdit = (isOpen) => {
             onChange={(e) => setEditedPhoto(e.target.files[0])}
             name="photo"
         />
+    {errors.photo && <div className="text-danger">{errors.photo}</div>}
+
     </div>
     <div className="col-md-2    ">
         {selectedIngredient && selectedIngredient.photo && (
@@ -554,12 +577,12 @@ const toggleConfirmEdit = (isOpen) => {
  <Modal  isOpen={modal_show}
         toggle={() => toggleModal(modal_show, setModalShow)}
         centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel"  toggle={() => toggleModal(modal_show, setModalShow)}>Detail d'Ingreident</ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel"  toggle={() => toggleModal(modal_show, setModalShow)}>Detail</ModalHeader>
                 <ModalBody>
                     {selectedIngredient && (
                         <form className="tablelist-form">
                             <div className="mb-3">
-                                <label htmlFor="name_ingredient-field" className="form-label">Nom Ingredient</label>
+                                <label htmlFor="name_ingredient-field" className="form-label">Nom </label>
                                 <input type="text" id="name_ingredient-field" className="form-control"value={selectedIngredient.name_ingredient} readOnly />
                             </div>
                             {selectedIngredient && selectedIngredient.photo && (

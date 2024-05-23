@@ -66,11 +66,11 @@ const ProduitTables = () => {
 
 
     const [editedQuantite, setEditedQuantite] = useState(null);
-    const [editedMargeProduit, setEditedMargeProduit] = useState('');
     const [editedIdCategorieProduit, setEditedIdCategorieProduit] = useState(null); // Store the file itself, initialize as null
     
     const [modal_confirm_edit, setModalConfirmEdit] = useState(false);
     const [modal_confirm_add, setModalConfirmAdd] = useState(false);
+    const [errors, setErrors] = useState({});
 
 
     const [modal_show, setModalShow] = useState(false); // State for Show Modal
@@ -91,7 +91,6 @@ const ProduitTables = () => {
     
     const [newProduitData, setNewProduitData] = useState({
         name_produit: '',
-        marge: '',
         id_categorie: '', 
         id_ingredient: '', 
 
@@ -103,16 +102,15 @@ const ProduitTables = () => {
    
     
 
-//
+ const id = useSelector(state => state.login.user.id);
+
     
-    useEffect(() => {
-        dispatch(getAllProduit());
-        dispatch(getAllData());
-        dispatch(getAllPackaging());
-        dispatch(getAllDataIngredient());
-
-    }, [dispatch]);
-
+ useEffect(() => {
+    dispatch(getAllProduit(id));
+    dispatch(getAllData(id));
+    dispatch(getAllPackaging(id));
+    dispatch(getAllDataIngredient(id));
+  }, [dispatch, id]);
     
 
 useEffect(() => {
@@ -171,6 +169,38 @@ useEffect(() => {
         setEditedNamePackaging("");
         setEditedNombrePackage("");
         setEditedPhotoPackaging("");
+    };
+    
+    const validate = (data) => {
+        const errors = {};
+    
+        if (!data.name_produit) {
+            errors.name_produit = "Le nom est requis.";
+        } else if (!/^[A-Za-z\s]+$/.test(data.name_produit)) {
+            errors.name_produit = "Le nom doit contenir uniquement des lettres et des espaces.";
+        }
+    
+        if (!data.id_categorie) {
+            errors.id_categorie = "La Catégorie est requise.";
+        }
+    
+        if (!data.quantite) {
+            errors.quantite = "La quantité des ingrédients sélectionnés est requise.";
+        }
+       
+    
+        if (!(data.id_ingredient || data.id_packaging)) {
+            errors.id_packaging = "La sélection des packagings est requise.";
+            errors.id_ingredient = "La sélection des ingrédients est requise.";
+
+        }
+      
+        if (!(data.nombre_package || data.quantite)) {
+            errors.quantite = "La quantité des ingrédients sélectionnés est requise.";
+            errors.nombre_package = "Le nombre de package des packaging ingrédients est requise.";
+        }
+    
+        return errors;
     };
     
     
@@ -243,7 +273,6 @@ useEffect(() => {
         const openEditModal = (produit) => {
             setEditProduit(produit);
             setEditedNameProduit(produit.name_produit);
-            setEditedMargeProduit(produit.marge);
             setEditedIdCategorieProduit(produit.id_categorie);
             
 
@@ -329,6 +358,22 @@ useEffect(() => {
     
 
     const handleUpdate = () => {
+        const errors = validate({ 
+            id_categorie: editedIdCategorieProduit, 
+            name_produit: editedNameProduit, 
+            id_packaging: editedNamePackaging, 
+            id_ingredient: editedNameIngredient, 
+            quantite: editedQuantite, 
+            nombre_package: editedNombrePackage 
+        });
+        
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+    
+        setErrors({});
+    
         const selectedIngredientId = editedNameIngredient;
         const selectedPackagingId = editedNamePackaging;
         const nombrePackage = editedNombrePackage;
@@ -336,54 +381,54 @@ useEffect(() => {
         const photoIngredient = editedPhotoIngredient;
         const photoPackaging = editedPhotoPackaging;
     
-    
-    
         const updatedData = {
             name_produit: editedNameProduit,
-            marge: editedMargeProduit,
-            id_categorie: editedIdCategorieProduit,
-            ingredients: [
+            id_categorie: editedIdCategorieProduit
+        };
+    
+        if (selectedIngredientId) {
+            updatedData.ingredients = [
                 {
                     id_ingredient: selectedIngredientId,
                     quantite: quantity,
                     photo: photoIngredient,
                 }
-            ],
-            packagings: [
+            ];
+        }
+    
+        if (selectedPackagingId) {
+            updatedData.packagings = [
                 {
                     id_packaging: selectedPackagingId,
                     nombre_package: parseInt(nombrePackage),
                     photo: photoPackaging,
                 }
-            ]
-        };
+            ];
+        }
     
         // Dispatch the action to update the product
         dispatch(updateProduit({ id: editProduit.id, produitData: updatedData }))
-        .then(() => {
-            // Réinitialiser l'état
-            setEditProduit({
-                name_produit: '',
-                marge: '',
-                id_categorie: '', 
-                id_ingredient: '', 
-            });
-
-            // Fermer le modal
-            toggleListModal();
-
-            // Ouvrir le modal de confirmation
-            toggleConfirmEdit(true);
-        })
-        .catch(error => {
-            // Gérer l'erreur
-            console.error("Error updating Produit:", error);
-        })
-        .finally(() => {
-            // Désactiver le chargement après l'achèvement de l'action
-        });
+            .then(() => {
+                // Réinitialiser l'état
+                setEditProduit({
+                    name_produit: '',
+                    id_categorie: '', 
+                    id_ingredient: '', 
+                });
     
-       
+                // Fermer le modal
+                toggleListModal();
+    
+                // Ouvrir le modal de confirmation
+                toggleConfirmEdit(true);
+            })
+            .catch(error => {
+                // Gérer l'erreur
+                console.error("Error updating Produit:", error);
+            })
+            .finally(() => {
+                // Désactiver le chargement après l'achèvement de l'action
+            });
     };
     
 
@@ -413,6 +458,26 @@ const defaultNombrePackage = "";
 
 
     const handleAddProduit = () => {
+        const errors = validate({ 
+            name_produit: newProduitData.name_produit, 
+            id_categorie: newProduitData.id_categorie, 
+            id_packaging: editedNamePackaging, 
+            id_ingredient: editedNameIngredient, 
+            quantite: editedQuantite, 
+            nombre_package: editedNombrePackage 
+
+        });
+        
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+    
+        // Clear previous errors if any
+        setErrors({});
+
+
+
         const selectedIngredientId = editedNameIngredient;
         const selectedPackagingId = editedNamePackaging;
         const nombrePackage = editedNombrePackage;
@@ -420,7 +485,6 @@ const defaultNombrePackage = "";
          // Si un produit correspondant est trouvé, mettre à jour l'ID de catégorie dans le state du nouveau produit
          if (existingProduit) {
             setNewProduitData({ ...newProduitData, id_categorie: existingProduit.id_categorie });
-            setNewProduitData({ ...newProduitData, marge: existingProduit.marge });
 
         }
     
@@ -430,7 +494,7 @@ const defaultNombrePackage = "";
     
         const insertedProduitData = {
             name_produit: newProduitData.name_produit,
-            marge: existingProduit ? existingProduit.marge : newProduitData.marge,
+            
             id_categorie: existingProduit ? existingProduit.id_categorie : newProduitData.id_categorie,
         };
         
@@ -460,14 +524,13 @@ const defaultNombrePackage = "";
             formData.append('packagings[0][nombre_package]', packagingData.nombre_package);
         }
     
-        dispatch(addProduit(formData))
+        dispatch(addProduit({ id: id, newProduitData: formData, insertedProduitIngredient: null, rejectWithValue: null }))
         .then(() => {
         
     
             // Réinitialiser l'état
             setNewProduitData({
                 name_produit: '',
-                marge: '',
                 id_categorie: '',
             });
         
@@ -495,7 +558,7 @@ return(
     <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Tables" breadcrumbItem="Packagings" />
+                    <Breadcrumbs title="Tables" breadcrumbItem="Produit" />
 
                     <Row>
                         <Col lg={12}>
@@ -540,10 +603,9 @@ return(
                                 <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                             </div>
                         </th>
-                        <th className="sort" data-sort="Produit-Id">ID</th>
-                        <th className="sort" data-sort="Produit-name_produit">Nom Produit</th>
-                        <th className="sort" data-sort="Produit-marge">Marge</th>
-                        <th className="sort" data-sort="Produit-id_categorie">Name categorie</th>
+                        {/* <th className="sort" data-sort="Produit-Id">ID</th> */}
+                        <th className="sort" data-sort="Produit-name_produit">Nom </th>
+                        <th className="sort" data-sort="Produit-id_categorie">Nom categorie</th>
                         <th className="sort" data-sort="Produit-id_categorie">ingredients</th>
 
                         <th className="sort" data-sort="Produit-id_categorie">Packagings</th>
@@ -565,9 +627,8 @@ return(
                         <input className="form-check-input" type="checkbox" name="chk_child" value="option1" />
                     </div>
                 </th>
-                <td onClick={() => openShowModal(produit)}>{produit.id}</td>
+                {/* <td onClick={() => openShowModal(produit)}>{produit.id}</td> */}
                 <td onClick={() => openShowModal(produit)}>{produit.name_produit}</td>
-                <td onClick={() => openShowModal(produit)}>{produit.marge }</td>
                 <td onClick={() => openShowModal(produit)}>{produit.categorie ? produit.categorie.name : 'No'}</td> 
                 <td onClick={() => openShowModal(produit)}>
     {produit.ingredients && produit.ingredients.length > 0 ? (
@@ -698,21 +759,25 @@ return(
 
             {/* Add Packaging Modal */}
             <Modal isOpen={modalAddProduit} toggle={toggleAddProduitModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddProduitModal}>Ajouter Produit</ModalHeader>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddProduitModal}>Ajout</ModalHeader>
                                         <ModalBody>
         <form className="tablelist-form">
         <div className="mb-3">
-                <label htmlFor="name_produit-field" className="form-label">Nom Produit</label>
+                <label htmlFor="name_produit-field" className="form-label">Nom </label>
                 <input type="text" id="name_produit-field" className="form-control" placeholder="Enter Name" value={newProduitData.name_produit} onChange={(e) => setNewProduitData({ ...newProduitData, name_produit: e.target.value })} required />
+                {errors.name_produit && <div className="text-danger">{errors.name_produit}</div>}
+
             </div>
             {existingProduit ? (
                 <div className="mb-3">
                     <label htmlFor="categorie-field" className="form-label">Catégorie:</label>
                     <input type="text" className="form-control" onChange={(e) => setNewProduitData({ ...newProduitData, marge: e.target.value })} value={existingProduit.categorie.name} readOnly />
+                    {errors.id_categorie && <div className="text-danger">{errors.id_categorie}</div>}
+
                 </div>
             ) : (
                 <div className="mb-3">
-                    <label htmlFor="categorie-field" className="form-label">Catégorie:</label>
+                    <label htmlFor="categorie-field" className="form-label">Nom Catégorie:</label>
                     <select
                         id="categorie-field"
                         className="form-control"
@@ -726,20 +791,11 @@ return(
                             </option>
                         ))}
                     </select>
+                    {errors.id_categorie && <div className="text-danger">{errors.id_categorie}</div>}
+
                 </div>
             )}
 
-{existingProduit ? (
-                <div className="mb-3">
-                    <label htmlFor="Marge-field" className="form-label">Marge:</label>
-                    <input type="text" className="form-control" value={existingProduit.marge} onChange={(e) => setNewProduitData({ ...newProduitData, marge: e.target.value })}  readOnly />
-                </div>
-            ) : (
-                <div className="mb-3">
-                <label htmlFor="marge-field" className="form-label">Marge</label>
-                <input type="text" id="marge-field" className="form-control" placeholder="Entrez la marge" value={newProduitData.marge} onChange={(e) => setNewProduitData({ ...newProduitData, marge: e.target.value })} required />
-            </div>
-            )}
 
 
 
@@ -749,9 +805,8 @@ return(
             {/* Ajouter Ingrédient */}
             <hr />
             <div className="mb-3">
-                <h5>Ajouter Ingrédient</h5>
                 <div className="mb-3">
-                    <label htmlFor="name_ingredient-field" className="form-label">Ingrédient:</label>
+                    <label htmlFor="name_ingredient-field" className="form-label">Ingrédients:</label>
                     <select
                         id="name_ingredient-field"
                         className="form-control"
@@ -767,18 +822,21 @@ return(
                             </option>
                         ))}
                     </select>
+                    {errors.id_ingredient && <div className="text-danger">{errors.id_ingredient}</div>}
+
                 </div>
                 <div className="mb-3">
                     <label htmlFor="quantite-field" className="form-label">Quantité</label>
-                    <input type="text" id="quantite-field" className="form-control" placeholder="Entrez la quantité" value={editedQuantite || ""} onChange={(e) => setEditedQuantite(e.target.value)} required />
+                    <input type="number" id="quantite-field" className="form-control" placeholder="Entrez la quantité" value={editedQuantite || ""} onChange={(e) => setEditedQuantite(e.target.value)} required />
+                    {errors.quantite && <div className="text-danger">{errors.quantite}</div>}
+
                 </div>
             </div>
             {/* Ajouter Packaging */}
             <hr />
             <div className="mb-3">
-                <h5>Ajouter Packaging</h5>
                 <div className="mb-3">
-                    <label htmlFor="name_packaging-field" className="form-label">Packaging:</label>
+                    <label htmlFor="name_packaging-field" className="form-label">Packagings:</label>
                     <select
                         id="name_packaging-field"
                         className="form-control"
@@ -794,10 +852,14 @@ return(
                             </option>
                         ))}
                     </select>
+                    {errors.id_packaging && <div className="text-danger">{errors.id_packaging}</div>}
+
                 </div>
                 <div className="mb-3">
                     <label htmlFor="nombre_package-field" className="form-label">Nombre Package</label>
-                    <input type="text" id="nombre_package-field" className="form-control" placeholder="Entrez le nombre de packages" value={editedNombrePackage || ""} onChange={(e) => setEditedNombrePackage(e.target.value)} required />
+                    <input type="number" id="nombre_package-field" className="form-control" placeholder="Entrez le nombre de packages" value={editedNombrePackage || ""} onChange={(e) => setEditedNombrePackage(e.target.value)} required />
+                    {errors.nombre_package && <div className="text-danger">{errors.nombre_package}</div>}
+
                 </div>
             </div>
         </form>
@@ -818,16 +880,18 @@ return(
 
 {/* Edit Modal */}
 <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Produit </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 <form className="tablelist-form">
                
                     <ModalBody>
                         <div className="mb-3">
-                            <label htmlFor="name-field" className="form-label">Nom Produit</label>
+                            <label htmlFor="name-field" className="form-label">Nom </label>
                             <input type="text" id="name_produit-field" className="form-control" placeholder="Entrer Nom" value={editedNameProduit} onChange={(e) => setEditedNameProduit(e.target.value)} required />
+                            {errors.name_produit && <div className="text-danger">{errors.name_produit}</div>}
+
                         </div>
                         <div className="mb-3">
-                <label htmlFor="categorie-field" className="form-label">Catégorie:</label>
+                <label htmlFor="categorie-field" className="form-label">Nom Catégorie:</label>
                 <select
                     id="categorie-field"
                     className="form-control"
@@ -841,17 +905,16 @@ return(
                         </option>
                     ))}
                 </select>
+                {errors.id_categorie && <div className="text-danger">{errors.id_categorie}</div>}
+
             </div>
  
-                        <div className="mb-3">
-                            <label htmlFor="marge-field" className="form-label">Marge</label>
-                            <input type="text" id="marge-field" className="form-control" placeholder="Enter la marge" value={editedMargeProduit} onChange={(e) => setEditedMargeProduit(e.target.value)} required />
-                        </div>
+                        
                        {/* Ingrédients */}
                        
                        {editProduit && (
     <div className="mb-3">
-        <label htmlFor="ingredient-field" className="form-label">Ingrédient:</label>
+        <label htmlFor="ingredient-field" className="form-label">Ingrédients:</label>
         <select
             id="ingredient-field"
             className="form-control"
@@ -881,6 +944,8 @@ return(
                 </option>
             ))}
         </select>
+        {errors.id_ingredient && <div className="text-danger">{errors.id_ingredient}</div>}
+
     </div>
 )}
  
@@ -888,11 +953,13 @@ return(
             <div className="mb-3">
                             <label htmlFor="quantite-field" className="form-label">Quantite</label>
                             <input type="text" id="quantite-field" className="form-control" placeholder="Enter la marge" value={editedQuantite} onChange={(e) => setEditedQuantite(e.target.value)} required />
+                            {errors.quantite && <div className="text-danger">{errors.quantite}</div>}
+
              </div>
  
              {editProduit && (
     <div className="mb-3">
-        <label htmlFor="packaging-field" className="form-label">Packaging:</label>
+        <label htmlFor="packaging-field" className="form-label">Packagings:</label>
         <select
             id="packaging-field"
             className="form-control"
@@ -922,11 +989,15 @@ return(
                 </option>
             ))}
         </select>
+        {errors.id_packaging && <div className="text-danger">{errors.id_packaging}</div>}
+
     </div>
 )}
 <div className="mb-3">
-                            <label htmlFor="quantite-field" className="form-label">Nombre package</label>
+                            <label htmlFor="quantite-field" className="form-label">Nombre de package</label>
                             <input type="text" id="quantite-field" className="form-control" placeholder="Enter le nombre de package" value={editedNombrePackage} onChange={(e) => setEditedNombrePackage(e.target.value)} required />
+                            {errors.nombre_package && <div className="text-danger">{errors.nombre_package}</div>}
+
              </div>
  
  
@@ -993,22 +1064,19 @@ return(
 
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-    <ModalHeader className="bg-light p-3" toggle={toggleShowModal}>Détails du Produit</ModalHeader>
+    <ModalHeader className="bg-light p-3" toggle={toggleShowModal}>Détails</ModalHeader>
     <ModalBody>
     {selectedProduit && (
         <div>
             <div className="mb-3">
-                <label htmlFor="nom_produit-field" className="form-label">Nom Produit</label>
+                <label htmlFor="nom_produit-field" className="form-label">Nom</label>
                 <input type="text" id="name_produit-field" className="form-control" value={selectedProduit.name_produit} readOnly />
             </div>
             <div className="mb-3">
-                <label htmlFor="categorie-field" className="form-label">Catégorie</label>
+                <label htmlFor="categorie-field" className="form-label">Nom Catégorie</label>
                 <input type="text" id="categorie-field" className="form-control" value={selectedProduit.categorie ? selectedProduit.categorie.name : 'Pas de Categorie'} readOnly />
             </div>
-            <div className="mb-3">
-                <label htmlFor="marge-field" className="form-label">Marge</label>
-                <input type="text" id="marge-field" className="form-control" value={selectedProduit.marge} readOnly />
-            </div>
+            
             <hr />
             <div>
                 <h5>Ingrédients</h5>

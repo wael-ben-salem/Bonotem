@@ -15,6 +15,10 @@ return new class extends Migration
             $table->id();
               $table->string('name_ingredient_compose')->nullable();
               $table->string('photo')->nullable();
+              $table->unsignedBigInteger('id_categorie');
+              $table->foreign('id_categorie')->references('id')->on('categories')->onDelete('cascade');
+
+              $table->integer('id_creator')->nullable();
 
               $table->timestamps();
 

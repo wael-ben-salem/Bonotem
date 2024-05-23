@@ -46,10 +46,11 @@ const TypePersonnelTables = () => {
     nom: "",
     prix_heure: "",
   });
+  const id = useSelector(state => state.login.user.id);
 
   useEffect(() => {
-    dispatch(fetchTypePersonnel());
-  }, [dispatch]);
+    dispatch(fetchTypePersonnel(id));
+  }, [dispatch,id]);
 
   const toggleModal = (modal, setModal) => () => setModal(!modal);
 
@@ -87,7 +88,8 @@ const TypePersonnelTables = () => {
     const formData = new FormData();
     formData.append("nom", newTypePersonnelData.nom);
     formData.append("prix_heure", newTypePersonnelData.prix_heure);
-    
+    dispatch(addTypePersonnel({ id: id, personnelData:formData}))
+
     dispatch(addTypePersonnel(formData));
     setShowAddSuccessModal(true);
     setNewTypePersonnelData({ nom: "", prix_heure: "" });

@@ -10,7 +10,7 @@ class PackagingProduit extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['id_produit', 'id_packaging', 'nombre_package'];
+    protected $fillable = ['id_produit', 'id_packaging', 'nombre_package',,'id_creator'];
 
 
 

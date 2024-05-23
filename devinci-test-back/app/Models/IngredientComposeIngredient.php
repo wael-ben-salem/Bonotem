@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class IngredientComposeIngredient extends Model
 {
     use HasFactory;
-    protected $fillable = ['id_ingredient_compose', 'id_ingredient'];
+    protected $fillable = ['id_ingredient_compose', 'id_ingredient','id_creator'];
 
     public function ingredientCompose()
     {

@@ -16,7 +16,8 @@ class Personnel extends Model
         'name',
         'salaire',
         'num_telephone',
-        'type_personnel_id'
+        'type_personnel_id',
+        'id_creator'
     ];
 
 

@@ -35,9 +35,14 @@ import gitChargeFixeReducer from './chargefixe/gitChargeFixeSlice';
 import gitJourReducer from "./jour/gitJourSlice";
 
 import gitCoutReducer from "./Cout/gitCoutSlice";
+import gitChargeVariableReducer from "./chargevariable/gitChargeVariableSlice";
+
 
 import gitVenteReducer from "./vente/gitVenteSlice";
+import gitVenteStatiqueReducer from "./user/gitVenteStatiqueSlice";
+import gitChiffreDaffaireReducer from "./chiffredaffaire/gitChiffreDaffaireSlice";
 
+import gitCarteStatiqueReducer from "./user/gitCarteStatiqueSlice";
 
 import AdminTable from "./auth/Tables/reducer";
 
@@ -65,17 +70,27 @@ const rootReducer = combineReducers({
   gitCarte:gitCarteReducer,
   gitPerte:gitPerteReducer,
   gitCout:gitCoutReducer,
+  gitChiffreDaffaire:gitChiffreDaffaireReducer,
+
+  
   gitPlanning:gitPlanningReducer,
   gitPersonnel:gitPersonnelReducer,
   gitTypePersonnel: gitTypePersonnelReducer,
-  gitchargefixe: gitChargeFixeReducer,
+  gitChargeFixe: gitChargeFixeReducer,
   gitJours:gitJourReducer,
  
   gitVente:gitVenteReducer,
   gitMarchandiseIngredient:gitMarchandiseIngredientReducer,
   gitMarchandisePackaging:gitMarchandisePackagingReducer,
   gitUser: gitUserReducer, 
-  gitUserStatique: gitUserStatiqueReducer, 
+  gitUserStatique: gitUserStatiqueReducer,
+  gitChargeVariable: gitChargeVariableReducer,
+  gitVenteStatique: gitVenteStatiqueReducer,
+  gitCarteStatique: gitCarteStatiqueReducer,
+
+
+
+
 
   AdminTable,
   

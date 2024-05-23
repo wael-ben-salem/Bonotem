@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async () => {
+export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async (id) => {
     try {
-      const response = await axios.get("/packaging");
+      const response = await axios.get(`/packaging/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -36,7 +36,7 @@ export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async
     "gitPackaging/getPackagingDetails",
     async (packagingId) => {
       try {
-        const response = await axios.get(`/packaging/${packagingId}`);
+        const response = await axios.get(`/packagingshow/${packagingId}`);
         console.log("API response:", response);
         return response.packagings;
       } catch (error) {
@@ -63,16 +63,19 @@ export const getAllPackaging = createAsyncThunk("gitPackaging/getAllData", async
   
 
 
-  export const addPackaging = createAsyncThunk("gitPackaging/addPackaging", async (formData) => {
-    try {
-      const response = await axios.post("/addpackaging", formData);
-      console.log("API response:", response);
-      return response; // Assuming the API returns the added user data
-    } catch (error) {
-      console.error("API error:", error);
-      throw error;
+  export const addPackaging = createAsyncThunk(
+    "gitPackaging/addPackaging",
+    async ({ id, formData }) => {
+      try {
+        const response = await axios.post(`/addpackaging/${id}`, formData);
+        console.log("API response:", response);
+        return response; // Assuming the API returns the added user data
+      } catch (error) {
+        console.error("API error:", error);
+        throw error;
+      }
     }
-  });
+  );
   
 
   export const gitPackagingSlice = createSlice({

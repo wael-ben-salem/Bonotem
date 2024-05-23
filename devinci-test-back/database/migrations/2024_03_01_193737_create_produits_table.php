@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name_produit');
             $table->unsignedBigInteger('id_categorie');
+            $table->integer('id_creator')->nullable();
             $table->foreign('id_categorie')->references('id')->on('categories')->onDelete('cascade');
-            $table->decimal('marge', 8, 2);
             $table->timestamps();
         });
     }

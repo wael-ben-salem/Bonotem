@@ -2,6 +2,7 @@ import React from 'react';
 import  { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Card, CardBody,Alert, CardHeader, Col, Container,  Modal, ModalBody, ModalFooter, Row, ModalHeader } from 'reactstrap';
+import moment from 'moment';
 
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 import { addCategorie, deleteCategorie, getAllData, getCategorieeDetails, updateCategorie } from '../../store/categorie/gitCategorySlice';
@@ -12,6 +13,7 @@ import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { addCarte, deleteCarte, getAllCarteData, updateCarte } from '../../store/carte/gitCarteSlice';
 import { getAllProduit} from '../../store/produit/gitProduitSlice';
 import { addVente, deleteVente, getAllVenteData, getVenteDetails, updateVente } from '../../store/vente/gitVenteSlice';
+import { getAllIngCompose } from '../../store/ingredient/GitIngredientComposerSlice';
 
 
 
@@ -24,6 +26,7 @@ const VentesListTable = () => {
     const ventes = useSelector(state => state.gitVente.ventes);
     const cartes = useSelector(state => state.gitCarte.cartes);
     const produits = useSelector(state => state.gitProduit.produits);
+    const ingredientcomposes = useSelector(state => state.gitIngredientCompose.ingredientcomposes);
 
 
 
@@ -51,12 +54,13 @@ const VentesListTable = () => {
 
 
 
-
+    const [selectedIngredientCompose, setSelectedIngredientCompose] = useState(null);
     const [modal_list, setmodal_list] = useState(false);
     const [editVente, setEditVente] = useState(null);
     const [editedPrixVente, setEditedPrixVente] = useState('');
     const [editedQuantiteVente, setEditedQuantiteVente] = useState('');
     const [editedQuantiteApres, setEditedQuantiteApres] = useState(ventes.quantite_apres);
+    const [errors, setErrors] = useState({});
 
     const [editedNameCarteVente, setEditedNameCarteVente] = useState('');
 
@@ -74,6 +78,7 @@ const VentesListTable = () => {
         name: '',
         prixTTC: '',
         quantite:'',
+        id_ingredient_compose:'',
         id_carte: '', // Store the file itself, initialize as null
         id_categorie: '', // Store the file itself, initialize as null
         photo: null, // Store the file itself, initialize as null
@@ -101,14 +106,16 @@ const VentesListTable = () => {
         };
 
 //
-    
+const id = useSelector(state => state.login.user.id);
+
     useEffect(() => {
-        dispatch(getAllCarteData());
-        dispatch(getAllVenteData());
+        dispatch(getAllCarteData(id));
+        dispatch(getAllVenteData(id));
+        dispatch(getAllIngCompose(id));
 
-        dispatch(getAllProduit());
+        dispatch(getAllProduit(id));
 
-    }, [dispatch]);
+    }, [dispatch,id]);
 
 
 
@@ -135,6 +142,35 @@ const VentesListTable = () => {
     }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
     }
 }, [Success]);
+
+const validate = (data) => {
+    const errors = {};
+
+   
+    if (!data.id_carte) {
+        errors.id_carte = "La sélection des Cartes  est requise.";
+    }
+    if (!data.quantite) {
+        errors.quantite = "La quantité  est requise.";
+    }  else if (isNaN(data.quantite) || data.quantite < 0) {
+        errors.quantite = "La quantité  doit être un nombre entier positif.";
+
+
+    }
+    if (!data.quantite_apres) {
+        errors.quantite_apres = "La nouvelle quantité  est requise.";
+    }  else if (isNaN(data.quantite_apres) || data.quantite_apres < 0) {
+        errors.quantite_apres = "La nouvelle quantité  doit être un nombre entier positif.";
+
+
+    }
+
+   
+
+
+    return errors;
+};
+
 
 
     
@@ -188,19 +224,36 @@ const VentesListTable = () => {
     }
 
 
-
-
-
     const openEditModal = (ventes) => {
         setEditVente(ventes);
+        setEditedNameCarteVente(ventes.id_carte)
+
         setEditedPrixVente(ventes.prixTTC);
         setEditedQuantiteVente(ventes.quantite);
-
-        // Accessing properties from nested objects
-        setEditedNameCategorieVente(ventes.categorie.name); // Accessing categorie id
-        setEditedNameProduitVente(ventes.produit.name_produit); // Accessing product ID
-        setEditedNameCarteVente(ventes.id_carte)
-        setEditedPhoto(ventes.categorie.photo); // Accessing photo of categorie
+    
+        if (ventes.produit === null) {
+            // Si le produit est nul, c'est un ingrédient composé
+            setEditedNameCategorieVente(ventes.categorie.name);
+            if (ventes.ingredient_composee) {
+                setEditedNameProduitVente(ventes.ingredient_composee.name_ingredient_compose);
+                setEditedPhoto(ventes.ingredient_composee.photo);
+            } else {
+                // Gérer le cas où ingredient_composee est null
+                setEditedNameProduitVente("");
+                setEditedPhoto("");
+            }
+        } else {
+            // Sinon, c'est un produit
+            setEditedNameCategorieVente(ventes.categorie.name);
+            if (ventes.produit) {
+                setEditedNameProduitVente(ventes.produit.name_produit);
+                setEditedPhoto(ventes.categorie.photo);
+            } else {
+                // Gérer le cas où produit est null
+                setEditedNameProduitVente("");
+                setEditedPhoto("");
+            }
+        }
         
         setSelectedVente(ventes);
         toggleListModal();
@@ -208,6 +261,13 @@ const VentesListTable = () => {
     
 
     const handleUpdate = () => {
+        const errors = validate({ id_carte: editedNameCarteVente, quantite: editedQuantiteVente, quantite_apres: editedQuantiteApres });
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
+        setErrors({});
         const updatedVente = {
             id: editVente.id,
             id_carte:editedNameCarteVente,
@@ -263,11 +323,19 @@ const openShowModal = (vente) => {
 
 
 const handleAddCategorie = () => {
+
+    const errors = validate({ id_carte: newVenteData.id_carte, quantite: newVenteData.quantite,quantite_apres: newVenteData.quantite_apres  });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    setErrors({});
     const formData = new FormData();
 
     formData.append('quantite', newVenteData.quantite);
     formData.append('id_carte', newVenteData.id_carte);
-    dispatch(addVente(formData)) // Pass the formData to your addCategorie action
+    dispatch(addVente({ id: id, formData}))
     .then(() => {
         
     
@@ -277,9 +345,14 @@ const handleAddCategorie = () => {
     // Reset the state
     setNewVenteData({
         quantite: '',
-        id_carte: '', // Store the file itself, initialize as null
-       
+        id_carte: '',
+        id_produit: '',
+        id_ingredient_compose: '',
     });
+
+    setSelectedProduit(null);
+    setSelectedIngredientCompose(null);
+
     
             // Fermer le modal
             toggleAddVenteModal();
@@ -353,12 +426,17 @@ return(
                                                                 <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                                                             </div>
                                                         </th>
-                                                        <th className="sort" data-sort="Categorie-Id">ID</th>
+                                                        {/* <th className="sort" data-sort="Categorie-Id">ID</th> */}
                                                         <th className="sort" data-sort="Categorie-name">Nom Categorie</th>
                                                         <th className="sort" data-sort="Categorie-photo">photo</th>
                                                         <th className="sort" data-sort="Categorie-name">Nom Produit</th>
                                                         <th className="sort" data-sort="Categorie-description">Quantite</th>
                                                         <th className="sort" data-sort="Categorie-description">PrixTTC</th>
+                                                        <th className="sort" data-sort="Categorie-description">PrixTVA</th>
+                                                        <th className="sort" data-sort="Categorie-description">Marge</th>
+                                                        <th className="sort" data-sort="Categorie-description">Date de vente</th>
+
+
                                                         <th className="sort" data-sort="action">Action</th>
                                                     </tr>
                                                 </thead>
@@ -371,23 +449,48 @@ return(
                                                                         <input className="form-check-input"onClick={() => openShowModal(vente)}  type="checkbox" name="chk_child" value="option1" />
                                                                     </div>
                                                                 </th>
-                                                                <td onClick={() => openShowModal(vente)}>{vente.id}</td>
+                                                                {/* <td onClick={() => openShowModal(vente)}>{vente.id}</td> */}
                                                                 <td onClick={() => openShowModal(vente)}>{vente.categorie.name}</td>
                                                                 <td onClick={() => openShowModal(vente)}>
-                                  {vente.categorie.photo ? (
-                                    <img
-                                    src={`${vente.categorie.photo.replace('categories', '')}`} // Remove the 'categories' prefix
-                                    alt={vente.categorie.name}
-                                      style={{ width: "50px", height: "50px" }}
-                                    />
-                                  ) : (
-                                    "No photo"
-                                  )}
-                                </td>
-                                                                <td onClick={() => openShowModal(vente)}>{vente.produit.name_produit }</td>
+    {vente.produit ? (
+        vente.categorie.photo ? (
+            <img
+                src={`${vente.categorie.photo.replace('categories', '')}`} // Remove the 'categories' prefix
+                alt={vente.categorie.name}
+                style={{ width: "50px", height: "50px" }}
+            />
+        ) : (
+            "No photo"
+        )
+    ) : (
+        vente.ingredient_composee ? (
+            vente.ingredient_composee.photo ? (
+                <img
+                    src={`${vente.ingredient_composee.photo.replace('ingredientscompose', '')}`} // Remove the 'ingredientscompose' prefix
+                    alt={vente.ingredient_composee.name_ingredient_compose}
+                    style={{ width: "50px", height: "50px" }}
+                />
+            ) : (
+                "No photo"
+            )
+        ) : (
+            "No photo"
+        )
+    )}
+</td>
+
+                                                                    <td onClick={() => openShowModal(vente)}>
+                                                                    {vente.produit ? vente.produit.name_produit : vente.ingredient_composee ? vente.ingredient_composee.name_ingredient_compose : 'Nom non disponible'}
+                                                                        </td>
                                                                 <td onClick={() => openShowModal(vente)}>{vente.quantite }</td>
 
                                                                 <td onClick={() => openShowModal(vente)}>{vente.prixTTc }</td>
+                                                                <td onClick={() => openShowModal(vente)}>{vente.prixTVA }</td>
+                                                                <td onClick={() => openShowModal(vente)}>{vente.marge }</td>
+                                                                <td onClick={() => openShowModal(vente)}>
+  {moment(vente.created_at).format('YYYY-MM-DD')}
+</td>
+                                                                
 
                                                                 
                                                                 
@@ -460,263 +563,251 @@ return(
 
 
 
-             {/* Add Packaging Modal */}
-             <Modal isOpen={modalAddVente} toggle={toggleAddVenteModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddVenteModal}>Ajout</ModalHeader>
-                                        <ModalBody>
-                                            <form className="tablelist-form">
-                                            <div className="d-flex flex-column align-items-center">
-    {selectedProduit && selectedProduit.categorie.photo ? (
-        <div className="d-flex align-items-center">
-            <img
-                src={selectedProduit.categorie.photo.replace('categories', '')}
-                alt={selectedProduit.categorie.name}
-                style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
-                className="align-self-center"
-            />
-        </div>
-    ) : (
-        null
-    )}
-</div>
-                                            <div className="mb-3">
-                <label htmlFor="categorie-field" className="form-label">Nom Produit:</label>
+          {/* Add Packaging Modal */}
+<Modal isOpen={modalAddVente} toggle={toggleAddVenteModal} centered>
+    <ModalHeader className="bg-light p-3" toggle={toggleAddVenteModal}>Ajout</ModalHeader>
+    <ModalBody>
+        <form className="tablelist-form">
+            <div className="d-flex flex-column align-items-center">
+                {/* Vérification de nullité avant d'accéder à selectedProduit.categorie */}
+                {selectedProduit && selectedProduit.categorie && selectedProduit.categorie.photo ? (
+                    <div className="d-flex align-items-center">
+                        <img
+                            src={selectedProduit.categorie.photo.replace('categories', '')}
+                            alt={selectedProduit.categorie.name}
+                            style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
+                            className="align-self-center"
+                        />
+                    </div>
+                ) : selectedIngredientCompose && selectedIngredientCompose.photo ? (
+                    <div className="d-flex align-items-center">
+                        <img
+                            src={selectedIngredientCompose.photo.replace('ingredientscompose', '')}
+                            alt={selectedIngredientCompose.name_ingredient_compose}
+                            style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
+                            className="align-self-center"
+                        />
+                    </div>
+                ) : null}
+            </div>
+
+            {/* Vérification de nullité avant d'accéder à selectedProduit et selectedIngredientCompose */}
+            <div className="mb-3">
+                <label htmlFor="produit-field" className="form-label">Nom Produit:</label>
                 <select
-                    id="categorie-field"
+                    id="produit-field"
                     className="form-control"
                     value={newVenteData.id_carte}
                     onChange={(e) => {
                         const { value } = e.target;
+                        const selected = cartes.find(carte => carte.id === parseInt(value));
                         setNewVenteData(prevData => ({
-                          ...prevData,
-                          id_carte: value
+                            ...prevData,
+                            id_carte: value,
+                            id_produit: selected ? selected.id_produit : '',
+                            id_ingredient_compose: selected ? selected.id_ingredient_compose : ''
                         }));
-                        const selected = produits.find(produit => produit.id === parseInt(value));
-                        setSelectedProduit(selected);
-                      }}
-                      
+                        setSelectedProduit(selected ? selected : null);
+                        setSelectedIngredientCompose(selected ? selected.ingredient_compose : null);
+                    }}
                 >
-                    <option value="">Sélectionner un Produit</option>
-                   
+                    <option value="">Sélectionner une Carte</option>
                     {cartes.map((carte) => (
-                          <option key={carte.id} value={carte.id}>
-                          {carte.produit.name_produit ? carte.produit.name_produit : 'No'}
-                      </option>
-
+                        <option key={carte.id} value={carte.id}>
+                            {carte.produit ? carte.produit.name_produit : (carte.ingredient_compose ? carte.ingredient_compose.name_ingredient_compose : 'No')}
+                        </option>
                     ))}
                 </select>
+                {errors.id_carte && <div className="text-danger">{errors.id_carte}</div>}
+
             </div>
 
-            
-            
-           
-            {selectedProduit && selectedProduit.categorie.name ? (
-    <div className="mb-3">
-        <label htmlFor="categorie-field" className="form-label">Nom Categorie:</label>
-        <input
-            id="categorie-field"
-            className="form-control"
-            value={selectedProduit.categorie.name}
-            disabled
-        />
-    </div>
-) : (
-    null
-)}
+            <div className="mb-3">
+                <label htmlFor="name-field" className="form-label">Quantite</label>
+                <input type="number" id="naem-field" className="form-control" placeholder="Proposez le prix " value={newVenteData.quantite} onChange={(e) => setNewVenteData({ ...newVenteData, quantite: e.target.value })} required />
+                {errors.quantite && <div className="text-danger">{errors.quantite}</div>}
 
-<div className="mb-3">
-                                                    <label htmlFor="name-field" className="form-label">Quantite</label>
-                                                    <input type="number" id="naem-field" className="form-control" placeholder="Proposez le prix " value={newVenteData.quantite} onChange={(e) => setNewVenteData({ ...newVenteData, quantite: e.target.value })} required />
-                                                </div>                                          
-                                               
-                                                
-                                                
-                                               
-                                            </form>
-                                        </ModalBody>
-                                        <ModalFooter>
-                                            <div className="hstack gap-2 justify-content-end">
-                                                <Button type="button" color="light" onClick={toggleAddVenteModal}>Fermer</Button>
-                                                <button type="button" className="btn btn-primary" onClick={handleAddCategorie}>Ajouter</button>
-                                            </div>
-                                        </ModalFooter>
-                                    </Modal>
-
-
-
-
-
-
-
-                                      {/* Edit Modal */}
-             <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Packaging </ModalHeader>
-                <form className="tablelist-form">
-                    <ModalBody>
-                    <div className="d-flex flex-column align-items-center">
-    {selectedProduit && selectedProduit.categorie.photo ? (
-        <div className="d-flex align-items-center">
-            <img
-                src={selectedProduit.categorie.photo.replace('categories', '')}
-                alt={selectedProduit.categorie.name}
-                style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
-                className="align-self-center"
-            />
+            </div>
+        </form>
+    </ModalBody>
+    <ModalFooter>
+        <div className="hstack gap-2 justify-content-end">
+            <Button type="button" color="light" onClick={toggleAddVenteModal}>Fermer</Button>
+            <button type="button" className="btn btn-primary" onClick={handleAddCategorie}>Ajouter</button>
         </div>
-    ) : (
-        <div className="d-flex align-items-center">
-        <img
-            src={editedPhoto.replace('categories', '')}
-            alt={editedPhoto}
-            style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
-            className="align-self-center"
-        />
-    </div>
-    )}
-</div>
-                       
+    </ModalFooter>
+</Modal>
 
+<Modal isOpen={modal_list} toggle={toggleListModal} centered>
+    {selectedVente && (
+        <>
+            <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}>Modifier Packaging</ModalHeader>
+            <form className="tablelist-form">
+                <ModalBody>
+                    <div className="mb-3">
+                        {selectedVente.produit === null ? (
+                            // Si le produit est nul, afficher les détails de l'ingrédient composé
+                            <>
+                                {selectedVente.ingredient_composee && selectedVente.ingredient_composee.photo && (
+                                    <div className="d-flex justify-content-center">
+                                        <img
+                                            src={selectedVente.ingredient_composee.photo.replace('ingredientscompose', '')}
+                                            alt={selectedVente.ingredient_composee.name_ingredient_compose}
+                                            style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
+                                            className="align-self-center"
+                                        />
+                                    </div>
+                                )}
+                                <div className="mb-3">
+                                    <label htmlFor="ingredient-field" className="form-label">Ingrédient Composé:</label>
+                                    <input
+                                        id="ingredient-field"
+                                        className="form-control"
+                                        value={editedNameProduitVente}
+                                        disabled
+                                    />
+                                </div>
+                            </>
+                        ) : (
+                            // Si le produit n'est pas nul, afficher les détails du produit
+                            <>
+                                {selectedVente.categorie && selectedVente.categorie.photo && (
+                                    <div className="d-flex justify-content-center">
+                                        <img
+                                            src={selectedVente.categorie.photo.replace('categories', '')}
+                                            alt={selectedVente.categorie.name}
+                                            style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
+                                            className="align-self-center"
+                                        />
+                                    </div>
+                                )}
+                                <div className="mb-3">
+                                    <label htmlFor="produit-field" className="form-label">Produit:</label>
+                                    <input
+                                        id="produit-field"
+                                        className="form-control"
+                                        value={editedNameProduitVente}
+                                        disabled
+                                    />
+                                </div>
+                            </>
+                        )}
+                    </div>
 
                     <div className="mb-3">
-                <label htmlFor="categorie-field" className="form-label">Produit:</label>
-<div className="row">
-  <div className="col-md-9">
-   
-    <input 
-    
-    id="ingredient-field"
-    className="form-control"
-    value={editedNameProduitVente}
-    
-    disabled/>
-  </div>
-  
-</div>
-            </div>
-            <div className="mb-3">
+                        <label htmlFor="categorie-field" className="form-label">Nom Catégorie:</label>
+                        <input
+                            id="categorie-field"
+                            className="form-control"
+                            value={selectedVente.categorie ? selectedVente.categorie.name : ''}
+                            disabled
+                        />
+                    </div>
 
-            <label htmlFor="categorie-field" className="form-label">Nom Categorie:</label>
+                    <div className="mb-3">
+                        <label htmlFor="description-field" className="form-label">Quantité Actuelle</label>
+                        <input type="number" id="description-field" className="form-control" placeholder="Entrez la quantité actuelle" value={editedQuantiteVente} onChange={(e) => setEditedQuantiteVente(e.target.value)} disabled />
+                    </div>
 
-            {selectedProduit && selectedProduit.categorie.name ? (
-        <input
-            id="categorie-field"
-            className="form-control"
-            value={selectedProduit.categorie.name}
-            disabled
-        />
-) : (
-    <input
-    id="categorie-field"
-    className="form-control"
-    value={editedNameCategorieVente}
-    disabled
-/>
+                    <div className="mb-3">
+                        <label htmlFor="quantite_apres-field" className="form-label">Nouvelle Quantité</label>
+                        <input type="number" id="quantite_apres-field" className="form-control" placeholder="Entrez la nouvelle quantité" value={editedQuantiteApres} onChange={(e) => setEditedQuantiteApres(e.target.value)} required />
+                        {errors.quantite_apres && <div className="text-danger">{errors.quantite_apres}</div>}
 
-)}
-    </div>
+                    </div>
 
+                    {selectedVente.prixTTc ? (
                         <div className="mb-3">
-                            <label htmlFor="description-field" className="form-label">Quantite Actuelle</label>
-                            <input type="number" id="description-field" className="form-control" placeholder="Enter la description" value={editedQuantiteVente} onChange={(e) => setEditedQuantiteVente(e.target.value)} disabled />
+                            <label htmlFor="prixTTC-field" className="form-label">Prix TTC</label>
+                            <input
+                                id="prixTTC-field"
+                                className="form-control"
+                                type="text"
+                                value={selectedVente.prixTTc}
+                                disabled // Make the input readOnly if you don't want users to edit it
+                            />
                         </div>
-                        <div className="mb-3">
-    <label htmlFor="quantite_apres-field" className="form-label">Nouvelle Quantité</label>
-    <input type="number" id="quantite_apres-field" className="form-control" placeholder="Entrez la quantité après" value={editedQuantiteApres} onChange={(e) => setEditedQuantiteApres(e.target.value)} required />
-</div>
-
-
-
-
-                        {selectedVente && selectedVente.prixTTc ? (
-    <div className="mb-3">
-        <label htmlFor="prixTTC-field" className="form-label">Prix TTC</label>
-        <input
-            id="prixTTC-field"
-            className="form-control"
-            type="text"
-            value={selectedVente.prixTTc}
-            disabled // Make the input readOnly if you don't want users to edit it
-        />
-    </div>
-) : null}
-
-                       
-                     
-
-                        
-
-
-
-
-                       
-                    </ModalBody>
-                    <ModalFooter>
-                        <div className="hstack gap-2 justify-content-end">
-                            <button type="button" className="btn btn-light" onClick={toggleListModal}>Fermer</button>
-                            <button type="button" className="btn btn-primary" onClick={handleUpdate}>Mettre à jour</button>
-                        </div>
-                    </ModalFooter>
-                </form>
-            </Modal>
-
-
-
-
-
-
-             {/* Show Modal */}
-             <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
-                <ModalBody>
-    {selectedVente && (
-        <form className="tablelist-form">
-             <div className="d-flex align-items-center justify-content-center">
-    <img
-        src={selectedVente.categorie.photo.replace('categories', '')}
-        alt={selectedVente.categorie.name}
-        style={{ width: "50px", height: "50px" }}
-        className="align-self-center"
-    />
-</div>
-
-            <div className="mb-3">
-                <label htmlFor="nom_produit-field" className="form-label">Nom Produit</label>
-                <input type="text" id="name_produit-field" className="form-control" value={selectedVente.produit.name_produit} readOnly />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="nom_produit-field" className="form-label">Nom Categorie</label>
-                <input type="text" id="name_produit-field" className="form-control" value={selectedVente.categorie.name} readOnly />
-            </div>
-            <div className="mb-3">
-                <label htmlFor="nom_produit-field" className="form-label">Quantite</label>
-                <input type="text" id="name_produit-field" className="form-control" value={selectedVente.quantite} readOnly />
-            </div>
-
-            <div className="mb-3">
-                <label htmlFor="nom_produit-field" className="form-label">PrixTTc</label>
-                <input type="text" id="name_produit-field" className="form-control" value={selectedVente.prixTTc} readOnly />
-            </div>
-            
-            
-           
-
-
-
-
-
-
-        
-        </form>
-    )}
-</ModalBody>
+                    ) : null}
+                </ModalBody>
                 <ModalFooter>
-
                     <div className="hstack gap-2 justify-content-end">
-                        <button type="button" className="btn btn-light" onClick={toggleShowModal}>Fermer</button>
-                        
+                        <button type="button" className="btn btn-light" onClick={toggleListModal}>Fermer</button>
+                        <button type="button" className="btn btn-primary" onClick={handleUpdate}>Mettre à jour</button>
                     </div>
                 </ModalFooter>
-            </Modal>
+            </form>
+        </>
+    )}
+</Modal>
+
+<Modal isOpen={modal_show} toggle={toggleShowModal} centered>
+    <ModalHeader className="bg-light p-3" toggle={toggleShowModal}>Détail du Packaging</ModalHeader>
+    <ModalBody>
+        {selectedVente && (
+            <div className="container">
+                <div className="row">
+                    <div className="col-md-4">
+                        <div className="d-flex align-items-center justify-content-center">
+                            {selectedVente.produit ? (
+                                <img
+                                    src={selectedVente.categorie.photo.replace('categories', '')}
+                                    alt={selectedVente.categorie.name}
+                                    style={{ width: "100px", height: "100px" }}
+                                    className="align-self-center"
+                                />
+                            ) : (
+                                <img
+                                    src={selectedVente.ingredient_composee.photo.replace('ingredientscompose', '')}
+                                    alt={selectedVente.ingredient_composee.name_ingredient_compose}
+                                    style={{ width: "100px", height: "100px" }}
+                                    className="align-self-center"
+                                />
+                            )}
+                        </div>
+                    </div>
+                    <div className="col-md-8">
+                        <div className="mb-3">
+                            <label htmlFor="nom_produit-field" className="form-label">Nom {selectedVente.produit ? "Produit" : "Ingrédient Composé"}</label>
+                            <input type="text" className="form-control" value={selectedVente.produit ? selectedVente.produit.name_produit : selectedVente.ingredient_composee.name_ingredient_compose} readOnly />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="nom_categorie-field" className="form-label">Nom Catégorie</label>
+                            <input type="text" className="form-control" value={selectedVente.categorie.name} readOnly />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="quantite-field" className="form-label">Quantité</label>
+                            <input type="text" className="form-control" value={selectedVente.quantite} readOnly />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="prix_ttc-field" className="form-label">Prix TTC</label>
+                            <input type="text" className="form-control" value={selectedVente.prixTTc} readOnly />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="prix_ttc-field" className="form-label">Prix TVA</label>
+                            <input type="text" className="form-control" value={selectedVente.prixTVA} readOnly />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="prix_ttc-field" className="form-label">Marge</label>
+                            <input type="text" className="form-control" value={selectedVente.marge} readOnly />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+    </ModalBody>
+    <ModalFooter>
+        <div className="hstack gap-2 justify-content-end">
+            <button type="button" className="btn btn-light" onClick={toggleShowModal}>Fermer</button>
+        </div>
+    </ModalFooter>
+</Modal>
+
+
+
+
+                                    
+
+
 
 
 

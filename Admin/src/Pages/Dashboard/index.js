@@ -13,7 +13,7 @@ import { Row, Container } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const Dashboard = () => {
-  document.title = "Dashboard | Upzet - React Admin & Dashboard Template";
+  document.title = "Bonotem";
   return (
     <React.Fragment>
       <div className="page-content">
@@ -26,20 +26,23 @@ const Dashboard = () => {
             {/* Overview Chart */}
             <OverView />
             {/* Social Source Chart */}
-            <SocialSource />
+            <SocialSource/>
+            <LatestTransation />
+
+
           </Row>
+                      <Notifications />
 
           <Row>
-            {/* Order Stats */}
-            <OrderStatus />
-            {/* Notifications */}
-            <Notifications />
-            {/* Revenue by Location Vector Map */}
-            <RevenueByLocation />
+            {/* Overview Chart */}
           </Row>
 
+          
+
           {/* Latest Transaction Table */}
-          <LatestTransation />
+
+          
+
         </Container>
       </div>
     </React.Fragment>

@@ -13,9 +13,6 @@ const RadialChart1 = ({ value }) => {
                 enabled: true
             }
         },
-        dataLabels: {
-            enabled: false
-        },
         colors: ['#0ab39c'],
         stroke: {
             lineCap: 'round'
@@ -29,20 +26,22 @@ const RadialChart1 = ({ value }) => {
                 track: {
                     margin: 0,
                 },
-    
                 dataLabels: {
                     name: {
                         show: false
                     },
                     value: {
                         offsetY: 5,
-                        show: true
+                        show: true,
+                        formatter: function (val) {
+                            return val.toFixed(2); // Format the value to two decimal places
+                        }
                     }
                 }
             }
         }
     };
-  
+
     return (
         <React.Fragment>
             <ReactApexChart

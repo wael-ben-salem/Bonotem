@@ -2,9 +2,9 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 // Fetch all personnel
-export const getAllPersonnel = createAsyncThunk('gitPersonnel/getAllData', async () => {
+export const getAllPersonnel = createAsyncThunk('gitPersonnel/getAllData', async (id) => {
     try {
-        const response = await axios.get('/personnel');
+        const response = await axios.get(`/personnel/${id}`);
         return response; 
     } catch (error) {
         console.error('API error:', error);
@@ -65,18 +65,20 @@ export const OverViewData = createAsyncThunk('gitPersonnel/fetchSalaries', async
 });
 
 // Add new personnel
-export const addPersonnel = createAsyncThunk('gitPersonnel/addPersonnel', async (formData) => {
-    try {
-       
-        const response = await axios.post('/addpersonnel', formData);
-
+export const addPersonnel = createAsyncThunk(
+    'gitPersonnel/addPersonnel',
+    async ({ id, newPersonnelData }) => {
+      try {
+        const response = await axios.post(`/addpersonnel/${id}`, newPersonnelData);
         console.log("API response:", response);
         return response; // Assuming the API returns the added data
-    } catch (error) {
+      } catch (error) {
         console.error('API error:', error);
         throw error;
+      }
     }
-});
+  );
+  
 
 // Personnel slice definition
 export const gitPersonnelSlice = createSlice({

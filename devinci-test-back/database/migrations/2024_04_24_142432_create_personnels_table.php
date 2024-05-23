@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->string('num_telephone')->nullable();
             $table->decimal('salaire', 8, 2);
             $table->unsignedBigInteger('type_personnel_id');
+            $table->integer('id_creator')->nullable();
+
             $table->foreign('type_personnel_id')->references('id')->on('type_personnels')->onDelete('cascade');
             $table->timestamps();
         });

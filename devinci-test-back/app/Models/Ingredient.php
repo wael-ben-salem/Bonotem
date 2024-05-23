@@ -13,6 +13,7 @@ class Ingredient extends Model
 
     protected $fillable = [
         'name_ingredient',
+        'id_creator'
 
     ];
 
@@ -32,12 +33,12 @@ class Ingredient extends Model
     public function produits()
     {
         return $this->belongsToMany(Produit::class, 'produit_ingredient', 'id_ingredient' ,'id_produit')
-                    ->withPivot('quantite');
+                    ->withPivot('quantite','id_creator');
     }
     public function ingredientCompose()
     {
         return $this->belongsToMany(IngredientCompose::class, 'ingredient_compose_ingredient', 'id_ingredient' ,'id_ingredient_compose')
-                    ->withPivot('quantite');
+                    ->withPivot('quantite','id_creator');
     }
 
     public function marchandise()

@@ -13,6 +13,7 @@ class Fournisseur extends Model
         'nom',
         'num_telephone',
         'email',
+        'id_creator'
     ];
 
 

@@ -259,7 +259,7 @@ class AuthController extends Controller
                 'message' => 'Role name not found',
             ], 404);
         } else {
-            $montant = ($request->role_id == 1) ? 5 : (($request->role_id == 3) ? 10 : 0);
+            $montant = ($request->role_id == 1) ? 5 : (($request->role_id == 3) ? 30 : 0);
 
             // Définir la date d'expiration de l'abonnement (30 minutes plus tard)
             $dateAbonnement = Carbon::parse($request->input('date_abonnement'));

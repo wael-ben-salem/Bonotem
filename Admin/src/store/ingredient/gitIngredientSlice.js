@@ -2,9 +2,9 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Action
-export const getAllDataIngredient = createAsyncThunk("gitIngredient/getAllData", async () => {
+export const getAllDataIngredient = createAsyncThunk("gitIngredient/getAllData", async (id) => {
   try {
-    const response = await axios.get("/ingredients");
+    const response = await axios.get(`/ingredients/${id}`);
     console.log("API response:", response);
     return response;
   } catch (error) {
@@ -17,7 +17,7 @@ export const updateingredient = createAsyncThunk(
   "gitIngredient/updateIngredient",
   async ({ id, ingredientData }) => {
       try {
-          const response = await axios.post(`/ingredients/${id}`, ingredientData);
+          const response = await axios.post(`/ingredientsupdate/${id}`, ingredientData);
           console.log("API response:", response);
           return response; 
       } catch (error) {
@@ -32,7 +32,7 @@ export const getIngredientDetails = createAsyncThunk(
   "gitIngredient/getIngredientDetails",
   async (id) => {
     try {
-      const response = await axios.get(`/ingredients/${id}`);
+      const response = await axios.get(`/ingredientsshow/${id}`);
       console.log("API response:", response);
       return response.data.ingredients;
     } catch (error) {
@@ -61,16 +61,17 @@ export const deleteIngredient = createAsyncThunk(
 
 
 
-export const addIngredient = createAsyncThunk("gitIngredient/addIngredient", async (formData) => {
+export const addIngredient = createAsyncThunk("gitIngredient/addIngredient", async ({ id, newIngredientData }) => {
   try {
-    const response = await axios.post("/ingredients", formData);
+    const response = await axios.post(`/ingredients/${id}`, newIngredientData);
     console.log("API response:", response);
-    return response; 
+    return response; // Assuming the API returns the added ingredient data
   } catch (error) {
     console.error("API error:", error);
     throw error;
   }
 });
+
 
 
 

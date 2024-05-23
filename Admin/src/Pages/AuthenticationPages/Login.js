@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
-import logolight from "../../assets/images/logo-light.png";
-import logodark from "../../assets/images/logo-dark.png";
+import logolight from "../../assets/images/Group 1.png";
+import logodark from "../../assets/images/Group 1.png";
 
 import { Container, Row, Col, Card, CardBody, Form } from "reactstrap";
 import { Link } from "react-router-dom";

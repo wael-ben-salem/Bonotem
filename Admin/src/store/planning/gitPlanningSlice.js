@@ -2,9 +2,9 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Async actions
-export const getAllData = createAsyncThunk("gitPlanning/getAllData",  async () => {
+export const getAllData = createAsyncThunk("gitPlanning/getAllData",  async (id) => {
   try {
-    const response = await axios.get("/planning");
+    const response = await axios.get(`/planning/${id}`);
     return response;
   } catch (error) {
     console.error('API error:', error);
@@ -75,9 +75,9 @@ export const updateAllPlanningsForPersonnel = createAsyncThunk(
 );
 export const addPlanning = createAsyncThunk(
   "gitPlanning/addPlanning",
-  async (planningData, { rejectWithValue }) => {
+  async (id ,planningData, { rejectWithValue }) => {
     try {
-      const response = await axios.post("/addplanning", planningData);
+      const response = await axios.post(`/addplanning/${id}`, planningData);
       return response;
     } catch (error) {
       return rejectWithValue(error.response.data);

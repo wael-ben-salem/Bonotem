@@ -1,26 +1,16 @@
-import { replace } from "formik";
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-const RadialChart3 = ({ value }) => {
-    // Calculez la valeur en pourcentage par rapport à 1000 %
+const RadialChart1 = ({ value }) => {
+
     const percentageValue = (value / 100000) * 1000;
 
-    // Séries pour le graphique radial
-    const series = [percentageValue];
-
-    // Options du graphique radial avec le formatter
+    const series = [percentageValue]; // Use the value passed from props
     const radialOptions = {
         chart: {
             type: 'radialBar',
             sparkline: {
                 enabled: true
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: function (val) {
-                return val.toLocaleString('fr-FR', { style: 'currency', currency: 'GBP' });
             }
         },
         colors: ['#0ab39c'],
@@ -42,7 +32,10 @@ const RadialChart3 = ({ value }) => {
                     },
                     value: {
                         offsetY: 5,
-                        show: true
+                        show: true,
+                        formatter: function (val) {
+                            return val.toFixed(2); // Format the value to two decimal places
+                        }
                     }
                 }
             }
@@ -62,4 +55,4 @@ const RadialChart3 = ({ value }) => {
     );
 };
 
-export default RadialChart3;
+export default RadialChart1;

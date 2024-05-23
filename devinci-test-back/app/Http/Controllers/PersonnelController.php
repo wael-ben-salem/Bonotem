@@ -10,35 +10,45 @@ use Illuminate\Support\Facades\Log;
 
 class PersonnelController extends Controller
 {
-    public function personnel()
+    public function personnel($id)
     {
-        $personnels = Personnel::with('typePersonnel')->get();
+        $personnels = Personnel::with('typePersonnel')->where('id_creator', $id)
+        ->get();
         return response()->json($personnels);
     }
+    public function addPersonnel(Request $request, $id)
+{
+    // Validate the request data
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'num_telephone' => 'nullable|string|max:255',
+        'salaire' => 'required|numeric',
+        'type_personnel_id' => 'exists:type_personnels,id'
+    ]);
 
-    public function addPersonnel(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'num_telephone' => 'nullable|string|max:255',
-            'salaire' => 'required|numeric',
-            'type_personnel_id' => 'exists:type_personnels,id'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'validation_errors' => $validator->messages(),
-            ], 422);
-        }
-
-        $personnel = Personnel::create($request->all());
-
+    if ($validator->fails()) {
         return response()->json([
-            'status' => 200,
-            'personnel' => $personnel,
-            'message' => 'Personnel successfully added',
-        ], 200);
+            'validation_errors' => $validator->messages(),
+        ], 422);
     }
+
+    // Handle the creation of the personnel
+    $personnel = new Personnel();
+    $personnel->name = $request->name;
+    $personnel->num_telephone = $request->num_telephone;
+    $personnel->salaire = $request->salaire;
+    $personnel->type_personnel_id = $request->type_personnel_id;
+    $personnel->id_creator = $id; // Assuming this is the creator ID
+
+    $personnel->save();
+
+    return response()->json([
+        'status' => 200,
+        'message' => 'Personnel successfully added',
+        'personnel' => $personnel,
+    ], 200);
+}
+
 
     public function updatePersonnel(Request $request, $id)
     {

@@ -18,7 +18,9 @@ class UserStatisticsController extends Controller
             $totalManagers = User::where('role_id', 3)->count();
 
             // Montant total des managers
-            $totalAmountManagers = User::where('role_id', 3)->sum('montant');
+            $totalAmountManagers = User::where('role_id', 3)
+            ->orWhere('role_id', 1)
+            ->sum('montant');
 
             // Identifiant du meilleur manager (celui avec le plus d'utilisateurs créés)
             $bestManagerId = User::where('role_id', 3)->withCount('createdUsers')->orderByDesc('created_users_count')->value('id');

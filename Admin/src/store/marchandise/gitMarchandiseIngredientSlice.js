@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllMarchandiseData = createAsyncThunk("gitMarchandiseIngredient/getAllMarchandiseData", async () => {
+export const getAllMarchandiseData = createAsyncThunk("gitMarchandiseIngredient/getAllMarchandiseData", async (id) => {
     try {
-      const response = await axios.get("/marchandise");
+      const response = await axios.get(`/marchandise/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -21,7 +21,7 @@ export const getAllMarchandiseData = createAsyncThunk("gitMarchandiseIngredient/
     "gitMarchandiseIngredient/updateMarchandiseingredient",
     async ({ id, ingredientMarchandiseData }) => {
         try {
-            const response = await axios.put(`/marchandiseIngredient/${id}`, ingredientMarchandiseData);
+            const response = await axios.put(`/updatemarchandiseIngredient/${id}`, ingredientMarchandiseData);
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -36,7 +36,7 @@ export const getAllMarchandiseData = createAsyncThunk("gitMarchandiseIngredient/
     "gitMarchandiseIngredient/getAllMarchandise",
     async (id) => {
       try {
-        const response = await axios.get(`/marchandise/${id}`);
+        const response = await axios.get(`/showmarchandise/${id}`);
         console.log("API response:", response);
         return response;
       } catch (error) {
@@ -63,9 +63,9 @@ export const getAllMarchandiseData = createAsyncThunk("gitMarchandiseIngredient/
   
 
 
-  export const addMarchandiseIngredient = createAsyncThunk("gitMarchandiseIngredient/addMarchandiseIngredient", async (formData) => {
+  export const addMarchandiseIngredient = createAsyncThunk("gitMarchandiseIngredient/addMarchandiseIngredient", async ({id, formData}) => {
     try {
-      const response = await axios.post("/marchandiseIngredient", formData);
+      const response = await axios.post(`/marchandiseIngredient/${id}`, formData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added user data
     } catch (error) {

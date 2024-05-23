@@ -122,7 +122,7 @@ const Sidebar = (props) => {
   }
   return (
     <React.Fragment>
-      <div className="vertical-menu" style={{ backgroundColor: 'darkred' }}>
+      <div className="vertical-menu" >
         <SimpleBar className="h-100" ref={ref}>
           <div id="sidebar-menu">
             <ul className="metismenu list-unstyled" id="side-menu-item" >

@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { addIngCompose, deleteIngCompose, getAllIngCompose, updateIngCompose } from '../../store/ingredient/GitIngredientComposerSlice';
 import { getAllDataIngredient } from '../../store/ingredient/gitIngredientSlice';
+import { getAllData } from '../../store/categorie/gitCategorySlice';
 
 
 
@@ -21,6 +22,7 @@ const IngredientComposeListTable = () => {
     const dispatch = useDispatch();
     const ingredients = useSelector(state => state.gitIngredient.ingredients);
     const ingredientcomposes = useSelector(state => state.gitIngredientCompose.ingredientcomposes);
+    const categories = useSelector((state) => state.gitCategory.categories);
 
     
     
@@ -47,7 +49,9 @@ const IngredientComposeListTable = () => {
 
 
 
+    const [errors, setErrors] = useState({});
 
+    const [editedIdCategorieProduit, setEditedIdCategorieProduit] = useState(null); // Store the file itself, initialize as null
 
     const [modal_list, setmodal_list] = useState(false);
     const [editingredientcompose, setEditingredientcompose] = useState(null);
@@ -68,6 +72,7 @@ const IngredientComposeListTable = () => {
     const [newIngComposeData, setNewIngComposeData] = useState({
         name_ingredient_compose: '',
         photo: null, // Store the file itself, initialize as null
+        id_categorie:'',
         
        
     });
@@ -92,11 +97,15 @@ const IngredientComposeListTable = () => {
         };
 
 //
+const id = useSelector(state => state.login.user.id);
+
     
     useEffect(() => {
-        dispatch(getAllIngCompose());
-        dispatch(getAllDataIngredient())
-    }, [dispatch]);
+        dispatch(getAllIngCompose(id));
+        dispatch(getAllDataIngredient(id));
+        dispatch(getAllData(id));
+
+    }, [dispatch,id]);
 
 
 
@@ -125,6 +134,35 @@ useEffect(() => {
     }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
     }
 }, [errorMessage]);
+
+const validate = (data) => {
+    const errors = {};
+
+    
+    if (!data.name_ingredient_compose) {
+        errors.name_ingredient_compose = "Le nom est requis.";
+    } else if (!/^[A-Za-z\s]+$/.test(data.name_ingredient_compose)) {
+        errors.name_ingredient_compose = "Le nom doit contenir uniquement des lettres et des espaces.";
+    }
+
+    if (!data.id_categorie) {
+        errors.id_categorie = "La catégorie est requise.";
+    }
+
+    if (!data.photo) {
+        errors.photo = "La photo est requise.";
+    }
+
+    if (!data.id_ingredient) {
+        errors.id_ingredient = "La sélection des ingrédients est requise.";
+    }
+
+    if (!data.quantite) {
+        errors.quantite = "La quantité des ingrédients sélectionnés est requise.";
+    }
+
+    return errors;
+};
 
 
 
@@ -177,12 +215,19 @@ useEffect(() => {
     }
 
 
-
+    const updateQuantiteAutomatique = (ingredientId) => {
+        const selectedIngredient = editingredientcompose.ingredients.find(ingredient => ingredient.pivot.id_ingredient === parseInt(ingredientId));
+        if (selectedIngredient) {
+            setEditedQuantite(selectedIngredient.pivot.quantite);
+        }
+    };
 
 
     const openEditModal = (ingredientcomposes) => {
         setEditingredientcompose(ingredientcomposes);
         setEditedName(ingredientcomposes.name_ingredient_compose);
+        setEditedIdCategorieProduit(ingredientcomposes.id_categorie);
+
         setEditedPhoto(editedPhoto); 
         setSelectedingredientcompose(ingredientcomposes);
         if (ingredientcomposes.ingredients.length > 0) {
@@ -199,6 +244,16 @@ useEffect(() => {
     };
 
     const handleUpdate = () => {
+        const errors = validate({ id_categorie: editedIdCategorieProduit, name_ingredient_compose: editedName, photo: editedPhoto, id_ingredient: editedNameingredientcompose, quantite: editedQuantite });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
+
+   
         const selectedIngredientId = editedNameingredientcompose;
         const quantity = editedQuantite;
         const photoIngredient = editedPhotoIngredient;
@@ -210,6 +265,8 @@ useEffect(() => {
 
         const insertedProduitIngredient = {
             id: editingredientcompose ? editingredientcompose.id : null,
+            id_categorie: editedIdCategorieProduit,
+
             name_ingredient_compose:editedName,
             ingredientsComposes: [
             {
@@ -223,6 +280,7 @@ useEffect(() => {
         // Append each ingredient separately to formData
         const formData = new FormData();
         formData.append('id', editingredientcompose.id);
+        formData.append('id_categorie', editedIdCategorieProduit);
 
         formData.append('name_ingredient_compose', editedName);
         formData.append('photo', editedPhoto); // Append the file to the form data
@@ -242,6 +300,7 @@ useEffect(() => {
             setNewIngComposeData({
             name_ingredient_compose: '',
             photo: null,
+            id_categorie:'',
             selectedIngredientId:'',
             quantity:''
         });
@@ -261,12 +320,13 @@ useEffect(() => {
         });
 
         
-        
+
         
        
     };
 
-   
+    const defaultQuantite = "";
+
 
    
 const openShowModal = (ingredientcompose) => {
@@ -276,15 +336,43 @@ const openShowModal = (ingredientcompose) => {
 }
 
 
+function chunkArray(array, size) {
+    const chunks = [];
+    for (let i = 0; i < array.length; i += size) {
+        chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+}
 
+
+const existingIngredientCompose = ingredientcomposes.find((ingredientcompose) => ingredientcompose.name_ingredient_compose === newIngComposeData.name_ingredient_compose);
 
 
 
 const handleAddCategorie = () => {
+    const errors = validate({ 
+        name_ingredient_compose: newIngComposeData.name_ingredient_compose, 
+        id_categorie: newIngComposeData.id_categorie, 
+        photo: newIngComposeData.photo, 
+        id_ingredient: editedNameingredientcompose, 
+        quantite: editedQuantite 
+    });
+    
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
+
     const selectedIngredientId = editedNameingredientcompose;
     const quantity = editedQuantite;
 
+    if (existingIngredientCompose) {
+        setNewIngComposeData({ ...newIngComposeData, id_categorie: existingIngredientCompose.id_categorie });
 
+    }
 
     if (!selectedIngredientId || !quantity  ) {
         return;
@@ -293,25 +381,31 @@ const handleAddCategorie = () => {
 
     const insertedProduitIngredient = {
         id: editingredientcompose ? editingredientcompose.id : null,
-        ingredientsComposes: [
-        {
-            id_ingredient: selectedIngredientId,
-            quantite: quantity,
-        }
-    ]
+        id_categorie: existingIngredientCompose ? existingIngredientCompose.id_categorie : newIngComposeData.id_categorie,
+
+        
        
     };
+     const formData = new FormData();
+        Object.entries(insertedProduitIngredient).forEach(([key, value]) => {
+            formData.append(key, value);
+        });
 
+        if (selectedIngredientId && quantity) {
+            const ingredientData = {
+                id_ingredient: selectedIngredientId,
+                quantite: quantity,
+            };
+    
+            formData.append('ingredientsComposes[0][id_ingredient]', ingredientData.id_ingredient);
+            formData.append('ingredientsComposes[0][quantite]', ingredientData.quantite);
+        }
 
-    const formData = new FormData();
     formData.append('name_ingredient_compose', newIngComposeData.name_ingredient_compose);
     formData.append('photo', newIngComposeData.photo); // Append the file to the form data
-    insertedProduitIngredient.ingredientsComposes.forEach((ingredient, index) => {
-        formData.append(`ingredientsComposes[${index}][id_ingredient]`, ingredient.id_ingredient);
-        formData.append(`ingredientsComposes[${index}][quantite]`, ingredient.quantite);
-    });
     
-    dispatch(addIngCompose(formData)) // Pass the formData to your addCategorie action
+    dispatch(addIngCompose({ id: id, newIngComposeData: formData, insertedProduitIngredient: null, rejectWithValue: null }))
+
     .then(() => {
         
     
@@ -319,6 +413,7 @@ const handleAddCategorie = () => {
         setNewIngComposeData({
             name_ingredient_compose: '',
             photo: null,
+            id_categorie:'',
             selectedIngredientId:'',
             quantity:''
         });
@@ -396,12 +491,12 @@ return(
                                                                 <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                                                             </div>
                                                         </th>
-                                                        <th className="sort" data-sort="Categorie-Id">ID</th>
-                                                        <th className="sort" data-sort="Categorie-name">Nom Ingredient Composé</th>
+                                                        {/* <th className="sort" data-sort="Categorie-Id">ID</th> */}
+                                                        <th className="sort" data-sort="Categorie-name">Nom</th>
                                                         <th className="sort" data-sort="Categorie-photo">photo</th>
-                                                        <th className="sort" data-sort="Categorie-photo">Nom Ingredient</th>
-                                                        <th className="sort" data-sort="Categorie-photo">photo</th>
-                                                        <th className="sort" data-sort="Categorie-photo">Quantite</th>
+                                                        <th className="sort" data-sort="Produit-id_categorie">Nom categorie</th>
+
+                                                        <th className="sort" data-sort="Categorie-photo">Ingredients</th>
 
 
                                                         
@@ -417,7 +512,7 @@ return(
                                                                         <input className="form-check-input"onClick={() => openShowModal(ingredientcompose)}  type="checkbox" name="chk_child" value="option1" />
                                                                     </div>
                                                                 </th>
-                                                                <td onClick={() => openShowModal(ingredientcompose)}>{ingredientcompose.id}</td>
+                                                                {/* <td onClick={() => openShowModal(ingredientcompose)}>{ingredientcompose.id}</td> */}
                                                                 <td onClick={() => openShowModal(ingredientcompose)}>{ingredientcompose.name_ingredient_compose}</td>
                                                                 <td onClick={() => openShowModal(ingredientcompose)}>
                                   {ingredientcompose.photo ? (
@@ -430,25 +525,40 @@ return(
                                     "No photo"
                                   )}
                                 </td>
-                                <td onClick={() => openShowModal(ingredientcompose)}>
-                                {ingredientcompose.ingredients && ingredientcompose.ingredients.length > 0 ? ingredientcompose.ingredients[0].name_ingredient : 'No'}
-                                </td>
-                                <td onClick={() => openShowModal(ingredientcompose)}>
-  {ingredientcompose.ingredients && ingredientcompose.ingredients.length > 0 ? 
-    ingredientcompose.ingredients[0].photo ? (
-      <img
-        src={ingredientcompose.ingredients[0].photo.replace('ingredients', '')} // Remove the 'ingredients' prefix
-        alt={ingredientcompose.ingredients[0].name_ingredient}
-        style={{ width: "50px", height: "50px" }}
-      />
-    ) : (
-      "No photo"
-    )
-  : 'No'}
-</td>
+                               
+                               
+<td onClick={() => openShowModal(ingredientcompose)}>{ingredientcompose.categorie ? ingredientcompose.categorie.name : 'No'}</td> 
+
 <td onClick={() => openShowModal(ingredientcompose)}>
-                                {ingredientcompose.ingredients && ingredientcompose.ingredients.length > 0 ? ingredientcompose.ingredients[0].pivot.quantite : 'No'}
-                                </td>
+    {ingredientcompose.ingredients && ingredientcompose.ingredients.length > 0 ? (
+        <div className="d-flex flex-line">
+            {ingredientcompose.ingredients.slice(0, 3).map((ingredient, index) => (
+                <div key={ingredient.id} className="text-center mb-2">
+                    {ingredient.photo ? (
+                        <div className="mb-1">
+
+                        <img
+                            src={ingredient.photo.replace('ingredients', '')}
+                            alt={ingredient.name_ingredient}
+                            style={{ width: "30px", height: "30px", borderRadius: "50%" }}
+                        />
+                        <p className="mb-0" style={{ fontSize: "10px" }}>{ingredient.pivot.quantite}</p>
+                        </div>
+
+                    ) : (
+                        "Pas de photo"
+                    )}
+                </div>
+            ))}
+            <div className="ms-4">
+            {ingredientcompose.ingredients.length > 3 && (
+                <p className="text-center mt-3"><strong>+{ingredientcompose.ingredients.length - 3} </strong></p>
+            )}
+            </div>
+        </div>
+    ) : 'Pas d\'ingredient'}
+</td>
+
                                                                 
                                                                 
                                                                 <td>
@@ -522,9 +632,43 @@ return(
                                         <ModalBody>
                                             <form className="tablelist-form">
                                                 <div className="mb-3">
-                                                    <label htmlFor="name-field" className="form-label">Nom Ingredient Composé</label>
+                                                    <label htmlFor="name-field" className="form-label">Nom </label>
                                                     <input type="text" id="naem-field" className="form-control" placeholder="Enter Name" value={newIngComposeData.name_ingredient_compose} onChange={(e) => setNewIngComposeData({ ...newIngComposeData, name_ingredient_compose: e.target.value })} required />
+                                                    {errors.name_ingredient_compose && <div className="text-danger">{errors.name_ingredient_compose}</div>}
+
                                                 </div>
+                                                {existingIngredientCompose ? (
+                <div className="mb-3">
+                    <label htmlFor="categorie-field" className="form-label">Catégorie:</label>
+                    <input type="text" className="form-control" onChange={(e) => setNewIngComposeData({ ...newIngComposeData, id_categorie: e.target.value })} value={existingIngredientCompose.categorie.name} readOnly />
+                    {errors.id_categorie && <div className="text-danger">{errors.id_categorie}</div>}
+
+                </div>
+            ) : (
+                <div className="mb-3">
+                    <label htmlFor="categorie-field" className="form-label">Catégorie:</label>
+                    <select
+                        id="categorie-field"
+                        className="form-control"
+                        value={newIngComposeData.id_categorie}
+                        onChange={(e) => setNewIngComposeData({ ...newIngComposeData, id_categorie: e.target.value })}
+                    >
+
+                        <option value="">Sélectionner une catégorie</option>
+                        {categories.map((categorie) => (
+                            <option key={categorie.id} value={categorie.id}>
+                                {categorie.name ? categorie.name : 'Pas de Categorie'}
+                            </option>
+                        ))}
+
+                    </select>
+                    {errors.id_categorie && <div className="text-danger">{errors.id_categorie}</div>}
+
+                </div>
+            )}
+
+
+
                                                 
                                                 <div className="mb-3">
                                                 <label htmlFor="photo-field" className="form-label">
@@ -537,28 +681,40 @@ return(
                                                   onChange={(e) => setNewIngComposeData({ ...newIngComposeData, photo: e.target.files[0] })} // Handle file selection
                                                   name="photo"
                                                 />
-                                              </div>
-                                              <div className="mb-3">
-                <label htmlFor="name_ingredient-field" className="form-label">Ingredient:</label>
-                <select
-                    id="name_ingredient-field"
-                    className="form-control"
-                    value={editedNameingredientcompose}
-                    onChange={(e) => setEditedNameingredientcompose(e.target.value)}
-                >
-                    <option value="">Sélectionner des ingredients</option>
-                    {ingredients.map((ingredient) => (
-                        <option key={ingredient.id} value={ingredient.id}>
-                            {ingredient.name_ingredient}
-                        </option>
-                    ))}
-                </select>
-            </div>
+                                                                    {errors.photo && <div className="text-danger">{errors.photo}</div>}
 
-                        <div className="mb-3">
-                            <label htmlFor="quantite-field" className="form-label">Quantite</label>
-                            <input type="text" id="quantite-field" className="form-control" placeholder="Enter la marge" value={editedQuantite} onChange={(e) => setEditedQuantite(e.target.value)} required />
-                        </div>   
+                                              </div>
+                                               {/* Ajouter Ingrédient */}
+            <hr />
+            <div className="mb-3">
+                <div className="mb-3">
+                    <label htmlFor="name_ingredient-field" className="form-label">Ingrédient:</label>
+                    <select
+                        id="name_ingredient-field"
+                        className="form-control"
+                        value={editedNameingredientcompose || ""}
+                        onChange={(e) => setEditedNameingredientcompose(e.target.value)}
+                    >
+
+                        {/* Options d'ingrédients */}
+                        <option value="">Sélectionner un ingrédient</option>
+
+                        {ingredients.map((ingredient) => (
+                            <option key={ingredient.id} value={ingredient.id}>
+                                {ingredient.name_ingredient}
+                            </option>
+                        ))}
+                    </select>
+                    {errors.id_ingredient && <div className="text-danger">{errors.id_ingredient}</div>}
+
+                </div>
+                <div className="mb-3">
+                    <label htmlFor="quantite-field" className="form-label">Quantité</label>
+                    <input type="number" id="quantite-field" className="form-control" placeholder="Entrez la quantité" value={editedQuantite || ""} onChange={(e) => setEditedQuantite(e.target.value)} required />
+                    {errors.quantite && <div className="text-danger">{errors.quantite}</div>}
+
+                </div>
+            </div>
                                                
                                                 
                                                 
@@ -581,7 +737,7 @@ return(
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Ingredient Composé </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 <div className="d-flex flex-column align-items-center" >
         {selectedingredientcompose && selectedingredientcompose.photo && (
                 <img
@@ -596,12 +752,9 @@ return(
                         <div className="mb-3">
                             <label htmlFor="name-field" className="form-label">Nom </label>
                             <input type="text" id="name-field" className="form-control" placeholder="Entrer Nom" value={editedName} onChange={(e) => setEditedName(e.target.value)} required />
+                            {errors.name_ingredient_compose && <div className="text-danger">{errors.name_ingredient_compose}</div>}
+
                         </div>
-
-                        
-
-                       
-                       
                         <div className="col-md-9">
         <label htmlFor="photo-field" className="form-label">Photo</label>
         <input
@@ -611,36 +764,78 @@ return(
             onChange={(e) => setEditedPhoto(e.target.files[0])}
             name="photo"
         />
+                                    {errors.photo && <div className="text-danger">{errors.photo}</div>}
+
     </div>
-<div className="mb-3">
-                <label htmlFor="categorie-field" className="form-label">Ingredient:</label>
-<div className="row">
-  <div className="col-md-9">
-    <select
-      id="ingredient-field"
-      className="form-control"
-      value={editedNameingredientcompose}
-      onChange={(e) => {
-        setEditedNameingredientcompose(e.target.value);
-        const selected = ingredients.find(ingredient => ingredient.id === parseInt(e.target.value));
-        setSelectedIngredient(selected);
-      }}
-    >
-      <option value="">Sélectionner un ingrédient</option>
-      {ingredients.map((ingredient) => (
-        <option key={ingredient.id} value={ingredient.id}>
-          {ingredient.name_ingredient}
-        </option>
-      ))}
-    </select>
-  </div>
-  
-</div>
+                        <div className="mb-3">
+                <label htmlFor="categorie-field" className="form-label">Catégorie:</label>
+                <select
+                    id="categorie-field"
+                    className="form-control"
+                    value={editedIdCategorieProduit}
+                    onChange={(e) => setEditedIdCategorieProduit(e.target.value)}
+                >
+                    <option value="">Sélectionner une catégorie</option>
+                    {categories.map((category) => (
+                        <option key={category.id} value={category.id}>
+                            {category.name}
+                        </option>
+                    ))}
+                </select>
+                {errors.id_categorie && <div className="text-danger">{errors.id_categorie}</div>}
 
             </div>
+
+                        
+
+                       
+                       
+        
+{/* Ingrédients */}
+                       
+{editingredientcompose && (
+    <div className="mb-3">
+        <label htmlFor="ingredient-field" className="form-label">Ingrédient:</label>
+        <select
+            id="ingredient-field"
+            className="form-control"
+            value={editedNameingredientcompose}
+            onChange={(e) => {
+                setEditedNameingredientcompose(e.target.value);
+                   const selected = ingredients.find(ingredient => ingredient.id === parseInt(e.target.value));
+        setSelectedIngredient(selected);
+        if (selected && selected.photo) {
+            setEditedPhotoIngredient(selected.photo);
+        }else{
+            setEditedPhotoIngredient(null); // Set photo to null when "No photo" option is selected
+
+        }
+                if (e.target.value !== "") {
+                    updateQuantiteAutomatique(e.target.value);
+                } else {
+                    // Utiliser la valeur par défaut si aucune option n'est sélectionnée
+                    setEditedQuantite(defaultQuantite);
+                }
+            }}
+        >
+            <option value="">Sélectionner un ingrédient</option>
+            {ingredients.map((ingredient) => (
+                <option key={ingredient.id} value={ingredient.id}>
+                    {ingredient.name_ingredient}
+                </option>
+            ))}
+        </select>
+        {errors.id_ingredient && <div className="text-danger">{errors.id_ingredient}</div>}
+
+    </div>
+)}
+ 
+ 
             <div className="mb-3">
                             <label htmlFor="quantite-field" className="form-label">Quantite</label>
                             <input type="text" id="quantite-field" className="form-control" placeholder="Enter la marge" value={editedQuantite} onChange={(e) => setEditedQuantite(e.target.value)} required />
+                            {errors.quantite && <div className="text-danger">{errors.quantite}</div>}
+
              </div>
              <div className="d-flex flex-column align-items-center" style={{ border: '2px solid rgba(0, 0, 0, 0.15)', padding: '10px', borderRadius: '8px' }}>
              <div class="d-flex justify-content-between">
@@ -657,21 +852,7 @@ return(
          ) : (
             <div  style={{  marginRight: "30px" , marginTop:"20px"}}>No photo</div>
         )}
-        <span style={{ fontWeight: "bold", marginLeft: "10px" ,marginTop:"20px"}}>➔</span>
-
         
-        {selectedIngredient && selectedIngredient.photo ? (
-            <div className="d-flex align-items-center">
-                <img
-                    src={selectedIngredient.photo.replace('ingredients', '')}
-                    alt={selectedIngredient.name_ingredient}
-                    style={{ width: "50px", height: "50px", marginTop: "5px", marginLeft: "20px" }}
-                    className="align-self-center"
-                />
-            </div>
-        ) : (
-            <div style={{ marginLeft: "30px" , marginTop:"20px"}}>No photo</div>
-        )}
     </div>
              
              
@@ -790,7 +971,7 @@ return(
 
             <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
    
-    <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
+    <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail</ModalHeader>
     <ModalBody>
     <div className="d-flex flex-column align-items-center" >
         {selectedingredientcompose && selectedingredientcompose.photo && (
@@ -807,37 +988,34 @@ return(
                     <label htmlFor="nom-field" className="form-label">Nom </label>
                     <input type="text" id="name_packaging-field" className="form-control" value={selectedingredientcompose.name_ingredient_compose} readOnly />
                 </div>
-                <div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between' }}>
-    {selectedingredientcompose.ingredients && selectedingredientcompose.ingredients.length > 0 && (
-        <div style={{ marginRight: '10px' }}>
-            <label htmlFor="ingredient-field" className="form-label">Ingrédient</label>
-            <input type="text" id="ingredient-field" className="form-control" value={selectedingredientcompose.ingredients[0].name_ingredient} readOnly />
-        </div>
-    )}
-
-{selectedingredientcompose.ingredients && selectedingredientcompose.ingredients.length > 0 && selectedingredientcompose.ingredients[0].pivot.quantite && (
-        <div style={{ marginRight: '10px' }}>
-            <label htmlFor="quantite-field" className="form-label">Quantite</label>
-            <input type="text" id="quantite-field" className="form-control" value={selectedingredientcompose.ingredients[0].pivot.quantite} readOnly />
-        </div>
-    )}
-    
-</div>
-<div className="mb-3" style={{ display: 'flex', justifyContent: 'space-between' }}>
-    
-<div className="d-flex flex-column align-items-center" style={{ border: '2px solid rgba(0, 0, 0, 0.15)', padding: '10px', borderRadius: '8px'}}>
-
-    {selectedingredientcompose.ingredients && selectedingredientcompose.ingredients.length > 0 && selectedingredientcompose.ingredients[0].photo && (
-        <div>
-            <img
-                src={selectedingredientcompose.ingredients[0].photo.replace('ingredients', '')} // Remove the 'ingredients' prefix
-                alt={selectedingredientcompose.ingredients[0].name_ingredient}
-                style={{ width: "50px", height: "50px"}} // Adjust size as needed
-            />
-        </div>
-    )}
-    </div>
-    </div>
+                <div>
+                <h5>Ingrédients</h5>
+                <div className="d-flex flex-wrap gap-3">
+                    {selectedingredientcompose.ingredients && selectedingredientcompose.ingredients.length > 0 ? (
+                        chunkArray(selectedingredientcompose.ingredients, 7).map((chunk, index) => (
+                            <div key={index} className="d-flex flex-wrap w-100">
+                                {chunk.map(ingredient => (
+                                    <div key={ingredient.id} className="text-center mb-2">
+                                        {ingredient.photo && (
+                                            <div className="mb-1">
+                                                <img
+                                                    src={ingredient.photo.replace('ingredients', '')}
+                                                    alt={ingredient.name_ingredient}
+                                                    style={{ width: "30px", height: "30px", borderRadius: "50%" }}
+                                                />
+                                                <p className="mb-0" style={{ fontSize: "10px" }}>{ingredient.pivot.quantite}</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ))
+                    ) : (
+                        <p style={{ fontSize: "10px" }}>Aucun ingrédient trouvé</p>
+                    )}
+                </div>
+            </div>
+            <hr />
                 
                 
                 

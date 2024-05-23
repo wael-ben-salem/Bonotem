@@ -50,7 +50,8 @@ const CategoryTables = () => {
     const [editedNameCategorie, setEditedNameCategorie] = useState('');
     const [editedDescriptionCategorie, setEditedDescriptionCategorie] = useState('');
     const [editedPhoto, setEditedPhoto] = useState(""); // Store the file itself, initialize as null
-    
+    const [errors, setErrors] = useState({});
+
     const [modal_show, setModalShow] = useState(false); // State for Show Modal
     const [selectedCategorie, setSelectedCategorie] = useState(null); // State to store selected 
     const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
@@ -85,10 +86,13 @@ const CategoryTables = () => {
         };
 
 //
+
+const id = useSelector(state => state.login.user.id);
+
     
     useEffect(() => {
-        dispatch(getAllData());
-    }, [dispatch]);
+        dispatch(getAllData(id));
+    }, [dispatch,id]);
 
 
 
@@ -121,7 +125,29 @@ useEffect(() => {
 
     
 
+const validate = (data) => {
+    const errors = {};
+
     
+    if (!data.name) {
+        errors.name = "Le nom est requis.";
+    } else if (!/^[A-Za-z\s]+$/.test(data.name)) {
+        errors.name = "Le nom doit contenir uniquement des lettres et des espaces.";
+    }
+
+    if (!data.description) {
+        errors.description = "La description est requise.";
+    }
+
+    if (!data.photo) {
+        errors.photo = "La photo est requise.";
+    }
+
+   
+
+    return errors;
+};
+
 
     
     const toggleAddCategorieModal = () => {
@@ -188,6 +214,14 @@ useEffect(() => {
     };
 
     const handleUpdate = () => {
+        const errors = validate({ name: editedNameCategorie, photo: editedPhoto , description: editedDescriptionCategorie });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
         const formData = new FormData();
         formData.append('id', editCategorie.id);
         formData.append('name', editedNameCategorie);
@@ -239,12 +273,20 @@ const openShowModal = (categorie) => {
 
 
 const handleAddCategorie = () => {
+    const errors = validate({ name: newCategorieData.name, photo: newCategorieData.photo, description: newCategorieData.description });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+    // Clear previous errors if any
+    setErrors({});
+
     const formData = new FormData();
     formData.append('name', newCategorieData.name);
     formData.append('description', newCategorieData.description);
     formData.append('photo', newCategorieData.photo); // Append the file to the form data
     
-    dispatch(addCategorie(formData))
+    dispatch(addCategorie({ id: id, formData }))
     
     .then(() => {
         
@@ -326,8 +368,8 @@ return(
                                                                 <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                                                             </div>
                                                         </th>
-                                                        <th className="sort" data-sort="Categorie-Id">ID</th>
-                                                        <th className="sort" data-sort="Categorie-name">Nom Categorie</th>
+                                                        {/* <th className="sort" data-sort="Categorie-Id">ID</th> */}
+                                                        <th className="sort" data-sort="Categorie-name">Nom</th>
                                                         <th className="sort" data-sort="Categorie-description">description</th>
                                                         <th className="sort" data-sort="Categorie-photo">photo</th>
                                                         
@@ -343,7 +385,7 @@ return(
                                                                         <input className="form-check-input"onClick={() => openShowModal(categorie)}  type="checkbox" name="chk_child" value="option1" />
                                                                     </div>
                                                                 </th>
-                                                                <td onClick={() => openShowModal(categorie)}>{categorie.id}</td>
+                                                                {/* <td onClick={() => openShowModal(categorie)}>{categorie.id}</td> */}
                                                                 <td onClick={() => openShowModal(categorie)}>{categorie.name}</td>
                                                                 <td onClick={() => openShowModal(categorie)}>{categorie.description }</td>
                                                                 <td onClick={() => openShowModal(categorie)}>
@@ -430,12 +472,16 @@ return(
                                         <ModalBody>
                                             <form className="tablelist-form">
                                                 <div className="mb-3">
-                                                    <label htmlFor="name-field" className="form-label">Nom Categorie</label>
+                                                    <label htmlFor="name-field" className="form-label">Nom </label>
                                                     <input type="text" id="naem-field" className="form-control" placeholder="Enter Name" value={newCategorieData.name} onChange={(e) => setNewCategorieData({ ...newCategorieData, name: e.target.value })} required />
+                                                    {errors.name && <div className="text-danger">{errors.name}</div>}
+
                                                 </div>
                                                 <div className="mb-3">
                                                     <label htmlFor="description-field" className="form-label">Description</label>
                                                     <input type="text" id="description-field" className="form-control" placeholder="Enter La description" value={newCategorieData.description} onChange={(e) => setNewCategorieData({ ...newCategorieData, description: e.target.value })} required />
+                                                    {errors.description && <div className="text-danger">{errors.description}</div>}
+
                                                 </div>
                                                 <div className="mb-3">
                                                 <label htmlFor="photo-field" className="form-label">
@@ -448,6 +494,8 @@ return(
                                                   onChange={(e) => setNewCategorieData({ ...newCategorieData, photo: e.target.files[0] })} // Handle file selection
                                                   name="photo"
                                                 />
+                                                                                                    {errors.photo && <div className="text-danger">{errors.photo}</div>}
+
                                               </div>
                                                
                                                 
@@ -471,17 +519,21 @@ return(
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Categorie </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 <form className="tablelist-form">
                     <ModalBody>
                         <div className="mb-3">
-                            <label htmlFor="name-field" className="form-label">Nom Description</label>
+                            <label htmlFor="name-field" className="form-label">Nom </label>
                             <input type="text" id="name-field" className="form-control" placeholder="Entrer Nom" value={editedNameCategorie} onChange={(e) => setEditedNameCategorie(e.target.value)} required />
+                            {errors.name && <div className="text-danger">{errors.name}</div>}
+
                         </div>
 
                         <div className="mb-3">
                             <label htmlFor="description-field" className="form-label">Description</label>
                             <input type="text" id="description-field" className="form-control" placeholder="Enter la description" value={editedDescriptionCategorie} onChange={(e) => setEditedDescriptionCategorie(e.target.value)} required />
+                            {errors.description && <div className="text-danger">{errors.description}</div>}
+
                         </div>
 
 
@@ -497,6 +549,8 @@ return(
             onChange={(e) => setEditedPhoto(e.target.files[0])}
             name="photo"
         />
+                                                            {errors.photo && <div className="text-danger">{errors.photo}</div>}
+
     </div>
     <div className="col-md-2    ">
         {selectedCategorie && selectedCategorie.photo && (
@@ -605,12 +659,12 @@ return(
 
             <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
    
-    <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Categorie</ModalHeader>
+    <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail </ModalHeader>
     <ModalBody>
         {selectedCategorie && (
             <form className="tablelist-form">
                 <div className="mb-3">
-                    <label htmlFor="nom-field" className="form-label">Nom Description</label>
+                    <label htmlFor="nom-field" className="form-label">Nom </label>
                     <input type="text" id="name_packaging-field" className="form-control" value={selectedCategorie.name} readOnly />
                 </div>
                 <div className="mb-3">

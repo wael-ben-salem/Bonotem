@@ -14,9 +14,11 @@ class IngredientController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function ingredient()
+    public function ingredient($id)
 {
-    $ingredients = Ingredient::with('produits','ingredientCompose')->get();
+    $ingredients = Ingredient::with('produits','ingredientCompose')
+    ->where('id_creator', $id)
+    ->get();
     return response()->json($ingredients);
 
 }
@@ -25,11 +27,21 @@ class IngredientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function addIngredient(Request $request)
+    public function addIngredient(Request $request,$id)
     {
 
         $validator = Validator::make($request->all(), [
-            'name_ingredient' => ['required', 'unique:ingredients', 'regex:/^[A-Za-z\s]+$/'],
+            'name_ingredient' => ['required', 'regex:/^[A-Za-z\s]+$/',
+            function ($attribute, $value, $fail) use ($id) {
+                $existingCategory = Ingredient::where('name_ingredient', $value)
+                    ->where('id_creator', $id)
+                    ->first();
+
+                if ($existingCategory) {
+                    $fail('Ce nom de catégorie existe déjà pour cet utilisateur.');
+                }
+            }
+        ],
             'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
 
         ], [
@@ -52,6 +64,7 @@ class IngredientController extends Controller
         else {
             $ingredient = new Ingredient();
             $ingredient->name_ingredient = $request->name_ingredient;
+            $ingredient->id_creator = $id;
 
 
             if ($request->hasFile('photo')) {
@@ -66,6 +79,8 @@ class IngredientController extends Controller
                 return response()->json([
                 'status' => 200,
                 'nom ingredient' => $ingredient->name_ingredient,
+                'id_creator' => $id,
+
                'message' => 'added Success',
             ],200);
         }

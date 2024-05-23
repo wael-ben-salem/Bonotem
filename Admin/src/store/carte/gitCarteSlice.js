@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllCarteData = createAsyncThunk("gitCarte/getAllCarteData", async () => {
+export const getAllCarteData = createAsyncThunk("gitCarte/getAllCarteData", async (id) => {
     try {
-      const response = await axios.get("/cartes");
+      const response = await axios.get(`/cartes/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -21,7 +21,7 @@ export const getAllCarteData = createAsyncThunk("gitCarte/getAllCarteData", asyn
     "gitCarte/updateCarte",
     async ({ id, updatedCarte }) => {
         try {
-            const response = await axios.put(`/cartes/${id}`, updatedCarte);
+            const response = await axios.put(`/updatecartes/${id}`, updatedCarte);
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -36,7 +36,7 @@ export const getAllCarteData = createAsyncThunk("gitCarte/getAllCarteData", asyn
     "gitCarte/getCarteDetails",
     async (id) => {
       try {
-        const response = await axios.get(`/cartes/${id}`);
+        const response = await axios.get(`/showcartes/${id}`);
         console.log("API response:", response);
         return response;
       } catch (error) {
@@ -63,9 +63,9 @@ export const getAllCarteData = createAsyncThunk("gitCarte/getAllCarteData", asyn
   
 
 
-  export const addCarte = createAsyncThunk("gitCarte/addCarte", async (formData) => {
+  export const addCarte = createAsyncThunk("gitCarte/addCarte", async ({id, formData}) => {
     try {
-      const response = await axios.post("/cartes", formData);
+      const response = await axios.post(`/cartes/${id}`, formData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added user data
     } catch (error) {

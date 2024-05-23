@@ -216,7 +216,7 @@ const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
     })
     .catch(error => {
         // Gérer l'erreur
-        console.error("Error updating perte:", error);
+        console.error("Error updating Restaurateur:", error);
     })
     .finally(() => {
         // Désactiver le chargement après l'achèvement de l'action
@@ -277,7 +277,7 @@ const handleAddUser = () => {
         })
         .catch(error => {
             // Gérer l'erreur
-            console.error("Error updating perte:", error);
+            console.error("Error updating Restaurateur:", error);
         })
         .finally(() => {
             // Désactiver le chargement après l'achèvement de l'action
@@ -338,7 +338,7 @@ const handleAddUser = () => {
                                                                 <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                                                             </div>
                                                         </th>
-                                                        <th className="sort" data-sort="User-Id">ID</th>
+                                                        {/* <th className="sort" data-sort="User-Id">ID</th> */}
                                                         <th className="sort" data-sort="User-name">Photo</th>
 
                                                         <th className="sort" data-sort="User-name">Nom</th>
@@ -364,7 +364,7 @@ const handleAddUser = () => {
                                                                         <input className="form-check-input" type="checkbox" name="chk_child" value="option1" />
                                                                     </div>
                                                                 </th>
-                                                                <td onClick={() => openShowModal(user)}>{user.id}</td>
+                                                                {/* <td onClick={() => openShowModal(user)}>{user.id}</td> */}
                                                                 <td onClick={() => openShowModal(user)}>
                                                                     {user.photo ? (
                                                                         <img
@@ -590,7 +590,7 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Perte ajoutée avec succès
+                    Restaurateur ajoutée avec succès
                 </Alert>
             </div>
         ) : null}
@@ -621,7 +621,7 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Perte modifiée avec succès
+                    Restaurateur modifiée avec succès
                 </Alert>
             </div>
         ) : null}
@@ -714,7 +714,7 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Perte suprimée avec succès
+                    Restaurateur suprimée avec succès
                 </Alert>
             </div>
         ) : null}

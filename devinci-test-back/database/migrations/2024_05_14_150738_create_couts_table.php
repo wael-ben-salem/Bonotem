@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_depense')->nullable();
             $table->unsignedBigInteger('id_ventilation')->nullable();
             $table->string('detail');
+            $table->integer('id_creator')->nullable();
+
             $table->decimal('montant', 8, 2)->default(0); // Montant avec deux décimales
             $table->dateTime('date')->nullable(); // Changer le type de colonne en dateTime
             $table->enum('type', ['depense', 'ventilation']); // Ajout du champ type avec les valeurs possibles 'depense' ou 'ventilation'

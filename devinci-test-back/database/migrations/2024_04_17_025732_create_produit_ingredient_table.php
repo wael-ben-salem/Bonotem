@@ -15,11 +15,13 @@ return new class extends Migration
     public function up()
     {
         // Créer la table produit_ingredient
-        Schema::create('produit_ingredient', function (Blueprint $table) {
+        Schema::create('produit_ingredient', function (Blueprint $table ) {
             $table->id();
             $table->unsignedBigInteger('id_produit');
             $table->unsignedBigInteger('id_ingredient');
             $table->decimal('quantite', 8, 2);
+            $table->integer('id_creator')->nullable();
+
 
 
             $table->timestamps();
