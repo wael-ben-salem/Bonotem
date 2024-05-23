@@ -4,9 +4,9 @@ import axios from "axios";
 // Async actions for managing types of personnel
 export const fetchTypePersonnel = createAsyncThunk(
   "gitTypePersonnel/fetchTypePersonnel",
-  async (_, { rejectWithValue }) => {
+  async (id, { rejectWithValue }) => {
     try {
-      const response = await axios.get("/type_personnel");
+      const response = await axios.get(`/type_personnel/${id}`);
       return response;
     } catch (error) {
       return rejectWithValue(error.response);
@@ -16,9 +16,9 @@ export const fetchTypePersonnel = createAsyncThunk(
 
 export const addTypePersonnel = createAsyncThunk(
   "gitTypePersonnel/addTypePersonnel",
-  async (personnelData, { rejectWithValue }) => {
+  async ({id, personnelData,  rejectWithValue }) => {
     try {
-      const response = await axios.post("/addtype_personnel", personnelData);
+      const response = await axios.post(`/addtype_personnel/${id}`, personnelData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

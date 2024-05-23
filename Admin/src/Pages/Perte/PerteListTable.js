@@ -45,6 +45,7 @@ const PerteListTable = () => {
 
 
 
+    const [errors, setErrors] = useState({});
 
 
 
@@ -108,14 +109,16 @@ const PerteListTable = () => {
         };
 
 //
+const id = useSelector(state => state.login.user.id);
+
     
     useEffect(() => {
-        dispatch(getAllPerteData());
-        dispatch(getAllMarchandiseData());
-        dispatch(getAllPackaging());
-        dispatch(getAllDataIngredient());
+        dispatch(getAllPerteData(id));
+        dispatch(getAllMarchandiseData(id));
+        dispatch(getAllPackaging(id));
+        dispatch(getAllDataIngredient(id));
 
-    }, [dispatch]);
+    }, [dispatch,id]);
 
 
 
@@ -177,6 +180,35 @@ useEffect(() => {
 
 
 
+    const validate = (data) => {
+        const errors = {};
+    
+        // Vérifie qu'au moins l'un des champs est rempli
+        if (!(data.quantiteIngredient || data.quantitePackaging )) {
+            errors.quantiteIngredient = "La quantité de l'ingrédient est requise.";
+            errors.quantitePackaging = "La quantité  du packaging est requise.";
+
+        }
+    
+        if (!(data.id_ingredient || data.id_packaging)) {
+            errors.id_ingredient = "La sélection de l'ingrédient ou du packaging est requise.";
+            errors.id_packaging = "La sélection de l'ingrédient ou du packaging est requise.";
+        }
+    
+        if (data.quantiteIngredient && (isNaN(data.quantiteIngredient) || data.quantiteIngredient < 0)) {
+            errors.quantiteIngredient = "La quantité doit être un nombre entier positif.";
+        }
+    
+        if (data.quantitePackaging && (isNaN(data.quantitePackaging) || data.quantitePackaging < 0)) {
+            errors.quantitePackaging = "La quantité doit être un nombre entier positif.";
+        }
+        if (data.quantitePackaging && (isNaN(data.quantitePackaging) || data.quantitePackaging < 0)) {
+            errors.quantitePackaging = "La quantité doit être un nombre entier positif.";
+        }
+        
+    
+        return errors;
+    };
     
     
     
@@ -287,6 +319,20 @@ const openShowModal = (perte) => {
 
 
 const handleAdd = () => {
+    const errors = validate({
+        quantitePackaging: newPerteData.quantitePackaging,
+        quantiteIngredient: newPerteData.quantiteIngredient,
+        id_ingredient: newPerteData.id_ingredient,
+        id_packaging: newPerteData.id_packaging
+    });
+
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
     const formData = new FormData();
 
     // Cas où les deux id et quantités sont présents
@@ -306,8 +352,8 @@ const handleAdd = () => {
         formData.append('quantitePackaging', newPerteData.quantitePackaging);
         formData.append('id_packaging', newPerteData.id_packaging);
     }
+    dispatch(addPerte({ id: id, formData}))
 
-    dispatch(addPerte(formData))
     .then(() => {
         
     
@@ -394,7 +440,7 @@ return(
                     <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                 </div>
             </th>
-            <th className="sort" data-sort="Categorie-Id">ID</th>
+            {/* <th className="sort" data-sort="Categorie-Id">ID</th> */}
             <th className="sort" data-sort="Categorie-name">Nom</th>
             <th className="sort" data-sort="Categorie-photo">Photo</th>
             <th className="sort" data-sort="Categorie-name">Quantité</th>
@@ -411,7 +457,7 @@ return(
                             <input className="form-check-input" onClick={() => openShowModal(perte)} type="checkbox" name="chk_child" value="option1" />
                         </div>
                     </th>
-                    <td onClick={() => openShowModal(perte)}>{perte.id}</td>
+                    {/* <td onClick={() => openShowModal(perte)}>{perte.id}</td> */}
                     <td onClick={() => openShowModal(perte)}>
                         {/* Condition pour afficher le nom de l'ingrédient ou de l'emballage */}
                         {perte.id_ingredient !== null ? perte.ingredient.name_ingredient : perte.packaging.name_packaging}
@@ -492,10 +538,7 @@ return(
             <Modal isOpen={modalAddPerte} toggle={toggleAddPerteModal} centered>
                                         <ModalHeader className="bg-light p-3" toggle={toggleAddPerteModal}>Ajout</ModalHeader>
                                         <ModalBody>
-        <form className="tablelist-form">
-        
-        
-        <div className="mb-3">
+                                        <form className="tablelist-form">
     <div className="mb-3">
         <label htmlFor="name_ingredient-field" className="form-label">Ingrédient:</label>
         <select
@@ -504,7 +547,6 @@ return(
             value={newPerteData.id_ingredient}
             onChange={(e) => setNewPerteData({ ...newPerteData, id_ingredient: e.target.value })}
         >
-            {/* Options d'ingrédients */}
             <option value="">Sélectionner un ingrédient</option>
             {Array.from(new Set(marchandisesingredient.filter(m => m.id_ingredient !== null).map(m => m.id_ingredient))).map(ingredientId => {
                 const ingredient = marchandisesingredient.find(m => m.id_ingredient === ingredientId).ingredient;
@@ -515,7 +557,9 @@ return(
                 );
             })}
         </select>
+        {errors.id_ingredient && <div className="text-danger">{errors.id_ingredient}</div>}
     </div>
+
     <div className="mb-3">
         <label htmlFor="quantite-field" className="form-label">Quantité Ingredient</label>
         <input
@@ -525,13 +569,10 @@ return(
             placeholder="Entrez la quantité"
             value={newPerteData.quantiteIngredient}
             onChange={(e) => setNewPerteData({ ...newPerteData, quantiteIngredient: e.target.value })}
-            required
         />
+        {errors.quantiteIngredient && <div className="text-danger">{errors.quantiteIngredient}</div>}
     </div>
-</div>
 
-{/* Ajouter Packaging */}
-<div className="mb-3">
     <div className="mb-3">
         <label htmlFor="name_packaging-field" className="form-label">Packaging:</label>
         <select
@@ -541,7 +582,6 @@ return(
             onChange={(e) => setNewPerteData({ ...newPerteData, id_packaging: e.target.value })}
         >
             <option value="">Sélectionner un packaging</option>
-            {/* Options de packaging */}
             {Array.from(new Set(marchandisesingredient.filter(m => m.id_packaging !== null).map(m => m.id_packaging))).map(packagingId => {
                 const packaging = marchandisesingredient.find(m => m.id_packaging === packagingId).packaging;
                 return (
@@ -551,7 +591,9 @@ return(
                 );
             })}
         </select>
+        {errors.id_packaging && <div className="text-danger">{errors.id_packaging}</div>}
     </div>
+
     <div className="mb-3">
         <label htmlFor="nombre_package-field" className="form-label">Nombre Package</label>
         <input
@@ -561,11 +603,11 @@ return(
             placeholder="Entrez le nombre de packages"
             value={newPerteData.quantitePackaging}
             onChange={(e) => setNewPerteData({ ...newPerteData, quantitePackaging: e.target.value })}
-            required
         />
+        {errors.quantitePackaging && <div className="text-danger">{errors.quantitePackaging}</div>}
     </div>
-</div>
-        </form>
+</form>
+
     </ModalBody>
                                         <ModalFooter>
                                             <div className="hstack gap-2 justify-content-end">

@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Validator;
 
 class VentesController extends Controller
 {
-    public function ventes(Request $request)
+    public function ventes(Request $request,$id)
         {
             // Eager load the products with each category
-            $ventes = Ventes::with('carte','produit','categorie')->get();
+            $ventes = Ventes::with('carte','produit','categorie','ingredient_composee') ->where('id_creator', $id)
+            ->get();
 
             return response()->json($ventes);
         }
@@ -23,10 +24,10 @@ class VentesController extends Controller
 
 
 
-        public function store(Request $request)
+        public function store(Request $request,$id)
         {
             $validator = Validator::make($request->all(), [
-                'id_carte' => 'required|exists:cartes,id|unique:ventes',
+                'id_carte' => 'required|exists:cartes,id',
                 'quantite' => 'required|integer|min:1',
             ], [
                 'id_carte.unique' => 'Ce produit est déjà utilisé dans les ventes.',
@@ -44,7 +45,90 @@ class VentesController extends Controller
             } else {
                 $carte = Cartes::findOrFail($request->id_carte);
                 $quantiteDemandee = $request->quantite;
+                if ($carte->ingredient_compose) {
+                    $ingredientsCompose = $carte->ingredient_compose->ingredients;
+                    foreach ($ingredientsCompose as $ingredient) {
+                        $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
 
+                        $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+                    }
+                    $validator->after(function ($validator) use ( $marchandiseIngredient, $quantiteRequiseIngredient) {
+                        if ( is_null($marchandiseIngredient)) {
+                            $validator->errors()->add('quantite', 'Pas de stock d ingredient pour cette quantité.');
+                        } elseif (($marchandiseIngredient->quantite_achetee - $marchandiseIngredient->quantite_consomee) < $quantiteRequiseIngredient) {
+                            $validator->errors()->add('quantite', 'Quantité insuffisante d ingredient pour ce produit.');
+                        }
+                    });
+
+                    if ($validator->fails()) {
+                        return response()->json([
+                            'validation_errors' => $validator->messages(),
+                        ]);
+                    }else{
+                        $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+                        $prixTVA = $prixTTC / 1.10;
+                        $marge = $prixTTC - $prixTVA;
+
+                                // Enregistrer la vente
+                                $vente = new Ventes();
+                                $vente->id_carte = $request->id_carte;
+                                $vente->id_ingredient_compose = $carte->id_ingredient_compose;
+                                $vente->id_categorie = $carte->id_categorie;
+                                $vente->quantite = $quantiteDemandee;
+                                $vente->prixTTC = $prixTTC;
+                                $vente->id_creator = $id;
+
+                                $vente->prixTVA = $prixTVA;
+                                $vente->marge = $marge;
+
+
+                                $vente->save();
+
+                                // Mettre à jour les quantités consommées et en stock dans les marchandises
+                                $quantiteConsomeeIngredientTotal = 0;
+                                $quantiteEnStockIngredientTotal = 0;
+                                foreach ($ingredientsCompose as $ingredient) {
+                                    $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
+                                    $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+                                    if(($marchandiseIngredient ->quantite_en_stock == null) ){
+                                        $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
+                                        $marchandiseIngredient->quantite_en_stock = ($marchandiseIngredient->quantite_achetee + $marchandiseIngredient->quantite_en_stock)-  $quantiteRequiseIngredient;
+                                        $marchandiseIngredient->save();
+                                    }else{
+                                        $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
+                                        $marchandiseIngredient->quantite_en_stock =  $marchandiseIngredient->quantite_en_stock-$quantiteRequiseIngredient;
+                                        $marchandiseIngredient->save();
+
+                                    }
+
+
+                                    $quantiteConsomeeIngredientTotal += $marchandiseIngredient->quantite_consomee;
+                                    $quantiteEnStockIngredientTotal += $marchandiseIngredient->quantite_en_stock;
+                                }
+
+                                return response()->json([
+                                    'id_ingredient_compose' => $carte->id_ingredient_compose,
+                                    'id_categorie' => $carte->id_categorie,
+                                    'quantite' => $quantiteDemandee,
+                                    'prixTTC' => $prixTTC,
+                                    'prixTVA' => $prixTVA,
+                                    'marge' => $marge,
+
+
+
+
+
+                                    'quantite_consomee_ingredient_total' => $quantiteConsomeeIngredientTotal,
+                                    'quantite_en_stock_ingredient_total' => $quantiteEnStockIngredientTotal,
+                                    'message' => "Vente enregistrée avec succès."
+                                ], 200);
+
+
+
+                    }
+
+
+                }else{
 
 
                 $ingredients = $carte->produit->ingredients;
@@ -71,6 +155,8 @@ class VentesController extends Controller
                 ]);
             }else{
                 $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+                $prixTVA = $prixTTC / 1.10;
+                $marge = $prixTTC - $prixTVA;
 
                         // Enregistrer la vente
                         $vente = new Ventes();
@@ -79,6 +165,11 @@ class VentesController extends Controller
                         $vente->id_categorie = $carte->id_categorie;
                         $vente->quantite = $quantiteDemandee;
                         $vente->prixTTC = $prixTTC;
+                        $vente->id_creator = $id;
+
+                        $vente->prixTVA = $prixTVA;
+                        $vente->marge = $marge;
+
                         $vente->save();
 
                         // Mettre à jour les quantités consommées et en stock dans les marchandises
@@ -87,6 +178,16 @@ class VentesController extends Controller
                         foreach ($ingredients as $ingredient) {
                             $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
                             $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+                            if(($marchandiseIngredient ->quantite_en_stock == null) ){
+                                $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
+                                $marchandiseIngredient->quantite_en_stock = ($marchandiseIngredient->quantite_achetee + $marchandiseIngredient->quantite_en_stock)-  $quantiteRequiseIngredient ;
+                                $marchandiseIngredient->save();
+                            }else{
+                                $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
+                                $marchandiseIngredient->quantite_en_stock =  $marchandiseIngredient->quantite_en_stock-$quantiteRequiseIngredient;
+                                $marchandiseIngredient->save();
+
+                            }
                             $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
                             $marchandiseIngredient->quantite_en_stock = ($marchandiseIngredient->quantite_achetee + $marchandiseIngredient->quantite_en_stock)-  $quantiteRequiseIngredient;
                             $marchandiseIngredient->save();
@@ -126,6 +227,8 @@ class VentesController extends Controller
 
         else{
             $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+            $prixTVA = $prixTTC / 1.10;
+            $marge = $prixTTC - $prixTVA;
 
                         // Enregistrer la vente
                         $vente = new Ventes();
@@ -133,7 +236,13 @@ class VentesController extends Controller
                         $vente->id_produit = $carte->id_produit;
                         $vente->id_categorie = $carte->id_categorie;
                         $vente->quantite = $quantiteDemandee;
+                        $vente->id_creator = $id;
+
                         $vente->prixTTC = $prixTTC;
+                        $vente->prixTVA = $prixTVA;
+                        $vente->marge = $marge;
+
+
                         $vente->save();
 
 
@@ -143,9 +252,16 @@ class VentesController extends Controller
                         foreach ($packagings as $packaging) {
                             $marchandisePackaging = Marchandise::where('id_packaging', $packaging->id)->latest()->first();
                             $quantiteRequisePackaging = $packaging->pivot->nombre_package * $quantiteDemandee;
-                            $marchandisePackaging->quantite_consomee += $quantiteRequisePackaging;
-                            $marchandisePackaging->quantite_en_stock = ($marchandisePackaging->quantite_achetee + $marchandisePackaging->quantite_en_stock)-  $quantiteRequisePackaging;
-                            $marchandisePackaging->save();
+                            if(($marchandisePackaging ->quantite_en_stock == null) ){
+                                $marchandisePackaging->quantite_consomee += $quantiteRequisePackaging;
+                                $marchandisePackaging->quantite_en_stock = ($marchandisePackaging->quantite_achetee + $marchandisePackaging->quantite_en_stock)-  $quantiteRequisePackaging ;
+                                $marchandisePackaging->save();
+                            }else{
+                                $marchandisePackaging->quantite_consomee += $quantiteRequisePackaging;
+                                $marchandisePackaging->quantite_en_stock =  $marchandisePackaging->quantite_en_stock-$quantiteRequisePackaging;
+                                $marchandisePackaging->save();
+
+                            }
                             $quantiteConsomeePackagingTotal += $marchandisePackaging->quantite_consomee;
                             $quantiteEnStockPackagingTotal += $marchandisePackaging->quantite_en_stock;
                         }
@@ -200,6 +316,8 @@ class VentesController extends Controller
 
                 else{
                         $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+                        $prixTVA = $prixTTC / 1.10;
+                        $marge = $prixTTC - $prixTVA;
 
                         // Enregistrer la vente
                         $vente = new Ventes();
@@ -207,7 +325,13 @@ class VentesController extends Controller
                         $vente->id_produit = $carte->id_produit;
                         $vente->id_categorie = $carte->id_categorie;
                         $vente->quantite = $quantiteDemandee;
+                        $vente->id_creator = $id;
                         $vente->prixTTC = $prixTTC;
+                        $vente->marge = $marge;
+                        $vente->prixTVA = $prixTVA;
+
+
+
                         $vente->save();
 
                         // Mettre à jour les quantités consommées et en stock dans les marchandises
@@ -216,9 +340,17 @@ class VentesController extends Controller
                         foreach ($ingredients as $ingredient) {
                             $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
                             $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
-                            $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
-                            $marchandiseIngredient->quantite_en_stock = ($marchandiseIngredient->quantite_achetee + $marchandiseIngredient->quantite_en_stock)-  $quantiteRequiseIngredient;
-                            $marchandiseIngredient->save();
+                            if(($marchandiseIngredient ->quantite_en_stock == null) ){
+                                $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
+                                $marchandiseIngredient->quantite_en_stock = ($marchandiseIngredient->quantite_achetee + $marchandiseIngredient->quantite_en_stock)-  $quantiteRequiseIngredient;
+                                $marchandiseIngredient->save();
+                            }else{
+                                $marchandiseIngredient->quantite_consomee += $quantiteRequiseIngredient;
+                                $marchandiseIngredient->quantite_en_stock =  $marchandiseIngredient->quantite_en_stock-$quantiteRequiseIngredient;
+                                $marchandiseIngredient->save();
+
+                            }
+
                             $quantiteConsomeeIngredientTotal += $marchandiseIngredient->quantite_consomee;
                             $quantiteEnStockIngredientTotal += $marchandiseIngredient->quantite_en_stock;
                         }
@@ -228,9 +360,17 @@ class VentesController extends Controller
                         foreach ($packagings as $packaging) {
                             $marchandisePackaging = Marchandise::where('id_packaging', $packaging->id)->latest()->first();
                             $quantiteRequisePackaging = $packaging->pivot->nombre_package * $quantiteDemandee;
-                            $marchandisePackaging->quantite_consomee += $quantiteRequisePackaging;
-                            $marchandisePackaging->quantite_en_stock = ($marchandisePackaging->quantite_achetee + $marchandisePackaging->quantite_en_stock)-  $quantiteRequisePackaging;
-                            $marchandisePackaging->save();
+                            if(($marchandisePackaging ->quantite_en_stock == null) ){
+                                $marchandisePackaging->quantite_consomee += $quantiteRequisePackaging;
+                                $marchandisePackaging->quantite_en_stock = ($marchandisePackaging->quantite_achetee + $marchandisePackaging->quantite_en_stock)-  $quantiteRequisePackaging;
+                                $marchandisePackaging->save();
+                            }else{
+                                $marchandisePackaging->quantite_consomee += $quantiteRequisePackaging;
+                                $marchandisePackaging->quantite_en_stock =  $marchandisePackaging->quantite_en_stock-$quantiteRequisePackaging;
+                                $marchandisePackaging->save();
+
+                            }
+
                             $quantiteConsomeePackagingTotal += $marchandisePackaging->quantite_consomee;
                             $quantiteEnStockPackagingTotal += $marchandisePackaging->quantite_en_stock;
                         }
@@ -240,6 +380,10 @@ class VentesController extends Controller
                             'id_categorie' => $carte->id_categorie,
                             'quantite' => $quantiteDemandee,
                             'prixTTC' => $prixTTC,
+                            'prixTVA' => $prixTVA,
+                            'marge' => $marge,
+
+
                             'quantite_consomee_packaging_total' => $quantiteConsomeePackagingTotal,
                             'quantite_en_stock_packaging_total' => $quantiteEnStockPackagingTotal,
 
@@ -252,6 +396,7 @@ class VentesController extends Controller
 
 
                     }
+                }
                 }
 
                 // Calculer le prix TTC
@@ -329,9 +474,124 @@ public function update(Request $request , $id)
         $quantiteAvant = $request->quantite;
 
 
+
+
+
+
         // Vérifiez si les ingrédients nécessaires sont disponibles en quantité suffisante dans les marchandises
         $carte =  Cartes::findOrFail($request->id_carte);
 
+
+        if ($carte->ingredient_compose) {
+            $ingredientsCompose = $carte->ingredient_compose->ingredients;
+            foreach ($ingredientsCompose as $ingredient) {
+                $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
+
+                $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+                $quantiteRequiseAvantIngredient = $ingredient->pivot->quantite * $quantiteAvant;
+            }
+            $validator->after(function ($validator) use ( $marchandiseIngredient, $quantiteRequiseAvantIngredient, $quantiteRequiseIngredient) {
+
+                if (is_null($marchandiseIngredient)){
+                    $validator->errors()->add('quantite', 'Pas de stock d ingredient pour cette quantité.');
+
+                }else if((($marchandiseIngredient->quantite_achetee - ($marchandiseIngredient->quantite_consomee - $quantiteRequiseAvantIngredient)) < $quantiteRequiseIngredient) ) {
+                    $validator->errors()->add('quantite', 'Quantité insuffisante d ingredeint pour ce produit.');
+                }
+            });
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'validation_errors' => $validator->messages(),
+                ]);
+            }else{
+                // Mettre à jour la vente existant
+              $prixTTC = ($carte->prix * $quantiteDemandee) * 1.18;
+              $prixTVA = $prixTTC / 1.10;
+              $marge = $prixTTC - $prixTVA;
+
+
+              // Mettre à jour la vente existante
+              $vente = Ventes::findOrFail($id);
+              $vente->id_carte = $request->id_carte;
+              $vente->id_produit = $carte->id_produit;
+              $vente->id_categorie = $carte->id_categorie;
+              $vente->quantite = $quantiteDemandee;
+
+              $vente->prixTTC = $prixTTC;
+              $vente->prixTVA = $prixTVA;
+              $vente->marge = $marge;
+
+
+              $vente->save();
+
+
+              foreach ($ingredientsCompose as $ingredient) {
+                $marchandiseIngredient = Marchandise::where('id_ingredient', $ingredient->id)->latest()->first();
+                $quantiteRequiseIngredient = $ingredient->pivot->quantite * $quantiteDemandee;
+                $quantiteRequiseAvantIngredient = $ingredient->pivot->quantite * $quantiteAvant;
+                if(($marchandiseIngredient ->quantite_consomee == null) && ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient < 0)){
+                    $marchandiseIngredient->quantite_consomee = -($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                    $marchandiseIngredient->quantite_en_stock =  $marchandiseIngredient ->quantite_en_stock + ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                    $marchandiseIngredient->save();
+
+                    $quantiteIngredientEnStockTotal =$marchandiseIngredient->quantite_en_stock ;
+                    $quantiteIngredientConsomeeTotal = $marchandiseIngredient->quantite_consomee;
+
+                }else if(($marchandiseIngredient ->quantite_consomee == null) && ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient > 0) ){
+                    $marchandiseIngredient->quantite_consomee = $quantiteRequiseIngredient - $quantiteRequiseAvantIngredient;
+
+                    $marchandiseIngredient ->quantite_en_stock = $marchandiseIngredient ->quantite_en_stock - ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                    $marchandiseIngredient->save();
+
+                    $quantiteIngredientEnStockTotal =$marchandiseIngredient->quantite_en_stock ;
+                    $quantiteIngredientConsomeeTotal = $marchandiseIngredient->quantite_consomee;
+
+                }else if(($marchandiseIngredient ->quantite_consomee !== null) && ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient < 0) ){
+
+                $marchandiseIngredient->quantite_consomee = -($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                $marchandiseIngredient->quantite_en_stock  = $marchandiseIngredient ->quantite_en_stock - ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                $marchandiseIngredient->save();
+                $quantiteIngredientConsomeeTotal = $marchandiseIngredient->quantite_consomee;
+                $quantiteIngredientEnStockTotal = $marchandiseIngredient->quantite_en_stock;
+
+            }else if(($marchandiseIngredient ->quantite_consomee !== null) && ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient > 0) ){
+                $marchandiseIngredient->quantite_consomee = $quantiteRequiseIngredient - $quantiteRequiseAvantIngredient;
+                $marchandiseIngredient->quantite_en_stock  = $marchandiseIngredient ->quantite_en_stock - ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                $marchandiseIngredient->save();
+                $quantiteIngredientConsomeeTotal = $marchandiseIngredient->quantite_consomee;
+                $quantiteIngredientEnStockTotal = $marchandiseIngredient->quantite_en_stock;
+
+            }else {
+                $marchandiseIngredient->quantite_en_stock  = $marchandiseIngredient ->quantite_en_stock + ($quantiteRequiseIngredient - $quantiteRequiseAvantIngredient);
+                $marchandiseIngredient->save();
+                $quantiteIngredientEnStockTotal = $marchandiseIngredient->quantite_en_stock;
+
+
+
+            }
+            return response()->json([
+                'id_ingredient_compose' => $carte->id_ingredient_compose,
+                'id_categorie' => $carte->id_categorie,
+                'quantite' => $quantiteDemandee,
+                'prixTTC' => $prixTTC,
+                'prixTVA' => $prixTVA,
+                'marge' => $marge,
+
+
+
+                'quantiteIngredientConsomeeTotal' => $quantiteIngredientConsomeeTotal,
+                'quantiteIngredientEnStockTotal' => $quantiteIngredientEnStockTotal,
+                'message' => "Vente enregistrée avec succès."
+            ], 200);
+
+
+
+        }
+
+
+
+    }}else {
         $ingredients = $carte->produit->ingredients;
         $packagings = $carte->produit->packagings;
          // Mettre à jour les quantités consommées et en stock dans les marchandises
@@ -710,14 +970,14 @@ public function update(Request $request , $id)
 
 
 
-                    }elseif(($marchandisePackaging ->quantite_consomee !== null) && ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging < 0) ){
+                        }elseif(($marchandisePackaging ->quantite_consomee !== null) && ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging < 0) ){
                         $marchandisePackaging->quantite_consomee = -($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
                         $marchandisePackaging->quantite_en_stock  = $marchandisePackaging ->quantite_en_stock - ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
                         $marchandisePackaging->save();
                         $quantitePackagingEnStockTotal = $marchandisePackaging ->quantite_en_stock ;
                         $quantitePackagingConsomeeTotal = $marchandisePackaging->quantite_consomee;
 
-                    }else if(($marchandisePackaging ->quantite_consomee !== null) && ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging > 0) ){
+                        }else if(($marchandisePackaging ->quantite_consomee !== null) && ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging > 0) ){
                         $marchandisePackaging->quantite_consomee = $quantiteRequisePackaging - $quantiteRequiseAvanatPackaging;
                         $marchandisePackaging->quantite_en_stock  = $marchandisePackaging ->quantite_en_stock - ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
                         $marchandisePackaging->save();
@@ -725,17 +985,17 @@ public function update(Request $request , $id)
                         $quantitePackagingEnStockTotal = $marchandisePackaging->quantite_en_stock;
 
 
-                    }else {
+                        }else {
                         $marchandisePackaging->quantite_en_stock  = $marchandisePackaging ->quantite_en_stock + ($quantiteRequisePackaging - $quantiteRequiseAvanatPackaging);
                         $marchandisePackaging->save();
                         $quantitePackagingEnStockTotal = $marchandisePackaging->quantite_en_stock;
 
 
 
-                    }
+                            }
 
-                }
-                }
+                        }
+                    }
 
                 return response()->json([
                     'id_produit' => $carte->id_produit,
@@ -752,18 +1012,43 @@ public function update(Request $request , $id)
 
 
 
-            }
+                }
 
 
         // Calculer le prix TT
 
 
-}
+            }
+
+        }
+    }
 }
 
 
 
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

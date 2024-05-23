@@ -10,7 +10,7 @@ class Produit extends Model
 {
     use HasFactory;
     protected $primaryKey = 'id';
-    protected $fillable = ['name_produit', 'id_categorie', 'marge'];
+    protected $fillable = ['name_produit','id_creator', 'id_categorie', ];
 
 
     public function categorie()
@@ -23,18 +23,18 @@ class Produit extends Model
     }
     public function vente()
     {
-        return $this->hasOne(Ventes::class, 'id_produit');
+        return $this->hasMany(Ventes::class, 'id_produit');
     }
     public function ingredients()
 {
     return $this->belongsToMany(Ingredient::class, 'produit_ingredient', 'id_produit', 'id_ingredient')
-                ->withPivot('quantite');
+                ->withPivot('quantite','id_creator');
 }
 
 public function packagings()
 {
     return $this->belongsToMany(Packaging::class, 'packaging_produit', 'id_produit', 'id_packaging')
-                ->withPivot('nombre_package');
+                ->withPivot('nombre_package','id_creator');
 }
 
 }

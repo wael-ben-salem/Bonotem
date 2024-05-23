@@ -13,6 +13,7 @@ class Categorie extends Model
         'name',
         'description',
         'photo',
+        'id_creator'
     ];
 
     public function getPhotoAttribute($photo){
@@ -22,12 +23,15 @@ class Categorie extends Model
 
 
 
-
-
-
-
     public function produits()
     {
         return $this->hasMany(Produit::class, 'id_categorie');
+    }
+
+
+
+    public function ingredientCompose()
+    {
+        return $this->hasMany(IngredientCompose::class, 'id_ingredient_compose');
     }
 }

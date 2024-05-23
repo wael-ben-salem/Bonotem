@@ -17,6 +17,7 @@ return new class extends Migration
                 $table->string('num_telephone');
                 $table->string('email')->unique();
                 $table->string('photo')->nullable();
+                $table->integer('id_creator')->nullable();
 
                 $table->timestamps();
             });

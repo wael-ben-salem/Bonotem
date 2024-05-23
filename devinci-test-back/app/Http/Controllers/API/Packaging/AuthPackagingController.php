@@ -12,15 +12,24 @@ class AuthPackagingController extends Controller
 
 
 {
-    public function createpackaging (Request $request)
+    public function createpackaging (Request $request,$id)
 {
     $validator = Validator::make($request->all(), [
-        'name_packaging' => ['required', 'unique:packagings', 'regex:/^[A-Za-z\s]+$/'],
+        'name_packaging' => ['required', 'regex:/^[A-Za-z\s]+$/',
+        function ($attribute, $value, $fail) use ($id) {
+            $existingCategory = Packaging::where('name_packaging', $value)
+                ->where('id_creator', $id)
+                ->first();
+
+            if ($existingCategory) {
+                $fail('Ce nom de package existe déjà pour cet utilisateur.');
+            }
+        }
+    ],
         'dimension' => 'nullable|string|max:255',
         'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
     ], [
         'name_packaging.required' => 'Le champ nom de l\'emballage est requis.',
-        'name_packaging.unique' => 'Ce nom d\'emballage existe déjà.',
         'name_packaging.regex' => 'Le champ nom de l\'emballage doit contenir uniquement des lettres et des espaces.',
         'dimension.string' => 'Le champ dimension doit être une chaîne de caractères.',
         'dimension.max' => 'Le champ dimension ne doit pas dépasser :max caractères.',
@@ -40,6 +49,8 @@ class AuthPackagingController extends Controller
         $packaging = new Packaging();
         $packaging->name_packaging = $request->name_packaging;
         $packaging->dimension = $request->dimension;
+        $packaging->id_creator = $id;
+
 
         // Handle the photo upload if it's present in the request
         if ($request->hasFile('photo')) {
@@ -61,9 +72,9 @@ class AuthPackagingController extends Controller
 }
 
 
-    public function packaging(Request $request)
+    public function packaging(Request $request,$id)
     {
-        $packagings = Packaging::all();
+        $packagings = Packaging::where('id_creator', $id)->get();
         return response()->json($packagings);
     }
 

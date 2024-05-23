@@ -57,11 +57,12 @@ const PersonnelTables = () => {
     nom: "",
     salaire: "",
   });
+  const id = useSelector(state => state.login.user.id);
 
   useEffect(() => {
-    dispatch(getAllPersonnel());
-    dispatch(fetchTypePersonnel());
-  }, [dispatch]);
+    dispatch(getAllPersonnel(id));
+    dispatch(fetchTypePersonnel(id));
+  }, [dispatch,id]);
 
   const toggleAddPersonnelModal = () => {
     setModalAddPersonnel(!modalAddPersonnel);
@@ -151,7 +152,7 @@ const PersonnelTables = () => {
     formData.append("type_personnel_id", newPersonnelData.type_personnel_id); 
     formData.append("salaire", newPersonnelData.salaire);
 
-    dispatch(addPersonnel(formData));
+    dispatch(addPersonnel({ id: id, newPersonnelData:formData}))
 
     setShowAddSuccessModal(true);
     setNewPersonnelData({
@@ -216,9 +217,9 @@ const PersonnelTables = () => {
                               />
                             </div>
                             </th>
-                            <th className="sort" data-sort="Personnel-Id">
+                            {/* <th className="sort" data-sort="Personnel-Id">
                               ID
-                            </th>
+                            </th> */}
                             <th className="sort" data-sort="Personnel-name">
                               Nom Personnel
                             </th>
@@ -259,9 +260,9 @@ const PersonnelTables = () => {
                                     />
                                   </div>
                                 </th>
-                                <td onClick={() => openShowModal(personnel)}>
+                                {/* <td onClick={() => openShowModal(personnel)}>
                                   {personnel.id}
-                                </td>
+                                </td> */}
                                 <td onClick={() => openShowModal(personnel)}>
                                   {personnel.name}
                                 </td>

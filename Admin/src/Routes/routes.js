@@ -9,6 +9,7 @@ import AdminManagerList from "../Pages/AdminDashboard/AdminManajerListTable";
 
 import Testexample from "../Pages/Test/test";
 
+import ChargeVariable from "../Pages/ChargeVariable/ChargeVariableListTable";
 
 import IngredientCompose from "../Pages/Ingredient/IngredientComposeListTable";
 
@@ -84,12 +85,25 @@ import IconMaterialdesign from "../Pages/Icons/IconMaterialdesign";
 import IconFontawesome from "../Pages/Icons/IconFontAwesome";
 import IconDripicons from "../Pages/Icons/IconDrip";
 import IconBoxicons from "../Pages/Icons/IconBoxicons";
-import Chart from "../Pages/AllCharts/apex/RadialChart";
+import Chart from "../Pages/AllCharts/apex/SplineArea";
+import Charta from "../Pages/AllCharts/chartjs/linechart";
+import Chartb from "../Pages/AllCharts/rechart/SimpleAreaChart";
+import Chartc from "../Pages/AllCharts/rechart/SimpleLineChart";
+import Chartd from "../Pages/AllCharts/rechart/SimpleRadialBarChart";
+import Charte from "../Pages/AllCharts/rechart/SpecifiedDomainRadarChart";
+import Chartf from "../Pages/AllCharts/rechart/ThreeDimScatterChart";
+import Chartg from "../Pages/AllCharts/rechart/VerticalComposedChart";
+import Charth from "../Pages/AllCharts/apex/chartapex";
+import Charti from "../Pages/AllCharts/apex/dashedLine";
+import Chartj from "../Pages/AllCharts/apex/dountchart";
 
 
 
 
+//chartjslinechart
 
+
+//apex/SplineArea
 
 
 // Import Map Pages
@@ -100,6 +114,7 @@ import CartesListTable from "../Pages/Carte/CarteListTable";
 import VentesListTable from "../Pages/Vente/VentesListTable";
 import PerteListTable from "../Pages/Perte/PerteListTable";
 import CoutListTable from "../Pages/Cout/CoutListTable.js";
+import ChiffreAffaire from "../Pages/ChiffreDaffaire/ChiffreListTable";
 
 
 const authProtectedRoutes = [
@@ -116,11 +131,26 @@ const authProtectedRoutes = [
   { path: "/ingredientCompose", component: <IngredientCompose /> },
 
   { path: "/chart-apexcharts", component: <Chart /> },
+  { path: "/chart-apexchartsa", component: <Charta /> },
+  { path: "/chart-apexchartsb", component: <Chartb /> },
+  { path: "/chart-apexchartsc", component: <Chartc /> },
+  { path: "/chart-apexchartsd", component: <Chartd /> },
+  { path: "/chart-apexchartse", component: <Charte /> },
+  { path: "/chart-apexchartsf", component: <Chartf /> },
+  { path: "/chart-apexchartsg", component: <Chartg /> },
+  { path: "/chart-apexchartsh", component: <Charth /> },
+  { path: "/chart-apexchartsi", component: <Charti /> },
+  { path: "/chart-apexchartsj", component: <Chartj /> },
+
+
   
 
 
   //Fournisseur
   { path: "/Fournisseur", component: <FournisseurListTable /> },
+
+  //ChargeVaribale
+  { path: "/chargevariable", component: <ChargeVariable /> },
 
 
   //carte
@@ -151,6 +181,8 @@ const authProtectedRoutes = [
 // Packagings
 { path: "/Packagings", component: <Packagings /> },
 
+// Chiffre d'affaire
+{ path: "/chiffre", component: <ChiffreAffaire /> },
 
   // Calender
   { path: "/planning", component: <Planning /> },

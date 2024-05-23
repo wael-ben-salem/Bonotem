@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllCoutData = createAsyncThunk("gitCout/getAllCoutData", async () => {
+export const getAllCoutData = createAsyncThunk("gitCout/getAllCoutData", async (id) => {
     try {
-      const response = await axios.get("/couts");
+      const response = await axios.get(`/couts/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -21,7 +21,7 @@ export const getAllCoutData = createAsyncThunk("gitCout/getAllCoutData", async (
     "gitCout/updateCout",
     async ({ id, updatedCout }) => {
         try {
-            const response = await axios.put(`/couts/${id}`, updatedCout);
+            const response = await axios.put(`/updatecouts/${id}`, updatedCout);
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -36,7 +36,7 @@ export const getAllCoutData = createAsyncThunk("gitCout/getAllCoutData", async (
     "gitCout/getCoutDetails",
     async (id) => {
       try {
-        const response = await axios.get(`/couts/${id}`);
+        const response = await axios.get(`/showcouts/${id}`);
         console.log("API response:", response);
         return response;
       } catch (error) {
@@ -63,9 +63,9 @@ export const getAllCoutData = createAsyncThunk("gitCout/getAllCoutData", async (
   
 
 
-  export const addCout = createAsyncThunk("gitCout/addCout", async (formData) => {
+  export const addCout = createAsyncThunk("gitCout/addCout", async ({id,formData}) => {
     try {
-      const response = await axios.post("/couts", formData);
+      const response = await axios.post(`/couts/${id}`, formData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added user data
     } catch (error) {

@@ -22,6 +22,13 @@ const SidebarData = [
             
         ],
     },
+    {
+        label: "Fournisseur",
+        icon: "ri-table-2",
+        url: "/Fournisseur",
+
+        
+    },
     
 
     
@@ -175,32 +182,49 @@ const SidebarData = [
 
         },
         {
-            label: "Charges Fixe",
-            icon: "mdi mdi-briefcase-variant-outline",
-            url: "/chargefixe",
+            label: "Charges",
+            icon: "mdi mdi-currency-usd",
+            subItem: [
+            { sublabel: "Fixe", link: "/chargefixe" },
+
+            { sublabel: "Variable", link: "/chargevariable" },
+            ]   
+
+        },
+        {
+            label: "Chiffre d'affaire",
+            icon: "mdi mdi-currency-usd",
+            url: "/chiffre",
 
         },
 
 
-        {
-                label: "Fournisseur",
-                icon: "ri-table-2",
-                url: "/Fournisseur",
-
-                
-            },
+        
             
-//    {
-//         label: "Charts",
-//         icon: "ri-bar-chart-line",
-//         subItem: [
-//             { sublabel: "Apex Charts", link: "/chart-apexcharts" },
-//             { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
-//             { sublabel: "Re Charts", link: "/chart-floatcharts" },
-//             { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
-//             { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
-//         ],
-//     },
+   {
+        label: "Charts",
+        icon: "ri-bar-chart-line",
+        subItem: [
+            { sublabel: "Apex Charts", link: "/chart-apexcharts" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsa" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsb" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsc" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsd" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartse" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsf" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsg" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsh" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsi" },
+            { sublabel: "Apex Charts", link: "/chart-apexchartsj" },
+
+
+
+            { sublabel: "Chartjs Charts", link: "/chart-chartjscharts" },
+            { sublabel: "Re Charts", link: "/chart-floatcharts" },
+            { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
+            { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
+        ],
+    },
     /*{
         label: "Icons",
         icon: "ri-brush-line",

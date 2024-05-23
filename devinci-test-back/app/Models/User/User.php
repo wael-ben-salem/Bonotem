@@ -29,6 +29,7 @@ class User extends Authenticatable
         'adresse',
         'date_abonnement',
         'photo',
+        'montant',
         'date_expiration_abonnement'
     ];
 

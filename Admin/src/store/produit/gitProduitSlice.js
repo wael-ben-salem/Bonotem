@@ -5,15 +5,15 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () => {
-    try {
-      const response = await axios.get("/produit");
-      console.log("API response:", response);
-      return response;
-    } catch (error) {
-      console.error("API error:", error); // Log any errors
-      throw error;
-    }
+export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async (id) => {
+  try {
+    const response = await axios.get(`/produit/${id}`);
+    console.log("API response:", response);
+    return response;
+  } catch (error) {
+    console.error("API error:", error); // Log any errors
+    throw error;
+  }
   });
 
 
@@ -36,7 +36,7 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
     "gitProduit/getProduitroduitDetails",
     async (produitId) => {
       try {
-        const response = await axios.get(`/produit/${produitId}`);
+        const response = await axios.get(`/produitshow/${produitId}`);
         console.log("API response:", response);
         return response.produits;
       } catch (error) {
@@ -61,16 +61,14 @@ export const getAllProduit = createAsyncThunk("gitProduit/getAllData", async () 
   );
   
   
-
-
-  export const addProduit = createAsyncThunk("gitProduit/addProduit", async (newProduitData,insertedProduitIngredient,rejectWithValue) => {
+  export const addProduit = createAsyncThunk("gitProduit/addProduit", async ({ id, newProduitData, insertedProduitIngredient, rejectWithValue }) => {
     try {
-      const response = await axios.post("/produit", newProduitData,insertedProduitIngredient,rejectWithValue);
+      const response = await axios.post(`/produit/${id}`, newProduitData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added product data
     } catch (error) {
-        console.error("API error:", error);
-        return rejectWithValue(error.response.data); // Return error data
+      console.error("API error:", error);
+      throw error; // Rethrow the error
     }
   });
   export const insertProduitIngredient = createAsyncThunk("gitProduit/insertProduitIngredient", async ({ productId, produitData }) => {

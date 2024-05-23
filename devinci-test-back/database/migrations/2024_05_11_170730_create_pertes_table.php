@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_marchandise');
             $table->unsignedBigInteger('id_packaging');
             $table->unsignedBigInteger('id_ingredient');
+            $table->integer('id_creator')->nullable();
+
 
             $table->foreign('id_marchandise')->references('id')->on('marchandises')->onDelete('cascade');
             $table->integer('quantite');

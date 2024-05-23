@@ -13,8 +13,14 @@ return new class extends Migration
     {
         Schema::create('ventes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('id_produit');
+            $table->unsignedBigInteger('id_produit')->nullable();
             $table->unsignedBigInteger('id_carte');
+            $table->unsignedBigInteger('id_ingredient_compose')->nullable();
+
+            $table->integer('id_creator')->nullable();
+
+
+            $table->foreign('id_ingredient_compose')->references('id')->on('ingredient_composes')->onDelete('cascade');
 
             $table->foreign('id_carte')->references('id')->on('cartes')->onDelete('cascade');
             $table->unsignedBigInteger('id_categorie');

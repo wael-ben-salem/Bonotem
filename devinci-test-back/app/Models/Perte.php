@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Perte extends Model
 {
-    use HasFactory;
 
     use HasFactory;
 
@@ -17,7 +16,8 @@ class Perte extends Model
         'quantite',
         'montant',
         'id_packaging',
-        'id_ingredient'
+        'id_ingredient',
+        'id_creator'
 
     ];
 

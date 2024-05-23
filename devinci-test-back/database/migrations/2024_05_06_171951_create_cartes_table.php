@@ -14,8 +14,13 @@ return new class extends Migration
         Schema::create('cartes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_produit');
+            $table->unsignedBigInteger('id_ingredient_compose');
+
             $table->foreign('id_produit')->references('id')->on('produits')->onDelete('cascade');
             $table->unsignedBigInteger('id_categorie');
+            $table->integer('id_creator')->nullable();
+            $table->foreign('id_ingredient_compose')->references('id')->on('ingredient_composes')->onDelete('cascade');
+
             $table->float('prix');
             $table->timestamps();
         });

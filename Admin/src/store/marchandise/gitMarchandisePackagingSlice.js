@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllMarchandiseData = createAsyncThunk("gitMarchandisePackaging/getAllMarchandiseData", async () => {
+export const getAllMarchandiseData = createAsyncThunk("gitMarchandisePackaging/getAllMarchandiseData", async (id) => {
     try {
-      const response = await axios.get("/marchandise");
+      const response = await axios.get(`/marchandise/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -21,7 +21,7 @@ export const getAllMarchandiseData = createAsyncThunk("gitMarchandisePackaging/g
     "gitMarchandisePackaging/updateMarchandisepackaging",
     async ({ id, packagingMarchandiseData }) => {
         try {
-            const response = await axios.put(`/marchandisePackaging/${id}`, packagingMarchandiseData);
+            const response = await axios.put(`/updatemarchandisePackaging/${id}`, packagingMarchandiseData);
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -36,7 +36,7 @@ export const getAllMarchandiseData = createAsyncThunk("gitMarchandisePackaging/g
     "gitMarchandisePackaging/getAllMarchandisePackaging",
     async (id) => {
       try {
-        const response = await axios.get(`/marchandise/${id}`);
+        const response = await axios.get(`/showmarchandise/${id}`);
         console.log("API response:", response);
         return response;
       } catch (error) {
@@ -63,9 +63,9 @@ export const getAllMarchandiseData = createAsyncThunk("gitMarchandisePackaging/g
   
 
 
-  export const addMarchandisePackaging = createAsyncThunk("gitMarchandisePackaging/addMarchandisePackaging", async (formData) => {
+  export const addMarchandisePackaging = createAsyncThunk("gitMarchandisePackaging/addMarchandisePackaging", async ({id, formData}) => {
     try {
-      const response = await axios.post("/marchandisePackaging", formData);
+      const response = await axios.post(`/marchandisePackaging/${id}`, formData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added user data
     } catch (error) {

@@ -1,19 +1,17 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-const RadialChart2 = ({ value }) => {
+const RadialChart1 = ({ value }) => {
+
     const percentageValue = (value / 100000) * 10000;
 
-    const series = [percentageValue ]; // Use the value passed from props
+    const series = [percentageValue]; // Use the value passed from props
     const radialOptions = {
         chart: {
             type: 'radialBar',
             sparkline: {
                 enabled: true
             }
-        },
-        dataLabels: {
-            enabled: false
         },
         colors: ['#0ab39c'],
         stroke: {
@@ -28,20 +26,22 @@ const RadialChart2 = ({ value }) => {
                 track: {
                     margin: 0,
                 },
-    
                 dataLabels: {
                     name: {
                         show: false
                     },
                     value: {
                         offsetY: 5,
-                        show: true
+                        show: true,
+                        formatter: function (val) {
+                            return val.toFixed(2); // Format the value to two decimal places
+                        }
                     }
                 }
             }
         }
     };
-  
+
     return (
         <React.Fragment>
             <ReactApexChart
@@ -55,4 +55,4 @@ const RadialChart2 = ({ value }) => {
     );
 };
 
-export default RadialChart2;
+export default RadialChart1;

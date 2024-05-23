@@ -19,7 +19,7 @@ const AdminListTables = () => {
     const [hoverRemove, setHoverRemove] = useState(false);
     const [hover, setHover] = useState(false);
     const [currentPage, setCurrentPage] = useState(0);
-        const itemsPerPage = 4;
+        const itemsPerPage = 6;
     
 
 
@@ -352,7 +352,7 @@ const handleAddUser = () => {
                                                                 <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                                                             </div>
                                                         </th>
-                                                        <th className="sort" data-sort="User-Id">ID</th>
+                                                        {/* <th className="sort" data-sort="User-Id">ID</th> */}
                                                         <th className="sort" data-sort="User-name">Photo</th>
 
                                                         <th className="sort" data-sort="User-name">Nom</th>
@@ -377,7 +377,7 @@ const handleAddUser = () => {
                                                                         <input className="form-check-input" type="checkbox" name="chk_child" value="option1" />
                                                                     </div>
                                                                 </th>
-                                                                <td onClick={() => openShowModal(user)}>{user.id}</td>
+                                                                {/* <td onClick={() => openShowModal(user)}>{user.id}</td> */}
                                                                 <td onClick={() => openShowModal(user)}>
                                                                     {user.photo ? (
                                                                         <img

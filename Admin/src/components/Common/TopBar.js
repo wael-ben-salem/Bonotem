@@ -1,8 +1,8 @@
 import React from "react";
 
-import logosm from "../../assets/images/logo-sm.png";
-import logodark from "../../assets/images/logo-dark.png";
-import logolight from "../../assets/images/logo-light.png";
+import logosm from "../../assets/images/Group 1.png";
+import logodark from "../../assets/images/Group 1.png";
+import logolight from "../../assets/images/Group 1.png";
 
 // import component
 import ProfileMenu from "./TopbarDropdown/ProfileMenu";

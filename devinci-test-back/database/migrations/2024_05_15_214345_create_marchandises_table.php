@@ -23,6 +23,8 @@ return new class extends Migration
             $table->integer('quantite_achetee');
             $table->integer('quantite_en_stock')->nullable();
             $table->integer('quantite_consomee')->nullable();
+            $table->integer('id_creator')->nullable();
+
 
             $table->float('prix');
             $table->date('date_achat');

@@ -10,9 +10,10 @@ return new class extends Migration
     {
         Schema::create('packagings', function (Blueprint $table) {
             $table->id();
-            $table->string('name_packaging')->unique(); // Add unique constraint
+            $table->string('name_packaging'); // Add unique constraint
             $table->string('dimension')->default('');
             $table->string('photo')->nullable();
+            $table->integer('id_creator')->nullable();
 
             // Add other columns as needed
             $table->timestamps();

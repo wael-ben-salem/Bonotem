@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('id_ingredient_compose');
             $table->unsignedBigInteger('id_ingredient');
             $table->decimal('quantite', 8, 2);
+            $table->integer('id_creator')->nullable();
+
 
 
             $table->timestamps();

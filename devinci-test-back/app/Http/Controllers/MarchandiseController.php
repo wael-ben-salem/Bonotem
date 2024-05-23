@@ -11,9 +11,10 @@ use Illuminate\Support\Facades\Validator;
 
 class MarchandiseController extends Controller
 {
-    public function marchandise()
+    public function marchandise($id)
     {
-        $marchandises = Marchandise::with('ingredient' , 'packaging' , 'fournisseur','unite')->get();
+        $marchandises = Marchandise::with('ingredient' , 'packaging' , 'fournisseur','unite')->where('id_creator', $id)
+        ->get();
         return response()->json($marchandises);
     }
 
@@ -21,11 +22,20 @@ class MarchandiseController extends Controller
 
 
 
-    public function addIngredient(Request $request)
+    public function addIngredient(Request $request,$id)
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
+            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/',function ($attribute, $value, $fail) use ($id) {
+                $existingCategory = Marchandise::where('nom', $value)
+                    ->where('id_creator', $id)
+                    ->first();
+
+                if ($existingCategory) {
+                    $fail('Ce nom de Marchandise existe déjà pour cet utilisateur.');
+                }
+            }
+        ],
             'reference' => 'required|string',
             'id_ingredient' => 'required|exists:ingredients,id',
             'quantite_achetee' => 'required|integer|min:0',
@@ -59,7 +69,7 @@ class MarchandiseController extends Controller
         } else {
 
              // Find the latest Marchandise with the same ingredient
-        $latestMarchandise = Marchandise::where('id_ingredient', $request->id_ingredient)->latest()->first();
+        $latestMarchandise = Marchandise::where('id_ingredient', $request->id_ingredient)->where('id_creator', $id)->latest()->first();
 
         // Calculate the stock quantity for the new Marchandise
         // Calculate the stock quantity for the new Marchandise
@@ -75,6 +85,8 @@ class MarchandiseController extends Controller
             'id_fournisseur' => $request->id_fournisseur,
             'prix' => $request->prix,
             'date_achat' => $request->date_achat,
+            'id_creator' => $id,
+
             'unite_id' => $request->unite_id,
             'quantite_en_stock' => $stockQuantity,
         ]);
@@ -98,6 +110,8 @@ class MarchandiseController extends Controller
             'quantite_achetee' => $request->quantite_achetee,
             'id_fournisseur' => $request->id_fournisseur,
             'prix' => $request->prix,
+            'id_creator' => $id,
+
             'date_achat' => $request->date_achat,
             'unite_id' => $request->unite_id,
         ]);
@@ -163,6 +177,7 @@ class MarchandiseController extends Controller
     } else {
         // Calculate the stock quantity for the updated Marchandise
         $previousMarchandise = Marchandise::where('id_ingredient', $request->id_ingredient)
+        ->where('id_creator', $id)
                                             ->orderBy('created_at', 'desc')
                                             ->skip(1) // Skip the latest Marchandise
                                             ->first();
@@ -226,11 +241,20 @@ class MarchandiseController extends Controller
 
 
 
-    public function addPackaging(Request $request)
+    public function addPackaging(Request $request,$id)
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
+            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/',function ($attribute, $value, $fail) use ($id) {
+                $existingCategory = Marchandise::where('nom', $value)
+                    ->where('id_creator', $id)
+                    ->first();
+
+                if ($existingCategory) {
+                    $fail('Ce nom de Marchandise existe déjà pour cet utilisateur.');
+                }
+            }
+        ],
             'reference' => 'required|string',
             'id_packaging' => 'required|exists:packagings,id', // Change to existing ingredient ID or remove if using packaging
 
@@ -268,7 +292,9 @@ class MarchandiseController extends Controller
 
 
             // Retrieve the ingredient by its ID
-        $latestMarchandise = Marchandise::where('id_packaging', $request->id_packaging)->latest()->first();
+        $latestMarchandise = Marchandise::where('id_packaging', $request->id_packaging)
+        ->where('id_creator', $id)
+        ->latest()->first();
         $stockQuantity = $request->quantite_achetee;
         if ($latestMarchandise) {
             $stockQuantity = ($latestMarchandise->quantite_achetee +$stockQuantity )-$latestMarchandise->quantite_consomee ;
@@ -281,6 +307,8 @@ class MarchandiseController extends Controller
                 'quantite_achetee' => $request->quantite_achetee,
                 'id_fournisseur' => $request->id_fournisseur,
                 'prix' => $request->prix,
+                'id_creator' => $id,
+
                 'date_achat' => $request->date_achat,
                 'unite_id' => $request->unite_id,
                 'quantite_en_stock' => $stockQuantity,
@@ -304,6 +332,8 @@ class MarchandiseController extends Controller
             'quantite_achetee' => $request->quantite_achetee,
             'id_fournisseur' => $request->id_fournisseur,
             'prix' => $request->prix,
+            'id_creator' => $id,
+
             'date_achat' => $request->date_achat,
             'unite_id' => $request->unite_id,
         ]);
@@ -380,6 +410,7 @@ class MarchandiseController extends Controller
 
              // Calculate the stock quantity for the updated Marchandise
         $previousMarchandise = Marchandise::where('id_packaging', $request->id_packaging)
+        ->where('id_creator', $id)
         ->orderBy('created_at', 'desc')
         ->skip(1) // Skip the latest Marchandise
         ->first();

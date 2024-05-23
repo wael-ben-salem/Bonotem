@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -17,6 +18,16 @@ return new class extends Migration
             $table->timestamps();
         });
 
+        // Insertion des données directement après la création de la table
+        DB::table('unites')->insert([
+            ['name_unite' => 'Kilogramme'],
+            ['name_unite' => 'Litre'],
+            ['name_unite' => 'Mètre'],
+            ['name_unite' => 'Centimètre'],
+            ['name_unite' => 'Milligramme'],
+            ['name_unite' => 'Millilitre'],
+            // Ajoutez toutes les autres unités que vous souhaitez insérer
+        ]);
     }
 
     /**
@@ -24,8 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-
-
         Schema::dropIfExists('unites');
     }
 };

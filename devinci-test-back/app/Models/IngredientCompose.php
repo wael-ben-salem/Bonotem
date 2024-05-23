@@ -13,6 +13,9 @@ class IngredientCompose extends Model
 
     protected $fillable = [
         'name_ingredient_compose',
+        'id_creator',
+        'photo',
+        'id_categorie'
 
     ];
 
@@ -23,10 +26,20 @@ class IngredientCompose extends Model
     public function ingredients()
     {
         return $this->belongsToMany(Ingredient::class, 'ingredient_compose_ingredient', 'id_ingredient_compose','id_ingredient' )
-                    ->withPivot('quantite');
+                    ->withPivot('quantite','id_creator');
     }
-
-
+    public function carte()
+    {
+        return $this->hasOne(Cartes::class, 'id_ingredient_compose');
+    }
+    public function categorie()
+    {
+        return $this->belongsTo(Categorie::class, 'id_categorie');
+    }
+    public function vente()
+    {
+        return $this->hasMany(Ventes::class, 'id_produit');
+    }
 
 
 

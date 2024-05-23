@@ -1,33 +1,19 @@
-import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
-import logolight from "../../assets/images/logo-light.png";
-import logodark from "../../assets/images/logo-dark.png";
-
-import { Row, Col, CardBody, Card, Alert, Container, Form, Input, FormFeedback, Label } from "reactstrap";
-
-//redux
-import { connect, useDispatch, useSelector } from "react-redux";
-import { Link ,useNavigate} from "react-router-dom";
-
-// Formik validation
-import * as Yup from "yup";
+import { Container, Row, Col, Card, CardBody, Alert, Form, Input, FormFeedback, Label } from "reactstrap";
+import { Link, useNavigate } from "react-router-dom";
 import { useFormik } from "formik";
-
-//Social Media Imports
+import * as Yup from "yup";
 import { GoogleLogin } from "react-google-login";
 import FacebookLogin from "react-facebook-login/dist/facebook-login-render-props";
-
-// actions
+import { connect, useDispatch, useSelector } from "react-redux";
 import { LoginAuthAction, socialLogin, loginSuccess } from "../../store/actions";
-
-//Import config
 import { facebook, google } from "../../config";
+import logodark from "../../assets/images/Group 2.png";
 
-const Login = ({ login , user }) => {
+const Login = ({ login, user }) => {
   document.title = "Login | Upzet - React Admin & Dashboard Template";
   const dispatch = useDispatch();
   const history = useNavigate();
-  
 
   const [loginState, setLoginState] = useState({});
   const validation = useFormik({
@@ -40,7 +26,6 @@ const Login = ({ login , user }) => {
       email: Yup.string().required("Please Enter Your Email"),
       password: Yup.string().required("Please Enter Your Password"),
     }),
-   
   });
 
   const { error } = useSelector((state) => ({
@@ -76,36 +61,38 @@ const Login = ({ login , user }) => {
   };
 
   useEffect(() => {
-    document.body.className = "bg-pattern";
-    return function cleanup() {
+    const backgrounds = ["bg-pattern-light", "bg-pattern-dark"];
+    let currentIndex = 0;
+    
+    const changeBackground = () => {
+      document.body.classList.remove("bg-pattern-light", "bg-pattern-dark");
+      document.body.classList.add("bg-pattern", backgrounds[currentIndex]);
+      currentIndex = (currentIndex + 1) % backgrounds.length;
+    };
+    
+    changeBackground();
+    const intervalId = setInterval(changeBackground, 15000);
+    
+    return () => {
+      clearInterval(intervalId);
       document.body.className = "";
     };
   }, []);
+
   useEffect(() => {
-    document.body.className = "bg-pattern";
-  
     const authUser = localStorage.getItem("authUser");
-  if (authUser) {
-    const userData = JSON.parse(authUser);
-    dispatch(loginSuccess(userData)); // Dispatch action to set user data in Redux store
-    // Redirect to dashboard or admin dashboard based on role
-    if (userData.role === "admin") {
-      history("/admindashboard");
-    } else if (userData.role === "restaurateur") {
-      history("/dashboard");
-    }else if (userData.role === "manager"){
-
-      history("/test");
-
+    if (authUser) {
+      const userData = JSON.parse(authUser);
+      dispatch(loginSuccess(userData));
+      if (userData.role === "admin") {
+        history("/admindashboard");
+      } else if (userData.role === "restaurateur") {
+        history("/dashboard");
+      } else if (userData.role === "manager") {
+        history("/test");
+      }
     }
-  }
-
-  
-    return function cleanup() {
-      document.body.className = "";
-    };
-  },);
-  
+  }, [dispatch, history]);
 
   return (
     <React.Fragment>
@@ -115,130 +102,91 @@ const Login = ({ login , user }) => {
           <Row className="justify-content-center">
             <Col lg={6} md={8} xl={4}>
               <Card>
-                <CardBody className="p-4">
+                <CardBody className="p-4" style={{ backgroundColor: "rgba(255,255,244,255)" }}>
                   <div>
                     <div className="text-center">
                       <Link to="/">
-                        <img src={logodark} alt="" height="24" className="auth-logo logo-dark mx-auto" />
-                        <img src={logolight} alt="" height="24" className="auth-logo logo-light mx-auto" />
+                        <img src={logodark} alt="" height="190" className="auth-logo logo-dark mx-auto" />
                       </Link>
                     </div>
-                    <h4 className="font-size-18 text-muted mt-2 text-center">Welcome Back !</h4>
-                    <p className="mb-5 text-center">Sign in to continue to Upzet.</p>
+                    
                     <Form
-  className="form-horizontal"
-  onSubmit={(e) => {
-    e.preventDefault();
-    if (validation.isValid) {
-      login(loginState, history);
-    }
-  }}
->
-  {error ? <Alert color="danger">{error}</Alert> : null}
-  <Row>
-    <Col md={12}>
-      <div className="mb-4">
-        <Label className="form-label">Email</Label>
-        <Input
-          name="email"
-          className="form-control"
-          placeholder="Enter email"
-          type="email"
-          onChange={(event) => {
-            const email = event.target.value;
-            setLoginState({ ...loginState, ...{ email } });
-            validation.handleChange(event); // Handle change for validation
-          }}
-          onBlur={validation.handleBlur}
-          invalid={validation.touched.email && (validation.errors.email || !loginState.email)}
-        />
-        {validation.touched.email && (validation.errors.email || !loginState.email) ? (
-          <FormFeedback type="invalid">
-            {validation.errors.email ? validation.errors.email : 'Please enter your email'}
-          </FormFeedback>
-        ) : null}
-      </div>
-      <div className="mb-4">
-        <Label className="form-label">Password</Label>
-        <Input
-          name="password"
-          type="password"
-          placeholder="Enter Password"
-          onChange={(event) => {
-            const password = event.target.value;
-            setLoginState({ ...loginState, ...{ password } });
-            validation.handleChange(event); // Handle change for validation
-          }}
-          onBlur={validation.handleBlur}
-          invalid={validation.touched.password && (validation.errors.password || !loginState.password)}
-        />
-        
-        {validation.touched.password && (validation.errors.password || !loginState.password) ? (
-          <FormFeedback type="invalid">
-            {validation.errors.password ? validation.errors.password : 'Please enter your password'}
-          </FormFeedback>
-        ) : null}
-      </div>
-      <div className="d-grid mt-4">
-        <button className="btn btn-primary waves-effect waves-light" type="submit">
-          Log In
-        </button>
-      </div>
-      <div className="mt-4 text-center">
-        <h5 className="font-size-14 mb-3">Sign in with</h5>
-        <ul className="list-inline">
-          <li className="list-inline-item">
-            <FacebookLogin
-              appId={facebook.APP_ID}
-              autoLoad={false}
-              callback={facebookResponse}
-              render={(renderProps) => (
-                <Link
-                  to="#"
-                  className="social-list-item bg-primary text-white border-primary"
-                  onClick={renderProps.onClick}
-                >
-                  <i className="mdi mdi-facebook" />
-                </Link>
-              )}
-            />
-          </li>
-          <li className="list-inline-item">
-            <GoogleLogin
-              clientId={google.CLIENT_ID}
-              render={(renderProps) => (
-                <Link
-                  to="#"
-                  className="social-list-item bg-danger text-white border-danger"
-                  onClick={renderProps.onClick}
-                >
-                  <i className="mdi mdi-google" />
-                </Link>
-              )}
-              onSuccess={googleResponse}
-              onFailure={() => {}}
-            />
-          </li>
-        </ul>
-      </div>
-    </Col>
-  </Row>
-</Form>
-
+                      className="form-horizontal"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (validation.isValid) {
+                          login(loginState, history);
+                        }
+                      }}
+                    >
+                      {error ? <Alert color="danger">{error}</Alert> : null}
+                      <Row>
+                        <Col md={12}>
+                          <div className="mb-4">
+                            <Label className="form-label">Email</Label>
+                            <Input
+                              name="email"
+                              className="form-control"
+                              placeholder="Enter email"
+                              type="email"
+                              onChange={(event) => {
+                                const email = event.target.value;
+                                setLoginState({ ...loginState, ...{ email } });
+                                validation.handleChange(event);
+                              }}
+                              onBlur={validation.handleBlur}
+                              invalid={validation.touched.email && (validation.errors.email || !loginState.email)}
+                            />
+                            {validation.touched.email && (validation.errors.email || !loginState.email) ? (
+                              <FormFeedback type="invalid">
+                                {validation.errors.email ? validation.errors.email : 'Please enter your email'}
+                              </FormFeedback>
+                            ) : null}
+                          </div>
+                          <div className="mb-4">
+                            <Label className="form-label">Mot de Passe</Label>
+                            <Input
+                              name="password"
+                              type="password"
+                              placeholder="Enter Password"
+                              onChange={(event) => {
+                                const password = event.target.value;
+                                setLoginState({ ...loginState, ...{ password } });
+                                validation.handleChange(event);
+                              }}
+                              onBlur={validation.handleBlur}
+                              invalid={validation.touched.password && (validation.errors.password || !loginState.password)}
+                            />
+                            {validation.touched.password && (validation.errors.password || !loginState.password) ? (
+                              <FormFeedback type="invalid">
+                                {validation.errors.password ? validation.errors.password : 'Please enter your password'}
+                              </FormFeedback>
+                            ) : null}
+                          </div>
+                          <div className="d-grid mt-4">
+                            <button style={{ backgroundColor: "rgba(60,60,60,255)" }} className="btn btn-primary waves-effect waves-light" type="submit">
+                              Log In
+                            </button>
+                            
+                          </div>
+                          <div className="mt-4 text-center">
+                            <h5 className="font-size-14 mb-3"> </h5>
+                            <ul className="list-inline">
+                              <li className="list-inline-item">
+                                
+                              </li>
+                              
+                            </ul>
+                          </div>
+                        </Col>
+                      </Row>
+                    </Form>
                   </div>
                 </CardBody>
               </Card>
               <div className="mt-5 text-center">
-                <p className="text-white-50">
-                  Don't have an account ?{" "}
-                  <Link to="/register" className="fw-medium text-primary">
-                    Register
-                  </Link>{" "}
-                </p>
-                <p className="text-white-50">
-                  © {new Date().getFullYear()} Upzet. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger"></i> by Themesdesign
-                </p>
+               
+                
               </div>
             </Col>
           </Row>
@@ -250,18 +198,14 @@ const Login = ({ login , user }) => {
 
 const mapStateToProps = (authstate) => {
   return {
-      user: authstate,
+    user: authstate,
   };
 };
 
 const mapDispatchToProps = (dispatch) => ({
-  login: (loginState,history) => {
-    dispatch(LoginAuthAction(loginState,history));
+  login: (loginState, history) => {
+    dispatch(LoginAuthAction(loginState, history));
   },
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
-
-Login.propTypes = {
-  history: PropTypes.object,
-};

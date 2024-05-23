@@ -7,15 +7,14 @@ use Illuminate\Support\Facades\Validator;
 
 class TypePersonnelController extends Controller
 {
-    
-    public function TypePersonnel()
+
+    public function TypePersonnel($id)
     {
-        $types = TypePersonnel::all();
+        $types = TypePersonnel::where('id_creator', $id)->get();
         return response()->json($types);
     }
 
-
-    public function addTypePersonnel(Request $request)
+    public function addTypePersonnel(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
             'nom' => 'required|string|max:255',
@@ -26,7 +25,12 @@ class TypePersonnelController extends Controller
             return response()->json($validator->errors(), 400);
         }
 
-        $typePersonnel = TypePersonnel::create($validator->validated());
+        // Add the id_creator to the validated data
+        $validatedData = $validator->validated();
+        $validatedData['id_creator'] = $id;
+
+        // Create the TypePersonnel instance
+        $typePersonnel = TypePersonnel::create($validatedData);
 
         return response()->json([
             'message' => 'Type de personnel créé avec succès',

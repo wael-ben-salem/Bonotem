@@ -108,7 +108,7 @@ class PerteController extends Controller
 //     return response()->json(['message' => 'Perte ajoutée avec succès.']);
 // }
 
-public function addPerte(Request $request)
+public function addPerte(Request $request,$id)
 {
     // Valider les données de la requête
     $request->validate([
@@ -159,6 +159,8 @@ public function addPerte(Request $request)
             $perteIngredient->quantite = $quantiteIngredient;
             $perteIngredient->id_ingredient = $request->id_ingredient;
             $perteIngredient->montant = $montantIngredient;
+            $perteIngredient->id_creator = $id;
+
             $perteIngredient->save();
         }
 
@@ -187,6 +189,8 @@ public function addPerte(Request $request)
             $pertePackaging->id_packaging = $request->id_packaging;
             $pertePackaging->quantite = $quantitePackaging;
             $pertePackaging->montant = $montantPackaging;
+            $pertePackaging->id_creator = $id;
+
             $pertePackaging->save();
         }
 
@@ -301,9 +305,10 @@ public function addPerte(Request $request)
 
 
 
-    public function perte()
+    public function perte($id)
     {
-        $pertes = Perte::with('marchandise','ingredient','packaging')->get();
+        $pertes = Perte::with('marchandise','ingredient','packaging')->where('id_creator', $id)
+        ->get();
         return response()->json($pertes);
     }
 

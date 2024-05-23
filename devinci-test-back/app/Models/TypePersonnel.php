@@ -9,10 +9,10 @@ class TypePersonnel extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['nom', 'prix_heure'];
+    protected $fillable = ['nom','id_creator', 'prix_heure'];
 
     public function personnel() {
-        
+
         return $this->hasMany(Personnel::class, 'type_personnel_id');
     }
 }

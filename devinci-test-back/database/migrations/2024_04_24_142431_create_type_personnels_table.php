@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-   
+
     public function up(): void
     {
         Schema::create('type_personnels', function (Blueprint $table) {
@@ -14,6 +14,8 @@ return new class extends Migration
                 $table->id();
                 $table->string('nom');
                 $table->decimal('prix_heure', 8, 2);
+                $table->integer('id_creator')->nullable();
+
                 $table->timestamps();
 
         });

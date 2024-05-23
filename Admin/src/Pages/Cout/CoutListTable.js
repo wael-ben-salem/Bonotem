@@ -19,6 +19,7 @@ const CoutListTable = () => {
     const couts = useSelector(state => state.gitCout.couts);
 
 
+    const [errors, setErrors] = useState({});
 
 
     const [hoverShow, setHoverShow] = useState(false); // Changer setHoverShow à useState
@@ -103,12 +104,13 @@ const CoutListTable = () => {
         };
 
 //
-    
+const id = useSelector(state => state.login.user.id);
+
     useEffect(() => {
-        dispatch(getAllCoutData());
+        dispatch(getAllCoutData(id));
        
 
-    }, [dispatch]);
+    }, [dispatch,id]);
 
     useEffect(() => {
         if (errorMessage) {
@@ -119,6 +121,43 @@ const CoutListTable = () => {
         }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
         }
     }, [errorMessage]);
+    
+    const validate = (data) => {
+        const errors = {};
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = today.getMonth(); // Mois actuel (0-indexed)
+        
+        // Début du mois en cours
+        const startOfMonth = new Date(year, month, 1);
+        // Fin du mois en cours
+        const endOfMonth = new Date(year, month + 1, 0);
+    
+        // Vérifier que la date est fournie et est valide
+        if (!data.date) {
+            errors.date = "La date est requise.";
+        } else {
+            const inputDate = new Date(data.date);
+            
+            if (isNaN(inputDate)) {
+                errors.date = "La date est invalide.";
+            } else if (inputDate < startOfMonth || inputDate > endOfMonth) {
+                errors.date = `La date doit être comprise entre le ${startOfMonth.toLocaleDateString()} et le ${endOfMonth.toLocaleDateString()}.`;
+            }
+        }
+    
+        if (!data.detail) {
+            errors.detail = "Le champ Détail est requis.";
+        } 
+        if (!data.montant) {
+            errors.montant = "Le Montant est requis.";
+        } 
+        if (!data.type) {
+            errors.type = "Le Type est requis.";
+        } 
+    
+        return errors;
+    };
     
     
 
@@ -206,6 +245,13 @@ const CoutListTable = () => {
     
 
     const handleUpdate = () => {
+        const errors = validate({ date: editedDateCout, detail: editedDetailCout, type: editedTypeCout, montant:editedMontantCout });
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
+
+        setErrors({});
         const updatedCout = {
             id: editedCout.id,
             date:editedDateCout,
@@ -259,14 +305,22 @@ const openShowModal = (cout) => {
 
 
 const handleAdd = () => {
+    const errors = validate({ date: newCoutDate.date, detail: newCoutDate.detail, type: newCoutDate.type, montant:newCoutDate.montant });
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    setErrors({});
     const formData = new FormData();
+
 
         formData.append('type', newCoutDate.type);
         formData.append('date', newCoutDate.date);
         formData.append('detail', newCoutDate.detail);
         formData.append('montant', newCoutDate.montant);
-   
-    dispatch(addCout(formData)) // Pass the formData to your addCout action
+        dispatch(addCout({ id: id, formData }))
+
     .then(() => {
         
     
@@ -352,7 +406,7 @@ return(
                     <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                 </div>
             </th>
-            <th className="sort" data-sort="Categorie-Id">ID</th>
+            {/* <th className="sort" data-sort="Categorie-Id">ID</th> */}
             <th className="sort" data-sort="Categorie-name">Type</th>
             <th className="sort" data-sort="Categorie-photo">detail</th>
             <th className="sort" data-sort="Categorie-name">date</th>
@@ -369,7 +423,7 @@ return(
                             <input className="form-check-input" onClick={() => openShowModal(cout)} type="checkbox" name="chk_child" value="option1" />
                         </div>
                     </th>
-                    <td onClick={() => openShowModal(cout)}>{cout.id}</td>
+                    {/* <td onClick={() => openShowModal(cout)}>{cout.id}</td> */}
                     <td onClick={() => openShowModal(cout)}>{cout.type}</td>
                     <td onClick={() => openShowModal(cout)}>{cout.detail}</td>
                     <td onClick={() => openShowModal(cout)}>{cout.date}</td>
@@ -439,7 +493,7 @@ return(
 
             {/* Add Cout Modal */}
             <Modal isOpen={modalAddCout} toggle={toggleAddCoutModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddCoutModal}>Ajouter Décaissement</ModalHeader>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddCoutModal}>Ajout</ModalHeader>
                                         <ModalBody>
         <form className="tablelist-form">
         
@@ -458,6 +512,8 @@ return(
             <option value="depense">Dépense</option>
 
         </select>
+        {errors.type && <div className="text-danger">{errors.type}</div>}
+
     </div>
     <div className="mb-3">
         <label htmlFor="quantite-field" className="form-label">Detail</label>
@@ -470,6 +526,8 @@ return(
             onChange={(e) => setNewCoutDate({ ...newCoutDate, detail: e.target.value })}
             required
         />
+                {errors.detail && <div className="text-danger">{errors.detail}</div>}
+
     </div>
 </div>
 
@@ -477,6 +535,8 @@ return(
                             <label htmlFor="adresse-field" className="form-label">Date </label>
                             <input type="datetime-local" id="adresse-field" className="form-control" placeholder="Enter Adresse"value={newCoutDate.date}
             onChange={(e) => setNewCoutDate({ ...newCoutDate, date: e.target.value })} required />
+                    {errors.date && <div className="text-danger">{errors.date}</div>}
+
     </div>
     <div className="mb-3">
         <label htmlFor="nombre_package-field" className="form-label">Montant</label>
@@ -489,6 +549,8 @@ return(
             onChange={(e) => setNewCoutDate({ ...newCoutDate, montant: e.target.value })}
             required
         />
+                {errors.montant && <div className="text-danger">{errors.montant}</div>}
+
     </div>
         </form>
     </ModalBody>
@@ -504,7 +566,7 @@ return(
                                     
                                     <Modal isOpen={modal_list} toggle={toggleListModal} centered>
     <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}>
-        Modification Du Décaissement
+        Modification
     </ModalHeader>
     <form className="tablelist-form">
         <ModalBody>
@@ -520,6 +582,8 @@ return(
                     <option value="depense">Dépense</option>
                     <option value="ventilation">Ventilation</option>
                 </select>
+                {errors.type && <div className="text-danger">{errors.type}</div>}
+
             </div>
             <div className="mb-3 row align-items-center">
             <div className="mb-3">
@@ -533,6 +597,8 @@ return(
                     onChange={(e) => setEditedDetailCout(e.target.value)}
                     required
                 />
+                        {errors.detail && <div className="text-danger">{errors.detail}</div>}
+
             </div>
             </div>
             <div className="mb-3">
@@ -546,6 +612,8 @@ return(
                     onChange={(e) => setEditedDateCout(e.target.value)}
                     required
                 />
+                        {errors.date && <div className="text-danger">{errors.date}</div>}
+
             </div>
             <div className="mb-3">
                 <label htmlFor="quantite_apres-field" className="form-label">Montant</label>
@@ -558,6 +626,8 @@ return(
                     onChange={(e) => setEditedMontantCout(e.target.value)}
                     required
                 />
+                        {errors.montant && <div className="text-danger">{errors.montant}</div>}
+
             </div>
            
         </ModalBody>

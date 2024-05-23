@@ -17,7 +17,8 @@ class ChargeFixe extends Model
         'montant',
         'frequence',
         'date_paiement',
-        'personnel_id'
+        'personnel_id',
+        'id_creator'
     ];
 
 

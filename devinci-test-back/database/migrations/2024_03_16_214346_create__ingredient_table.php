@@ -15,6 +15,7 @@ return new class extends Migration
         $table->id();
           $table->string('name_ingredient')->nullable();
           $table->string('photo')->nullable();
+          $table->integer('id_creator')->nullable();
 
           $table->timestamps();
 

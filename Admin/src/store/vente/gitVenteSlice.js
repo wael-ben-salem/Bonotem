@@ -5,9 +5,9 @@ import axios from "axios";// Action
 
 
 // Action
-export const getAllVenteData = createAsyncThunk("gitVente/getAllVenteData", async () => {
+export const getAllVenteData = createAsyncThunk("gitVente/getAllVenteData", async (id) => {
     try {
-      const response = await axios.get("/ventes");
+      const response = await axios.get(`/ventes/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
@@ -21,7 +21,7 @@ export const getAllVenteData = createAsyncThunk("gitVente/getAllVenteData", asyn
     "gitVente/updateVente",
     async ({ id, updatedVente }) => {
         try {
-            const response = await axios.put(`/ventes/${id}`, updatedVente);
+            const response = await axios.put(`/updateventes/${id}`, updatedVente);
             console.log("API response:", response);
             return response; // Assuming the API returns the updated user data
         } catch (error) {
@@ -36,7 +36,7 @@ export const getAllVenteData = createAsyncThunk("gitVente/getAllVenteData", asyn
     "gitVente/getVenteDetails",
     async (id) => {
       try {
-        const response = await axios.get(`/ventes/${id}`);
+        const response = await axios.get(`/showventes/${id}`);
         console.log("API response:", response);
         return response;
       } catch (error) {
@@ -63,9 +63,9 @@ export const getAllVenteData = createAsyncThunk("gitVente/getAllVenteData", asyn
   
 
 
-  export const addVente = createAsyncThunk("gitVente/addVente", async (formData) => {
+  export const addVente = createAsyncThunk("gitVente/addVente", async ({ id, formData }) => {
     try {
-      const response = await axios.post("/ventes", formData);
+      const response = await axios.post(`/ventes/${id}`, formData);
       console.log("API response:", response);
       return response; // Assuming the API returns the added user data
     } catch (error) {

@@ -11,9 +11,9 @@ import NotificationDropdown from "../../components/Common/TopbarDropdown/Notific
 import { withTranslation } from "react-i18next";
 
 //import images
-import logoSm from "../../assets/images/logo-sm.png";
-import logoDark from "../../assets/images/logo-dark.png";
-import logoLight from "../../assets/images/logo-light.png";
+import logoSm from "../../assets/images/Group 1.png";
+import logoDark from "../../assets/images/Group 1.png";
+import logoLight from "../../assets/images/Group 1.png";
 
 // Redux Store
 import {
@@ -62,19 +62,19 @@ const Header = (props) => {
             <div className="navbar-brand-box text-center">
               <Link to="/" className="logo logo-dark">
                 <span className="logo-sm">
-                  <img src={logoSm} alt="logo-sm-dark" height="22" />
+                  <img src={logoSm} alt="logo-sm-dark" height="65" />
                 </span>
                 <span className="logo-lg">
-                  <img src={logoDark} alt="logo-dark" height="24" />
+                  <img src={logoDark} alt="logo-dark" height="65" />
                 </span>
               </Link>
 
               <Link to="/" className="logo logo-light">
                 <span className="logo-sm">
-                  <img src={logoSm} alt="logo-sm-light" height="22" />
+                  <img src={logoSm} alt="logo-sm-light" height="65" />
                 </span>
                 <span className="logo-lg">
-                  <img src={logoLight} alt="logo-light" height="24" />
+                  <img src={logoLight} alt="logo-light" height="65" />
                 </span>
               </Link>
             </div>

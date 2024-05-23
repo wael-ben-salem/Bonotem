@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 class CoutController extends Controller
 {
 
-        public function addCout(Request $request)
+        public function addCout(Request $request,$id)
         {
             $validator = Validator::make($request->all(), [
                 'detail' => 'required|string',
@@ -40,6 +40,8 @@ class CoutController extends Controller
                 'montant' => $request->montant,
                 'date' => $request->date,
                 'type' => $request->type,
+                'id_creator' => $id,
+
             ]);
 
             if ($request->type === 'ventilation') {
@@ -154,9 +156,9 @@ public function destroy($id)
     ]);
 }
 
-public function index()
+public function index($id)
 {
-    $couts = Cout::all();
+    $couts = Cout::where('id_creator', $id)->get();
     return response()->json($couts);
 
 }

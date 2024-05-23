@@ -11,7 +11,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
 import { addFournisseur, deleteFournisseur, getAllFournisseur, getFournisseureDetails, updateFournisseur } from '../../store/fournisseur/gitFournisseurSlice';
 import List from 'list.js';
-
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css';
 
 
 const FournisseurListTable = () => {
@@ -34,6 +35,7 @@ const FournisseurListTable = () => {
     }));
     const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
   
+    const [errors, setErrors] = useState({});
 
     const [modal_list, setmodal_list] = useState(false);
     const [editFournisseur, setEditFournisseur] = useState(null);
@@ -58,6 +60,25 @@ const FournisseurListTable = () => {
         
        
     });
+    const validate = (data) => {
+        const errors = {};
+
+        if (!data.nom) {
+            errors.nom = "Le nom est requis.";
+        }
+        if (!data.email) {
+            errors.email = "L'email est requis.";
+        } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+            errors.email = "L'email est invalide.";
+        }
+        if (!data.num_telephone) {
+            errors.num_telephone = "Le numéro de téléphone est requis.";
+        } else if (!/^\d+$/.test(data.num_telephone)) {
+            errors.num_telephone = "Le numéro de téléphone doit contenir uniquement des chiffres.";
+          }
+
+        return errors;
+    };
     
 
 
@@ -79,11 +100,12 @@ const FournisseurListTable = () => {
             setCurrentPage(page);
         };
         
-    
+        const id = useSelector(state => state.login.user.id);
+
     
     useEffect(() => {
-        dispatch(getAllFournisseur());
-    }, [dispatch]);
+        dispatch(getAllFournisseur(id));
+    }, [dispatch,id]);
 
 
 
@@ -181,41 +203,32 @@ const toggleConfirmEdit = (isOpen) => {
 
     };
 
-   const handleUpdate = () => {
+    const handleUpdate = () => {
+        const errors = validate({ nom: editedNameFournisseur, email: editedEmailFournisseur, num_telephone: editedNumFournisseur });
+        if (Object.keys(errors).length > 0) {
+            setErrors(errors);
+            return;
+        }
     
-    const formData = new FormData();
-    formData.append('nom', editedNameFournisseur);
-    formData.append('num_telephone', editedNumFournisseur);
-
-    formData.append('email', editedEmailFournisseur);
-    formData.append('photo', editedPhoto); // Append the file to the form data
-
-    dispatch(updateFournisseur({ id: editFournisseur.id, fournisseurData: formData })).then(() => {
-        // Réinitialiser l'état
-     setEditFournisseur({
-        nom: '',
-        email: '',
-        num_telephone: '', // Store the file itself, initialize as null
-        photo:null,
-        
-    });
-
-        // Fermer le modal
-        toggleListModal();
-
-        // Ouvrir le modal de confirmation
-        toggleConfirmEdit(true);
-    })
-    .catch(error => {
-        // Gérer l'erreur
-        console.error("Error updating Fournisseur:", error);
-    })
-    .finally(() => {
-        // Désactiver le chargement après l'achèvement de l'action
-    });
-
-     
-   }
+        // Clear previous errors if any
+        setErrors({});
+    
+        const formData = new FormData();
+        formData.append('nom', editedNameFournisseur);
+        formData.append('num_telephone', editedNumFournisseur);
+        formData.append('email', editedEmailFournisseur);
+        formData.append('photo', editedPhoto);
+    
+        dispatch(updateFournisseur({ id: editFournisseur.id, fournisseurData: formData }))
+            .then(() => {
+                setEditFournisseur({ nom: '', email: '', num_telephone: '', photo: null });
+                toggleListModal();
+                toggleConfirmEdit(true);
+            })
+            .catch(error => {
+                console.error("Error updating Fournisseur:", error);
+            });
+    };
 
 
    
@@ -231,42 +244,32 @@ const openShowModal = (fournisseur) => {
 
 
 const handleAddPackaging = () => {
+    const errors = validate(newFournisseurData);
+    if (Object.keys(errors).length > 0) {
+        setErrors(errors);
+        return;
+    }
+
+    // Clear previous errors if any
+    setErrors({});
+
     const formData = new FormData();
     formData.append('nom', newFournisseurData.nom);
     formData.append('num_telephone', newFournisseurData.num_telephone);
-
     formData.append('email', newFournisseurData.email);
-    formData.append('photo', newFournisseurData.photo); // Append the file to the form data
-    
+    formData.append('photo', newFournisseurData.photo);
 
-    dispatch(addFournisseur(formData))
-    .then(() => {
-        
-    
-        // Réinitialiser l'état
-        setNewFournisseurData({
-            nom: '',
-            email: '',
-            num_telephone: '', // Store the file itself, initialize as null
-            photo:null,
-        });
-    
-        toggleAddFournisseurModal();
-    
-            // Ouvrir le modal de confirmation
+    dispatch(addFournisseur({ id, formData }))
+        .then(() => {
+            setNewFournisseurData({ nom: '', email: '', num_telephone: '', photo: null });
+            toggleAddFournisseurModal();
             toggleConfirmAdd(true);
         })
         .catch(error => {
-            // Gérer l'erreur
             console.error("Error updating Fournisseur:", error);
-        })
-        .finally(() => {
-            // Désactiver le chargement après l'achèvement de l'action
         });
-
-
-
 };
+
 
 
 
@@ -321,7 +324,7 @@ return(
                                                                 <input className="form-check-input" type="checkbox" id="checkAll" value="option" />
                                                             </div>
                                                         </th>
-                                                        <th className="sort" data-sort="Packaging-Id">ID</th>
+                                                        {/* <th className="sort" data-sort="Packaging-Id">ID</th> */}
                                                         <th className="sort" data-sort="Packaging-photo">Photo</th> 
 
                                                         <th className="sort" data-sort="Packaging-name_packaging">Nom </th>
@@ -344,7 +347,7 @@ return(
                                                         <input className="form-check-input" type="checkbox" onClick={() => openShowModal(fournisseur)} name="chk_child" value="option1" />
                                                     </div>
                                                 </th>
-                                                <td onClick={() => openShowModal(fournisseur)}>{fournisseur.id}</td>
+                                                {/* <td onClick={() => openShowModal(fournisseur)}>{fournisseur.id}</td> */}
                                                 <td onClick={() => openShowModal(fournisseur)}>
   {fournisseur.photo ? (
     <img
@@ -363,8 +366,21 @@ return(
 </td>
                                                 <td onClick={() => openShowModal(fournisseur)}>{fournisseur.nom}</td>
                                                 <td onClick={() => openShowModal(fournisseur)}>{fournisseur.email}</td>
-                                                <td  onClick={() => openShowModal(fournisseur)}>{fournisseur.num_telephone && `+216 ${fournisseur.num_telephone}`}</td>
-                                               
+                                                <td onClick={() => openShowModal(fournisseur)}>
+              <PhoneInput
+                value={fournisseur.num_telephone}
+                disabled // Rend le composant non modifiable
+                inputStyle={{
+                  width: '100%',
+                  border: 'none',
+                  background: 'transparent',
+                  cursor: 'pointer'
+                }}
+                buttonStyle={{
+                  display: true, // Cache le bouton du drapeau
+                }}
+              />   
+              </td>                                            
 
                                                 <td>
                                                 <div className="d-flex justify-content">
@@ -441,122 +457,50 @@ return(
                     </Row>
                     
                 </Container>
-                <Container>
-                <Row>
-     <Col xl={4}>
-        <Card>
-        <CardBody>
-    <p className="text-muted">Exemple d'utilisation du plugin de pagination</p>
-
-    <div id="pagination-list">
-        <div className="mb-2">
-            <input className="search form-control" placeholder="Rechercher" />
-        </div>
-
-        <div className="mx-n3">
-            <ListGroup className="list mb-0" flush> {/* Utilisez ListGroup ici */}
-                {paginateFournisseur().length > 0 && (
-                    paginateFournisseur().map((fournisseur, index) => (
-                        <ListGroupItem key={fournisseur.id}>
-                            <div className="d-flex align-items-center pagi-list">
-                                <div className="flex-shrink-0 me-3">
-                                    <div>
-                                        {fournisseur.photo ? (
-                                            <img
-                                                className="avatar-xs rounded-circle"
-                                                alt={fournisseur.nom}
-                                                src={`${fournisseur.photo.replace('fournisseurs', '')}`}
-                                                style={{
-                                                    width: "40px",
-                                                    height: "40px",
-                                                    borderRadius: "50%",
-                                                    objectFit: "cover",
-                                                }}
-                                            />
-                                        ) : (
-                                            "Pas de photo"
-                                        )}
-                                    </div>
-                                </div>
-                                <div className="flex-grow-1 overflow-hidden">
-                                    <h5 className="fs-14 mb-1">
-                                        <Link to="#" className="link text-dark">{fournisseur.nom}</Link>
-                                    </h5>
-                                    <p className="born timestamp text-muted mb-0">{fournisseur.email}</p>
-                                </div>
-                                <div className="flex-shrink-0 ms-2">
-                                    <div>
-                                        <button type="button" className="btn btn-sm btn-light">
-                                            <i className="ri-mail-line align-bottom"></i> Message
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </ListGroupItem>
-                    ))
-                )}
-            </ListGroup> {/* Fermez ListGroup ici */}
-
-            <div className="d-flex justify-content-center">
-            <ul className="pagination">
-                                    {/* Générer les boutons de pagination */}
-                                    {Array.from({ length: Math.ceil(totalPages) }, (_, index) => (
-                                        <li key={index} className={`page-item ${currentPage === index ? 'active' : ''}`}>
-                                            <button className="page-link" onClick={() => changePage(index)}>{index + 1}</button>
-                                        </li>
-                                    ))}
-                                </ul>
-
-            </div>
-        </div>
-    </div>
-</CardBody>
-</Card>
-                        </Col>
-                    </Row>
-                </Container>
+               
             </div>
             {/* Add Packaging Modal */}
             <Modal isOpen={modalAddFournisseur} toggle={toggleAddFournisseurModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddFournisseurModal}>Ajout Fournisseur</ModalHeader>
-                                        <ModalBody>
-                                            <form className="tablelist-form">
-                                                <div className="mb-3">
-                                                    <label htmlFor="name_packaging-field" className="form-label">Nom </label>
-                                                    <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newFournisseurData.nom} onChange={(e) => setNewFournisseurData({ ...newFournisseurData, nom: e.target.value })} required />
-                                                </div>
-                                                <div className="mb-3">
-                                                    <label htmlFor="name_packaging-field" className="form-label">Email </label>
-                                                    <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newFournisseurData.email} onChange={(e) => setNewFournisseurData({ ...newFournisseurData, email: e.target.value })} required />
-                                                </div>
-                                                <div className="mb-3">
-                                                    <label htmlFor="name_packaging-field" className="form-label">Numero de telephone </label>
-                                                    <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newFournisseurData.num_telephone} onChange={(e) => setNewFournisseurData({ ...newFournisseurData, num_telephone: e.target.value })} required />
-                                                </div>
-                                               
-                                                <div className="mb-3">
-                                                <label htmlFor="photo-field" className="form-label">
-                                                  Photo
-                                                </label>
-                                                <input
-                                                  type="file"
-                                                  id="photo-field"
-                                                  className="form-control"
-                                                  onChange={(e) => setNewFournisseurData({ ...newFournisseurData, photo: e.target.files[0] })} // Handle file selection
-                                                  name="photo"
-                                                />
-                                              </div>
-                                               
-                                                     
-                                            </form>
-                                        </ModalBody>
-                                        <ModalFooter>
-                                            <div className="hstack gap-2 justify-content-end">
-                                                <Button type="button" color="light" onClick={toggleAddFournisseurModal}>Fermer</Button>
-                                                <button type="button" className="btn btn-primary" onClick={handleAddPackaging}>Ajouter</button>
-                                            </div>
-                                        </ModalFooter>
-                                    </Modal>
+                <ModalHeader className="bg-light p-3" toggle={toggleAddFournisseurModal}>Ajout Fournisseur</ModalHeader>
+                <ModalBody>
+                    <form className="tablelist-form">
+                        <div className="mb-3">
+                            <label htmlFor="name_packaging-field" className="form-label">Nom</label>
+                            <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={newFournisseurData.nom} onChange={(e) => setNewFournisseurData({ ...newFournisseurData, nom: e.target.value })} required />
+                            {errors.nom && <div className="text-danger">{errors.nom}</div>}
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="email_packaging-field" className="form-label">Email</label>
+                            <input type="email" id="email_packaging-field" className="form-control" placeholder="Enter Email" value={newFournisseurData.email} onChange={(e) => setNewFournisseurData({ ...newFournisseurData, email: e.target.value })} required />
+                            {errors.email && <div className="text-danger">{errors.email}</div>}
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="num_telephone_packaging-field" className="form-label">Numero de telephone </label>
+                            <PhoneInput
+                                country={'tn'} // Default country (Tunisia)
+                                value={newFournisseurData.num_telephone}
+                                onChange={(phone) => setNewFournisseurData({ ...newFournisseurData, num_telephone: phone })}
+                                inputProps={{
+                                    name: 'num_telephone',
+                                    required: true,
+                                    autoFocus: true
+                                }}
+                                inputClass="form-control"
+                                containerClass="mb-3"
+                            />
+                            {errors.num_telephone && <div className="text-danger">{errors.num_telephone}</div>}
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="photo_packaging-field" className="form-label">Photo</label>
+                            <input type="file" id="photo_packaging-field" className="form-control" onChange={(e) => setNewFournisseurData({ ...newFournisseurData, photo: e.target.files[0] })} required />
+                        </div>
+                    </form>
+                </ModalBody>
+                <ModalFooter>
+                    <Button color="light" onClick={toggleAddFournisseurModal}>Close</Button>
+                    <Button color="primary" onClick={handleAddPackaging}>Add Fournisseur</Button>
+                </ModalFooter>
+            </Modal>
 
 
 
@@ -565,77 +509,84 @@ return(
 
 
              {/* Edit Modal */}
-             <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Fournisseur </ModalHeader>
-                <div className="d-flex flex-column align-items-center" >
-        {selectedFournisseur && selectedFournisseur.photo && (
-                <img
-                    src={`${selectedFournisseur.photo.replace('fournisseurs', '')}`}
-                    alt={selectedFournisseur.nom}
-                    style={{ width: "50px", height: "50px" ,marginTop:"3px",
-                    borderRadius: "50%", // Appliquer une bordure en cercle
-                    objectFit: "cover", 
-                     }}
-                />
-        )}
-    </div>
-                <form className="tablelist-form">
-                    <ModalBody>
-                    
-                        <div className="mb-3">
-                            <label htmlFor="name_packaging-field" className="form-label">Nom</label>
-                            <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedNameFournisseur} onChange={(e) => setEditedNameFournisseur(e.target.value)} required />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="name_packaging-field" className="form-label">Email</label>
-                            <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedEmailFournisseur} onChange={(e) => setEditedEmailFournisseur(e.target.value)} required />
-                        </div>
-                        <div className="mb-3">
-                            <label htmlFor="name_packaging-field" className="form-label">Numero de telephone</label>
-                            <input type="text" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedNumFournisseur} onChange={(e) => setEditedNumFournisseur(e.target.value)} required />
-                        </div>
-
-                       
-                        <div className="mb-3 row align-items-center">
-    <div className="col-md-9">
-        <label htmlFor="photo-field" className="form-label">Photo</label>
-        <input
-    type="file"
-    id="photo-field"
-    className="form-control"
-    onChange={(e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setEditedPhoto(file);
-        }
-    }}
-    name="photo"
-/>
-
-    </div>
-    <div className="col-md-2">
-        {editedPhoto && (
-            // eslint-disable-next-line jsx-a11y/img-redundant-alt
-            <img
-                src={URL.createObjectURL(editedPhoto)}
-                alt="Profile picture"
-                style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover" }}
+             <Modal isOpen={modal_list} toggle={toggleListModal} centered>
+      <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}>
+        Modifier Fournisseur
+      </ModalHeader>
+      <form className="tablelist-form">
+        <ModalBody>
+          <div className="mb-3">
+            <label htmlFor="name_packaging-field" className="form-label">Nom</label>
+            <input
+              type="text"
+              id="name_packaging-field"
+              className="form-control"
+              placeholder="Enter Name"
+              value={editedNameFournisseur}
+              onChange={(e) => setEditedNameFournisseur(e.target.value)}
+              required
             />
-        )}
-    </div>
-</div>
-                        
-
-                       
-                    </ModalBody>
-                    <ModalFooter>
-                        <div className="hstack gap-2 justify-content-end">
-                            <button type="button" className="btn btn-light" onClick={toggleListModal}>Fermer</button>
-                            <button type="button" className="btn btn-primary" onClick={handleUpdate}>Mettre à jour</button>
-                        </div>
-                    </ModalFooter>
-                </form>
-            </Modal>
+            {errors.nom && <div className="text-danger">{errors.nom}</div>}
+          </div>
+          <div className="mb-3">
+            <label htmlFor="email_packaging-field" className="form-label">Email</label>
+            <input
+              type="text"
+              id="email_packaging-field"
+              className="form-control"
+              placeholder="Enter Email"
+              value={editedEmailFournisseur}
+              onChange={(e) => setEditedEmailFournisseur(e.target.value)}
+              required
+            />
+            {errors.email && <div className="text-danger">{errors.email}</div>}
+          </div>
+          <div className="mb-3">
+            <label htmlFor="num_telephone_packaging-field" className="form-label">Numero de telephone</label>
+            <PhoneInput
+              value={editedNumFournisseur}
+              onChange={(phone) => setEditedNumFournisseur(phone)}
+              inputProps={{
+                name: 'num_telephone',
+                required: true,
+                autoFocus: true
+              }}
+              inputClass="form-control"
+              containerClass="mb-3"
+            />
+            {errors.num_telephone && <div className="text-danger">{errors.num_telephone}</div>}
+          </div>
+          <div className="mb-3 row align-items-center">
+            <div className="col-md-9">
+              <label htmlFor="photo-field" className="form-label">Photo</label>
+              <input
+                type="file"
+                id="photo-field"
+                className="form-control"
+                onChange={(e) => setEditedPhoto(e.target.files[0])}
+                name="photo"
+              />
+            </div>
+            <div className="col-md-2">
+              {editedPhoto && (
+                // eslint-disable-next-line jsx-a11y/img-redundant-alt
+                <img
+                  src={URL.createObjectURL(editedPhoto)}
+                  alt="Profile picture"
+                  style={{ width: "50px", height: "50px", borderRadius: "50%", objectFit: "cover" }}
+                />
+              )}
+            </div>
+          </div>
+        </ModalBody>
+        <ModalFooter>
+          <div className="hstack gap-2 justify-content-end">
+            <Button type="button" className="btn btn-light" onClick={toggleListModal}>Fermer</Button>
+            <Button type="button" color="primary" className="btn btn" onClick={handleUpdate}>Mettre à jour</Button>
+          </div>
+        </ModalFooter>
+      </form>
+    </Modal>
 
 
 
@@ -671,9 +622,14 @@ return(
         <input type="text" id="nombre_package-field" className="form-control" value={selectedFournisseur.email} readOnly />
       </div>
       <div className="mb-3">
-        <label htmlFor="nombre_package-field" className="form-label">Numero de telephone</label>
-        <input type="text" id="nombre_package-field" className="form-control" value={selectedFournisseur.num_telephone} readOnly />
-      </div>
+              <label htmlFor="nombre_package-field" className="form-label">Numero de telephone</label>
+              <PhoneInput
+                value={selectedFournisseur.num_telephone}
+                disabled 
+                inputClass="form-control"
+                containerClass="mb-3"
+              />
+            </div>
       
     </form>
   )}

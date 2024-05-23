@@ -38,6 +38,7 @@ class Packaging extends Model
         'name_packaging',
         'dimension',
         'photo',
+        'id_creator'
 
     ];
 
@@ -53,7 +54,7 @@ class Packaging extends Model
     public function produits()
     {
         return $this->belongsToMany(Produit::class, 'packaging_produit', 'id_packaging','id_produit' )
-                    ->withPivot('nombre_package');
+                    ->withPivot('nombre_package','id_creator');
     }
 
     public function pertes()
