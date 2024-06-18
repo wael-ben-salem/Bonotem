@@ -36,7 +36,10 @@ const Layout = (props) => {
     const title = props.router.location.pathname;
     let currentage = title.charAt(1).toUpperCase() + title.slice(2);
 
-    document.title = currentage + " | Bonotem";
+
+
+    document.title = currentage + " | Devinci Analytics";
+
   }, [props.router.location.pathname]);
 
   useEffect(() => {

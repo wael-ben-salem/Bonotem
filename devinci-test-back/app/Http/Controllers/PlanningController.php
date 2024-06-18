@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 
 class PlanningController extends Controller {
+    public function index() {
+        // Fetch all planning entries with related personnel and jours
+        $plannings = Planning::with(['personnel', 'personnel.typePersonnel', 'jour'])->get();
+        return response()->json($plannings);
+    }
     public function planning($id) {
         // Chargement en avance des relations personnel, jour et typePersonnel
         $plannings = Planning::with(['personnel', 'personnel.typePersonnel', 'jour'])->where('id_creator', $id)

@@ -153,6 +153,8 @@ const Header = (props) => {
 
             <AppsDropdown />
 
+     
+
             <div className="dropdown d-none d-lg-inline-block ms-1">
               <button
                 type="button"

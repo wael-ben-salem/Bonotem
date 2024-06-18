@@ -2,9 +2,9 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
 // Async actions
-export const getAllData = createAsyncThunk("gitPlanning/getAllData",  async (id) => {
+export const getAllData = createAsyncThunk("gitPlanning/getAllData",  async () => {
   try {
-    const response = await axios.get(`/planning/${id}`);
+    const response = await axios.get("/planning");
     return response;
   } catch (error) {
     console.error('API error:', error);
@@ -51,11 +51,11 @@ export const deletePlanning = createAsyncThunk(
 );
 export const deleteAllPlanningsForPersonnel = createAsyncThunk(
   "gitPlanning/deleteAllPlanningsForPersonnel",
-  async (personnelId) => {
+  async (id) => {
     try {
-      const response = await axios.delete(`/planning/personnel/${personnelId}`);
+      const response = await axios.delete(`/planning/personnel/${id}`);
       console.log("API response:", response);
-      return personnelId; 
+      return id; 
   } catch (error) {
       console.error('API error:', error);
       throw error;
@@ -64,9 +64,9 @@ export const deleteAllPlanningsForPersonnel = createAsyncThunk(
 );
 export const updateAllPlanningsForPersonnel = createAsyncThunk(
   "gitPlanning/updateAllPlanningsForPersonnel",
-  async ({ personnelId, planningData }, { rejectWithValue }) => {
+  async ({ id, planningData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`/planning/personnel/${personnelId}`, planningData);
+      const response = await axios.put(`/planning/personnel/${id}`, planningData);
       return response;  
     } catch (error) {
       return rejectWithValue(error.response);
@@ -75,12 +75,12 @@ export const updateAllPlanningsForPersonnel = createAsyncThunk(
 );
 export const addPlanning = createAsyncThunk(
   "gitPlanning/addPlanning",
-  async (id ,planningData, { rejectWithValue }) => {
+  async (planningData, { rejectWithValue }) => {
     try {
-      const response = await axios.post(`/addplanning/${id}`, planningData);
+      const response = await axios.post("/addplanning", planningData);
       return response;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response);
     }
   }
 );

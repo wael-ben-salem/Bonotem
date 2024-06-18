@@ -201,7 +201,7 @@ const SidebarData = [
 
         
             
-   {
+   /*{
         label: "Charts",
         icon: "ri-bar-chart-line",
         subItem: [
@@ -224,7 +224,7 @@ const SidebarData = [
             { sublabel: "Knob Charts", link: "/chart-jknobcharts" },
             { sublabel: "Sparkline Charts", link: "/chart-sparklinecharts" },
         ],
-    },
+    },*/
     /*{
         label: "Icons",
         icon: "ri-brush-line",

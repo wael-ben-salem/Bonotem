@@ -10,6 +10,7 @@ const CarteRestaurant = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 4;
 
+
   useEffect(() => {
     if (userId) {
       dispatch(getAllCarteStatiqueData(userId));
@@ -39,6 +40,7 @@ const CarteRestaurant = () => {
   const paginatedCategories = paginateCategories();
 
   const cardStyle = {
+
     marginBottom: '20px',
     boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)',
     transition: '0.3s',
@@ -56,12 +58,15 @@ const CarteRestaurant = () => {
     height: '200px',
     objectFit: 'cover',
     borderTopLeftRadius: '8px',
+
     borderTopRightRadius: '8px',
   };
 
   const cardBodyStyle = {
+
     padding: '15px',
     textAlign: 'center',
+
   };
 
   const renderPagination = () => (

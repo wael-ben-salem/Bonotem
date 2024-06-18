@@ -16,7 +16,6 @@ return new class extends Migration
                 $table->unsignedBigInteger('id_produit');
                 $table->unsignedBigInteger('id_packaging');
                 $table->integer('id_creator')->nullable();
-                $table->integer('id_creator')->nullable();
 
                 $table->integer('nombre_package');
 
