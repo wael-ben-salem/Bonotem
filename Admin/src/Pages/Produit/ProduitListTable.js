@@ -1158,7 +1158,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Produit ajoutée avec succès
+                Ajout effectué avec succés      
                 </Alert>
             </div>
         ) : null}
@@ -1189,7 +1189,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Produit modifiée avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -1218,7 +1218,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Produit suprimée avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

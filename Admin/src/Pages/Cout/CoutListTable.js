@@ -8,7 +8,7 @@ import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import { addCout, deleteCout, getAllCoutData, updateCout } from '../../store/Cout/gitCoutSlice';
+import { addCout, deleteCout, getCoutDetails, getAllCoutData, updateCout } from '../../store/Cout/gitCoutSlice';
 
 
 
@@ -296,7 +296,7 @@ const id = useSelector(state => state.login.user.id);
    
 const openShowModal = (cout) => {
     setSelectedCout(cout);
-    dispatch(getAllCoutData(cout.id)); // Fetch user details when the Show button is clicked
+    dispatch(getCoutDetails(cout.id)); // Fetch user details when the Show button is clicked
     toggleShowModal();
 }
 
@@ -361,13 +361,13 @@ return(
     <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Tables" breadcrumbItem="Décaissement" />
+                    <Breadcrumbs title="Tables" breadcrumbItem="Dépense" />
 
                     <Row>
                         <Col lg={12}>
                             <Card>
                                 <CardHeader>
-                                    <h4 className="card-title mb-0">Gérer les Ajouter Décaissements</h4>
+                                    <h4 className="card-title mb-0">Gérer les Dépenses</h4>
                                 </CardHeader>
 
                                 <CardBody>
@@ -428,7 +428,7 @@ return(
                     <td onClick={() => openShowModal(cout)}>{cout.detail}</td>
                     <td onClick={() => openShowModal(cout)}>{cout.date}</td>
 
-                    <td onClick={() => openShowModal(cout)}>{cout.montant}</td>
+                    <td onClick={() => openShowModal(cout)}>{cout.montant} TND</td>
                     {/* D'autres colonnes */}
                     <td>
                     <div className="d-flex gap-2">
@@ -711,8 +711,8 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Cout ajoutée avec succès
-                </Alert>
+                Ajout effectué avec succés                </Alert>
+
             </div>
         ) : null}
         {errorMessage  ? (
@@ -741,7 +741,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Cout modifiée avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -772,7 +772,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Decaissement suprimée avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

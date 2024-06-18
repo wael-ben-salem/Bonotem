@@ -180,7 +180,7 @@ const TypePersonnelTables = () => {
         </td>
         <td>{type.id}</td>
         <td>{type.nom}</td>
-        <td>{`${type.prix_heure} €/h`}</td>
+        <td>{`${type.prix_heure} TND/h`}</td>
         <td>
         <div className=" d-flex  gap-4">
             <Button
@@ -192,7 +192,7 @@ const TypePersonnelTables = () => {
               onMouseLeave={() => setHoverShow(false)}
             >
               <FontAwesomeIcon icon={faEye} />
-              {hoverShow ? " Consulter" : ""}
+              {/* {hoverShow ? " Consulter" : ""} */}
             </Button>
             <Button
              color="soft-success"
@@ -203,7 +203,7 @@ const TypePersonnelTables = () => {
               onMouseLeave={() => setHoverEdit(false)}
             >
               <FontAwesomeIcon icon={faEdit} />
-              {hoverEdit ? " Modifier" : ""}
+              {/* {hoverEdit ? " Modifier" : ""} */}
             </Button>
             <Button
             color="soft-danger"
@@ -214,7 +214,7 @@ const TypePersonnelTables = () => {
               onMouseLeave={() => setHoverRemove(false)}
             >
               <FontAwesomeIcon icon={faTrashAlt} />
-              {hoverRemove ? " Supprimer" : ""}
+              {/* {hoverRemove ? " Supprimer" : ""} */}
             </Button>
           </div>
         </td>

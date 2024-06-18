@@ -402,7 +402,10 @@ return(
                                                 <td onClick={() => openShowModal(chargevariable)}>{chargevariable.nom}</td>
                                                 <td  onClick={() => openShowModal(chargevariable)}>{chargevariable.date }</td>
 
-                                                <td onClick={() => openShowModal(chargevariable)}>{chargevariable.chiffre}</td>
+                                                <td onClick={() => openShowModal(chargevariable)}>
+  {parseFloat(chargevariable.chiffre).toFixed(2)} TND
+</td>
+
                                                
 
                                                 <td>
@@ -488,7 +491,7 @@ return(
             </div>
             {/* Add Packaging Modal */}
             <Modal isOpen={modalAddChargeVariable} toggle={toggleAddChargeVariableModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddChargeVariableModal}>Ajout Fournisseur</ModalHeader>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddChargeVariableModal}>Ajout</ModalHeader>
                                         <ModalBody>
                                             <form className="tablelist-form">
                                                 <div className="mb-3">
@@ -530,7 +533,7 @@ return(
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Charge </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 
                 <form className="tablelist-form">
                     <ModalBody>
@@ -543,7 +546,7 @@ return(
                         </div>
                         <div className="mb-3">
                             <label htmlFor="name_packaging-field" className="form-label">Date</label>
-                            <input type="datetimae-local" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedDate} onChange={(e) => setEditedDate(e.target.value)} required />
+                            <input type="date" id="name_packaging-field" className="form-control" placeholder="Enter Name" value={editedDate} onChange={(e) => setEditedDate(e.target.value)} required />
                             {errors.date && <div className="text-danger">{errors.date}</div>}
 
                         </div>
@@ -574,7 +577,7 @@ return(
 
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail </ModalHeader>
                 <ModalBody>
   {selectedChargeVariable && (
     <form className="tablelist-form">
@@ -586,7 +589,7 @@ return(
       
       <div className="mb-3">
         <label htmlFor="nombre_package-field" className="form-label">Date</label>
-        <input type="datetime-local" id="nombre_package-field" className="form-control" value={selectedChargeVariable.date} readOnly />
+        <input type="date" id="nombre_package-field" className="form-control" value={selectedChargeVariable.date} readOnly />
       </div>
       <div className="mb-3">
         <label htmlFor="nombre_package-field" className="form-label">Chiffre</label>
@@ -617,8 +620,8 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Fournisseur ajouté avec succès
-                </Alert>
+                Ajout effectué avec succés                </Alert>
+
             </div>
         ) : null}
         {errorMessage  ? (
@@ -650,7 +653,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Fournisseur modifié avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -682,7 +685,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Fournisseur suprimé avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

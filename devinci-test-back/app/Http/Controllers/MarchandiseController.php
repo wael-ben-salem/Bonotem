@@ -26,7 +26,7 @@ class MarchandiseController extends Controller
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/',function ($attribute, $value, $fail) use ($id) {
+            'nom' => ['required', 'string','regex:/^[A-Za-z0-9\s]+$/',function ($attribute, $value, $fail) use ($id) {
                 $existingCategory = Marchandise::where('nom', $value)
                     ->where('id_creator', $id)
                     ->first();
@@ -133,7 +133,7 @@ class MarchandiseController extends Controller
 {
     // Validate the incoming request data
     $validator = Validator::make($request->all(), [
-        'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
+        'nom' => ['required', 'string','regex:/^[A-Za-z0-9\s]+$/'],
         'reference' => 'required|string',
         'id_ingredient' => 'required|exists:ingredients,id',
         'quantite_achetee' => 'required|integer|min:0',
@@ -245,7 +245,7 @@ class MarchandiseController extends Controller
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/',function ($attribute, $value, $fail) use ($id) {
+            'nom' => ['required', 'string','regex:/^[A-Za-z0-9\s]+$/',function ($attribute, $value, $fail) use ($id) {
                 $existingCategory = Marchandise::where('nom', $value)
                     ->where('id_creator', $id)
                     ->first();
@@ -363,7 +363,7 @@ class MarchandiseController extends Controller
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'nom' => ['required', 'string','regex:/^[A-Za-z\s]+$/'],
+            'nom' => ['required', 'string','regex:/^[A-Za-z0-9\s]+$/'],
             'reference' => 'required|string',
             'id_packaging' => 'required|exists:packagings,id',
             'quantite_achetee' => 'required|integer|min:0',

@@ -44,7 +44,7 @@ const UserPanel = () => {
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1">Total des pertes </p>
-                  <h5 className="mb-3">{(totalPerte || 0).toFixed(2)} £</h5>
+                  <h5 className="mb-3">{(totalPerte || 0).toFixed(2)} TND</h5>
                 </div>
               </div>
               <br></br>
@@ -63,7 +63,7 @@ const UserPanel = () => {
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1">Meilleur Vente :{meilleurVenteIngProduit || ''} </p>
                   <p className="mb-1"></p>
-                  <h5 className="mb-3">{(meilleurtPrixIngProduit || 0).toFixed(2)} £</h5>
+                  <h5 className="mb-3">{(meilleurtPrixIngProduit || 0).toFixed(2)} TND</h5>
                   <h5 className="mb-2">
                     <GiMeal className="icon" /> {meilleurtQuantiteIngProduit || 0}
                   </h5>
@@ -80,11 +80,11 @@ const UserPanel = () => {
 
               <div className="d-flex text-muted">
                 <div className="flex-shrink-0 me-3 align-self-center">
-                  <RadialChart3 value={totalCout} />
+                  <RadialChart1 value={totalCout} />
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1">Total des dépenses et ventilations</p>
-                  <h5 className="mb-3">{totalCout} £</h5>
+                  <h5 className="mb-3">{totalCout} TND</h5>
                 </div>
               </div>
               <br></br>
@@ -103,7 +103,7 @@ const UserPanel = () => {
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
                   <p className="mb-1">Total des marchandises</p>
-                  <h5 className="mb-3">{(totalMarchandise || 0).toFixed(2)} £</h5>
+                  <h5 className="mb-3">{(totalMarchandise || 0).toFixed(2)} TND</h5>
                 </div>
               </div>
               <br></br>

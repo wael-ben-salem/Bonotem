@@ -151,7 +151,6 @@ const Header = (props) => {
               </div>
             </div>
 
-            <LanguageDropdown />
             <AppsDropdown />
 
             <div className="dropdown d-none d-lg-inline-block ms-1">

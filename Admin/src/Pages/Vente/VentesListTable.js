@@ -150,20 +150,10 @@ const validate = (data) => {
     if (!data.id_carte) {
         errors.id_carte = "La sélection des Cartes  est requise.";
     }
-    if (!data.quantite) {
-        errors.quantite = "La quantité  est requise.";
-    }  else if (isNaN(data.quantite) || data.quantite < 0) {
-        errors.quantite = "La quantité  doit être un nombre entier positif.";
-
-
+    if (data.quantite && (isNaN(data.quantite) || data.quantite < 0)) {
+        errors.quantite = "La quantité doit être un nombre entier positif.";
     }
-    if (!data.quantite_apres) {
-        errors.quantite_apres = "La nouvelle quantité  est requise.";
-    }  else if (isNaN(data.quantite_apres) || data.quantite_apres < 0) {
-        errors.quantite_apres = "La nouvelle quantité  doit être un nombre entier positif.";
-
-
-    }
+   
 
    
 
@@ -261,11 +251,7 @@ const validate = (data) => {
     
 
     const handleUpdate = () => {
-        const errors = validate({ id_carte: editedNameCarteVente, quantite: editedQuantiteVente, quantite_apres: editedQuantiteApres });
-        if (Object.keys(errors).length > 0) {
-            setErrors(errors);
-            return;
-        }
+        
 
         setErrors({});
         const updatedVente = {
@@ -324,7 +310,7 @@ const openShowModal = (vente) => {
 
 const handleAddCategorie = () => {
 
-    const errors = validate({ id_carte: newVenteData.id_carte, quantite: newVenteData.quantite,quantite_apres: newVenteData.quantite_apres  });
+    const errors = validate({ id_carte: newVenteData.id_carte, quantite: newVenteData.quantite  });
     if (Object.keys(errors).length > 0) {
         setErrors(errors);
         return;
@@ -483,10 +469,17 @@ return(
                                                                     {vente.produit ? vente.produit.name_produit : vente.ingredient_composee ? vente.ingredient_composee.name_ingredient_compose : 'Nom non disponible'}
                                                                         </td>
                                                                 <td onClick={() => openShowModal(vente)}>{vente.quantite }</td>
+                                                                <td onClick={() => openShowModal(vente)}>
+  {vente.prixTTc.toFixed(2)} TND
+</td>
 
-                                                                <td onClick={() => openShowModal(vente)}>{vente.prixTTc }</td>
-                                                                <td onClick={() => openShowModal(vente)}>{vente.prixTVA }</td>
-                                                                <td onClick={() => openShowModal(vente)}>{vente.marge }</td>
+<td onClick={() => openShowModal(vente)}>
+  {vente.prixTVA.toFixed(2)} TND
+</td>
+<td onClick={() => openShowModal(vente)}>
+  {vente.marge.toFixed(2)} TND
+</td>
+                                                             
                                                                 <td onClick={() => openShowModal(vente)}>
   {moment(vente.created_at).format('YYYY-MM-DD')}
 </td>
@@ -641,7 +634,7 @@ return(
 <Modal isOpen={modal_list} toggle={toggleListModal} centered>
     {selectedVente && (
         <>
-            <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}>Modifier Packaging</ModalHeader>
+            <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}>Modification</ModalHeader>
             <form className="tablelist-form">
                 <ModalBody>
                     <div className="mb-3">
@@ -712,7 +705,6 @@ return(
                     <div className="mb-3">
                         <label htmlFor="quantite_apres-field" className="form-label">Nouvelle Quantité</label>
                         <input type="number" id="quantite_apres-field" className="form-control" placeholder="Entrez la nouvelle quantité" value={editedQuantiteApres} onChange={(e) => setEditedQuantiteApres(e.target.value)} required />
-                        {errors.quantite_apres && <div className="text-danger">{errors.quantite_apres}</div>}
 
                     </div>
 
@@ -741,7 +733,7 @@ return(
 </Modal>
 
 <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-    <ModalHeader className="bg-light p-3" toggle={toggleShowModal}>Détail du Packaging</ModalHeader>
+    <ModalHeader className="bg-light p-3" toggle={toggleShowModal}>Détail </ModalHeader>
     <ModalBody>
         {selectedVente && (
             <div className="container">
@@ -823,7 +815,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Vente ajoutée avec succès
+                Ajout effectué avec succés      
                 </Alert>
             </div>
         ) : null}
@@ -854,7 +846,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Vente modifiée avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -883,7 +875,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Vente suprimée avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

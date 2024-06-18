@@ -197,8 +197,8 @@ const MarchandisePackagingListTable = () => {
         
             if (!data.nom) {
                 errors.nom = "Le nom est requis.";
-            } else if (!/^[A-Za-z\s]+$/.test(data.nom)) {
-                errors.nom = "Le nom doit contenir uniquement des lettres et des espaces.";
+            } else if (!/^[A-Za-z0-9\s]+$/.test(data.nom)) {
+                errors.nom = "Le nom doit contenir uniquement des lettres, des chiffres et des espaces.";
             }
         
             if (!data.reference) {
@@ -547,7 +547,9 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
       <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.quantite_en_stock|| "0" }</td>
       <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.quantite_consomee|| "0" }</td>
 
-      <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.prix}</td>
+      <td onClick={() => openShowModal(marchandisepackaging)}>
+  {marchandisepackaging.prix.toFixed(2)} TND
+</td>
       <td onClick={() => openShowModal(marchandisepackaging)}>{marchandisepackaging.date_achat}</td>
       <td>
         <div className=" d-flex gap-4">
@@ -970,7 +972,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Marchandise ajoutée avec succès
+                Ajout effectué avec succés      
                 </Alert>
             </div>
         ) : null}
@@ -1001,7 +1003,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Marchandise modifiée avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -1037,7 +1039,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Marchandise suprimée avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

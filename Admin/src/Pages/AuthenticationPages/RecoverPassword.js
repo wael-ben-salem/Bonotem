@@ -8,7 +8,7 @@ import { Container, Row, Col, Card, CardBody } from 'reactstrap';
 import { Link } from 'react-router-dom';
 
 const RecoverPassword = () => {
-    document.title = "Recover Password | Upzet - React Admin & Dashboard Template";
+    document.title = "Recover Password | Bonotem";
     return (
         <React.Fragment>
             <div className="bg-pattern" style={{height:"100vh"}}>
@@ -51,7 +51,7 @@ const RecoverPassword = () => {
                                 </Card>
                                 <div className="mt-5 text-center">
                                     <p className="text-white-50">Don't have an account ?  <Link to="/auth-register" className="fw-medium text-primary"> Register  </Link> </p>
-                                    <p className="text-white-50">© {new Date().getFullYear()} Upzet. Crafted with <i className="mdi mdi-heart text-danger"></i> by Themesdesign</p>
+                                    <p className="text-white-50">© {new Date().getFullYear()} Bonotem.  <i className="mdi mdi-heart text-danger"></i> by Bonotem</p>
                                 </div>
                             </Col>
                         </Row>

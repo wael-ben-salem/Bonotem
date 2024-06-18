@@ -471,7 +471,10 @@ return(
                         )}
                     </td>
                     <td onClick={() => openShowModal(perte)}>{perte.quantite}</td>
-                    <td onClick={() => openShowModal(perte)}>{perte.montant}</td>
+                    <td onClick={() => openShowModal(perte)}>
+  {perte.montant.toFixed(2)} TND
+</td>
+                    
                     {/* D'autres colonnes */}
                     <td>
                     <div className="d-flex gap-2">
@@ -762,7 +765,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Perte ajoutée avec succès
+                Ajout effectué avec succés      
                 </Alert>
             </div>
         ) : null}
@@ -793,7 +796,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Perte modifiée avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -822,7 +825,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Perte suprimée avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

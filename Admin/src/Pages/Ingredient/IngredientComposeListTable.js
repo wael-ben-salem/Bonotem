@@ -8,7 +8,7 @@ import { faCheckCircle, faTimesCircle } from '@fortawesome/free-solid-svg-icons'
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEdit, faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import { addIngCompose, deleteIngCompose, getAllIngCompose, updateIngCompose } from '../../store/ingredient/GitIngredientComposerSlice';
+import { addIngCompose, deleteIngCompose, getAllIngCompose, getIngComposeDetails, updateIngCompose } from '../../store/ingredient/GitIngredientComposerSlice';
 import { getAllDataIngredient } from '../../store/ingredient/gitIngredientSlice';
 import { getAllData } from '../../store/categorie/gitCategorySlice';
 
@@ -331,7 +331,7 @@ const validate = (data) => {
    
 const openShowModal = (ingredientcompose) => {
     setSelectedingredientcompose(ingredientcompose);
-    dispatch(getAllIngCompose(ingredientcompose.id)); // Fetch user details when the Show button is clicked
+    dispatch(getIngComposeDetails(ingredientcompose.id)); // Fetch user details when the Show button is clicked
     toggleShowModal();
 }
 
@@ -446,13 +446,13 @@ return(
     <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Tables" breadcrumbItem="Packagings" />
+                    <Breadcrumbs title="Tables" breadcrumbItem="Ingredient composée" />
 
                     <Row>
                         <Col lg={12}>
                             <Card>
                                 <CardHeader>
-                                    <h4 className="card-title mb-0">Gérer les Ingredient Composés</h4>
+                                    <h4 className="card-title mb-0">Gérer les Ingredients Composés</h4>
                                 </CardHeader>
 
                                 <CardBody>
@@ -903,7 +903,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Ingredient Composée ajoutée avec succès
+                Ajout effectué avec succés      
                 </Alert>
             </div>
         ) : null}
@@ -934,7 +934,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                Ingredient Composée modifiée avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -1041,7 +1041,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Ingrédient Composé suprimée avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

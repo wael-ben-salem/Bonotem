@@ -14,6 +14,7 @@ const Footer = () => {
       <footer className="footer">
         <Container fluid={true}>
           <Row>
+
             <Col sm={6}>
               {new Date().getFullYear()} © SITEM PARIS.
             </Col>
@@ -28,6 +29,7 @@ const Footer = () => {
                 <a href="https://www.instagram.com/sitem.paris/" style={iconStyle} aria-label="Visit Instagram profile">
                   <i className="mdi mdi-instagram"></i>
                 </a>
+
               </div>
             </Col>
           </Row>

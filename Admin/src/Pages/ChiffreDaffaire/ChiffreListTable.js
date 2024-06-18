@@ -1,18 +1,10 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Card, CardContent, Typography, CircularProgress, Grid, Box } from "@mui/material";
-import { BsCurrencyDollar, BsGraphUp, BsCalculator, BsCalendar } from "react-icons/bs";
+import { Card, CardContent, Typography, CircularProgress, Grid, Box, Container } from "@mui/material";
+import { BsCurrencyDollar, BsGraphUp, BsCalculator, BsCalendar, BsArrowUp, BsArrowDown } from "react-icons/bs";
 import { getAllChiffreDaffaireData } from "../../store/chiffredaffaire/gitChiffreDaffaireSlice";
 import { Bar } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
+import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend } from 'chart.js';
 import moment from 'moment';
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
@@ -33,16 +25,16 @@ const ChiffreAffaire = () => {
     datasets: [
       {
         label: 'Valeurs',
-        data: [montant_total, chiffre_total, benefice],
+        data: [montant_total, chiffre_total, benefice].map(value => parseFloat(value).toFixed(2)),
         backgroundColor: [
           'rgba(10, 112, 55, 0.2)',
           'rgba(10, 12, 235, 0.2)',
-          'rgba(255, 99, 132, 0.2)'
+          benefice >= 0 ? 'rgba(10, 112, 55, 0.2)' : 'rgba(255, 99, 132, 0.2)'
         ],
         borderColor: [
           'rgba(10, 112, 55, 1)',
           'rgba(10, 12, 235, 1)',
-          'rgba(255, 99, 132, 1)'
+          benefice >= 0 ? 'rgba(10, 112, 55, 1)' : 'rgba(255, 99, 132, 1)'
         ],
         borderWidth: 1
       }
@@ -61,78 +53,85 @@ const ChiffreAffaire = () => {
   };
 
   return (
-    <Card sx={{ 
-      maxWidth: 800, 
-      margin: "auto", 
-      marginTop: 20, 
-      padding: 2, 
-      border: '1px solid #1976d2', 
-      borderRadius: 4, 
-      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' 
-    }}>
-      <CardContent>
-        <Box display="flex" alignItems="center" mb={2}>
-          <BsCurrencyDollar style={{ fontSize: 32, marginRight: 10 }} />
-          <Typography variant="h5" component="h2" gutterBottom>
-            Chiffre d'Affaires
-          </Typography>
-        </Box>
-        {loading ? (
-          <Box display="flex" justifyContent="center" alignItems="center" height={200}>
-            <CircularProgress />
+    <Container maxWidth="md">
+      <Card sx={{ marginTop: 4, padding: 2, borderRadius: 4, boxShadow: 3 }}>
+        <CardContent>
+          <Box display="flex" alignItems="center" mb={2}>
+            <BsCurrencyDollar style={{ fontSize: 32, marginRight: 10 }} />
+            <Typography variant="h4" component="h2">
+              Chiffre d'Affaires
+            </Typography>
           </Box>
-        ) : error ? (
-          <Typography variant="body1" color="error">
-            Erreur: {error}
-          </Typography>
-        ) : (
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <Bar data={data} options={options} />
-            </Grid>
-            <Grid item xs={6}>
-              <Box display="flex" alignItems="center">
-                <BsCurrencyDollar style={{ fontSize: 24, marginRight: 10 }} />
-                <Typography variant="body1" style={{ color: '#006400' }}>
-                  <strong>Montant Total:</strong> {montant_total}
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box display="flex" alignItems="center">
-                <BsGraphUp style={{ fontSize: 24, marginRight: 10 }} />
-                <Typography variant="body1" style={{ color: 'blue' }}>
-                  <strong>Chiffre Total:</strong> {chiffre_total}
-                </Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box display="flex" alignItems="center">
-                <BsCalculator style={{ fontSize: 24, marginRight: 10 }} />
-                <Typography variant="body1"><strong>Bénéfice:</strong> {benefice}</Typography>
-              </Box>
-              {benefice < 0 && (
-                <Typography variant="body1" color="error" style={{ display: "flex", alignItems: "center" }}>
-                  Bénéfice négatif: {benefice} <span style={{ color: "red", marginLeft: 5 }}>&darr;</span>
-                </Typography>
-              )}
-            </Grid>
-            <Grid item xs={6}>
-              <Box display="flex" alignItems="center">
-                <BsCalendar style={{ fontSize: 24, marginRight: 10 }} />
-                <Typography variant="body1"><strong>Date Début:</strong> {formatDate(date_debut)}</Typography>
-              </Box>
-            </Grid>
-            <Grid item xs={6}>
-              <Box display="flex" alignItems="center">
-                <BsCalendar style={{ fontSize: 24, marginRight: 10 }} />
-                <Typography variant="body1"><strong>Date Fin:</strong> {formatDate(date_fin)}</Typography>
-              </Box>
-            </Grid>
-          </Grid>
-        )}
-      </CardContent>
-    </Card>
+          {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height={200}>
+              <CircularProgress />
+            </Box>
+          ) : error ? (
+            <Typography variant="body1" color="error">
+              Erreur: {error}
+            </Typography>
+          ) : (
+            <>
+              <Grid container spacing={2} mb={2}>
+                <Grid item xs={12}>
+                  <Bar data={data} options={options} />
+                </Grid>
+                <Grid item xs={6}>
+                  <Box display="flex" alignItems="center">
+                    <BsCurrencyDollar style={{ fontSize: 24, marginRight: 10, color: '#006400' }} />
+                    <Typography variant="body1">
+                      <strong>Montant Total:</strong> {parseFloat(montant_total).toFixed(2)} TND
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box display="flex" alignItems="center">
+                    <BsGraphUp style={{ fontSize: 24, marginRight: 10, color: 'blue' }} />
+                    <Typography variant="body1">
+                      <strong>Chiffre Total:</strong> {parseFloat(chiffre_total).toFixed(2)} TND
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box display="flex" alignItems="center">
+                    <BsCalculator style={{ fontSize: 24, marginRight: 10, color: benefice >= 0 ? 'green' : 'red' }} />
+                    <Typography variant="body1" style={{ color: benefice >= 0 ? 'green' : 'red' }}>
+                      <strong>Bénéfice:</strong> {parseFloat(benefice).toFixed(2)} TND
+                    </Typography>
+                    {benefice >= 0 ? (
+                      <BsArrowUp style={{ fontSize: 24, color: 'green', marginLeft: 10 }} />
+                    ) : (
+                      <BsArrowDown style={{ fontSize: 24, color: 'red', marginLeft: 10 }} />
+                    )}
+                  </Box>
+                  {benefice < 0 && (
+                    <Typography variant="body1" color="error" style={{ display: "flex", alignItems: "center" }}>
+                      Bénéfice négatif: {parseFloat(benefice).toFixed(2)} TND <span style={{ color: "red", marginLeft: 5 }}>&darr;</span>
+                    </Typography>
+                  )}
+                </Grid>
+                <Grid item xs={6}>
+                  <Box display="flex" alignItems="center">
+                    <BsCalendar style={{ fontSize: 24, marginRight: 10, color: '#1976d2' }} />
+                    <Typography variant="body1">
+                      <strong>Date Début:</strong> {formatDate(date_debut)}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box display="flex" alignItems="center">
+                    <BsCalendar style={{ fontSize: 24, marginRight: 10, color: '#1976d2' }} />
+                    <Typography variant="body1">
+                      <strong>Date Fin:</strong> {formatDate(date_fin)}
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            </>
+          )}
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 

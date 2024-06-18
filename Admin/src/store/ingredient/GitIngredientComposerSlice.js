@@ -34,9 +34,9 @@ export const getAllIngCompose = createAsyncThunk("gitIngredientCompose/getAllIng
 
   export const getIngComposeDetails = createAsyncThunk(
     "gitIngredientCompose/getIngComposeDetails",
-    async (ingComposeId) => {
+    async (id) => {
       try {
-        const response = await axios.get(`/showingredientsCompose/${ingComposeId}`);
+        const response = await axios.get(`/showingredientsCompose/${id}`);
         console.log("API response:", response);
         return response.ingredientcomposes;
       } catch (error) {
