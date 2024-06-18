@@ -37,6 +37,7 @@ const PlanningTables = () => {
   const dispatch = useDispatch();
   const plannings = useSelector((state) => state.gitPlanning.plannings);
   const personnels = useSelector((state) => state.gitPersonnel.personnel);
+  console.log(personnels);
   const jours = useSelector((state) => state.gitJours.jours);
   const semaine = [
     "Lundi",

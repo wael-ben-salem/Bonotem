@@ -380,7 +380,7 @@ const PersonnelTables = () => {
                 type="text"
                 id="description-field"
                 className="form-control"
-                placeholder="Enter Description"
+                placeholder="Enter Numéro de téléphone"
                 value={newPersonnelData.num_telephone}
                 onChange={(e) =>
                   setNewPersonnelData({
@@ -425,7 +425,7 @@ const PersonnelTables = () => {
                 type="text"
                 id="description-field"
                 className="form-control"
-                placeholder="Enter Description"
+                placeholder="Enter Salaire"
                 value={newPersonnelData.salaire}
                 onChange={(e) =>
                   setNewPersonnelData({

@@ -8,7 +8,7 @@ const CarteRestaurant = () => {
   const { cartesDetails, loading, error } = useSelector(state => state.gitCarteStatique);
   const userId = useSelector(state => state.login.user.id);
   const [currentPage, setCurrentPage] = useState(0);
-  const itemsPerPage = 4; // Réduisez le nombre d'éléments par page pour mieux s'adapter à la mise en page
+  const itemsPerPage = 4; 
 
   useEffect(() => {
     if (userId) {
@@ -43,21 +43,21 @@ const CarteRestaurant = () => {
 
   // Styles en ligne
   const cardStyle = {
-    marginBottom: '20px', // Augmentez la marge inférieure pour l'espacement entre les cartes
-    boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)', // Ajoutez une ombre pour une apparence plus esthétique
-    transition: '0.3s', // Ajoutez une transition pour une interaction plus douce
-    borderRadius: '8px', // Arrondissez les coins de la carte
+    marginBottom: '20px', 
+    boxShadow: '0 4px 8px 0 rgba(0,0,0,0.2)', 
+    transition: '0.3s', 
+    borderRadius: '8px', 
   };
 
   const cardImgStyle = {
-    height: '150px', // Ajustez la hauteur de l'image
+    height: '150px', 
     objectFit: 'cover',
-    borderTopLeftRadius: '8px', // Arrondissez uniquement les coins supérieurs
+    borderTopLeftRadius: '8px', 
     borderTopRightRadius: '8px',
   };
 
   const cardBodyStyle = {
-    padding: '10px', // Ajoutez un remplissage à l'intérieur du corps de la carte
+    padding: '10px', 
   };
 
   return (
