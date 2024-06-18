@@ -26,6 +26,9 @@ return new class extends Migration
             $table->unsignedBigInteger('id_categorie');
             $table->integer('quantite');
             $table->float('prixTTc');
+            $table->float('prixTVA');
+            $table->float('marge');
+
             $table->timestamps();
         });
     }

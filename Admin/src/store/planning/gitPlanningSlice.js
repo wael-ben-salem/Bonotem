@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-
 // Async actions
 export const getAllData = createAsyncThunk("gitPlanning/getAllData",  async () => {
   try {
@@ -11,7 +10,6 @@ export const getAllData = createAsyncThunk("gitPlanning/getAllData",  async () =
     throw error;
 }
 });
-
 /*export const updatePlanning = createAsyncThunk(
   "gitPlanning/updatePlanning",
   async ({ id, planningData }, { rejectWithValue }) => {
@@ -51,11 +49,11 @@ export const deletePlanning = createAsyncThunk(
 );
 export const deleteAllPlanningsForPersonnel = createAsyncThunk(
   "gitPlanning/deleteAllPlanningsForPersonnel",
-  async (id) => {
+  async (personnelId) => {
     try {
-      const response = await axios.delete(`/planning/personnel/${id}`);
+      const response = await axios.delete(`/planning/personnel/${personnelId}`);
       console.log("API response:", response);
-      return id; 
+      return personnelId; 
   } catch (error) {
       console.error('API error:', error);
       throw error;
@@ -64,9 +62,9 @@ export const deleteAllPlanningsForPersonnel = createAsyncThunk(
 );
 export const updateAllPlanningsForPersonnel = createAsyncThunk(
   "gitPlanning/updateAllPlanningsForPersonnel",
-  async ({ id, planningData }, { rejectWithValue }) => {
+  async ({ personnelId, planningData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`/planning/personnel/${id}`, planningData);
+      const response = await axios.put(`/planning/personnel/${personnelId}`, planningData);
       return response;  
     } catch (error) {
       return rejectWithValue(error.response);
@@ -80,11 +78,10 @@ export const addPlanning = createAsyncThunk(
       const response = await axios.post("/addplanning", planningData);
       return response;
     } catch (error) {
-      return rejectWithValue(error.response);
+      return rejectWithValue(error.response.data);
     }
   }
 );
-
 export const gitPlanningSlice = createSlice({
   name: "gitPlanning",
   initialState: {
@@ -160,5 +157,5 @@ export const gitPlanningSlice = createSlice({
     });
   },
 });
-
 export default gitPlanningSlice.reducer;
+ 

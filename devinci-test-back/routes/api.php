@@ -207,10 +207,9 @@ Route::put('/updatecouts/{id}', [CoutController::class, 'updateCout']);
 
 
 //planning
-Route::get('/planning/{id}', [PlanningController::class, 'planning']);
 Route::get('/showplanning', [PlanningController::class, 'show']);
-Route::post('/addplanning/{id}', [PlanningController::class, 'addPlanning']);
-Route::get('/planning', [PlanningController::class, 'index']);
+Route::post('/addplanning', [PlanningController::class, 'addPlanning']);
+Route::get('/planning', [PlanningController::class, 'planning']);
 
 
 Route::delete('/planning/personnel/{id}', [PlanningController::class, 'deleteAllPlanningsForPersonnel']);

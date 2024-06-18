@@ -117,9 +117,11 @@ const PlanningTables = () => {
     heure_fin: "",
     taux_heure:"",
   });
+  const id = useSelector(state => state.login.user.id);
+
   useEffect(() => {
     dispatch(getAllData());
-    dispatch(getAllPersonnel());
+    dispatch(getAllPersonnel(id));
     dispatch(getAllJours());
     console.log("Selected Planning:", selectedPlanning);
     console.log("Selected Day:", selectedDay);
