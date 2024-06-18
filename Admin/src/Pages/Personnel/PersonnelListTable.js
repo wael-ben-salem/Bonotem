@@ -276,8 +276,8 @@ const PersonnelTables = () => {
                                 </td>
 
                                 <td onClick={() => openShowModal(personnel)}>
-                                  {personnel.salaire}
-                                </td>
+  {parseFloat(personnel.salaire).toFixed(2)} TND
+</td>
                                 <td>
                                   <div className=" d-flex  gap-4">
                                     <Button
@@ -459,7 +459,7 @@ const PersonnelTables = () => {
         Success
     </ModalHeader>
     <ModalBody>
-        Personnel ajouté avec succès!
+    Ajout effectué avec succés      
     </ModalBody>
     <ModalFooter>
         <Button color="primary" onClick={() => setShowAddSuccessModal(false)}>OK</Button>

@@ -410,7 +410,10 @@ return(
                                                 <td onClick={() => openShowModal(chargevariable)}>{chargevariable.nom}</td>
                                                 <td  onClick={() => openShowModal(chargevariable)}>{chargevariable.frequence}</td>
                                                 <td  onClick={() => openShowModal(chargevariable)}>{chargevariable.date_paiement }</td>
-                                                <td onClick={() => openShowModal(chargevariable)}>{chargevariable.montant}</td>
+                                                <td onClick={() => openShowModal(chargevariable)}>
+  {parseFloat(chargevariable.montant).toFixed(2)} TND
+</td>
+
                                                
 
                                                 <td>
@@ -551,7 +554,7 @@ return(
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier Charge </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 
                 <form className="tablelist-form">
                     <ModalBody>
@@ -576,7 +579,7 @@ return(
                         </div>
                         <div className="mb-3">
                             <label htmlFor="name_packaging-field" className="form-label">Date de Paiement</label>
-                            <input type="datetimae-local" id="name_packaging-field" className="form-control" placeholder="Enter Date" value={editedDate} onChange={(e) => setEditedDate(e.target.value)} required />
+                            <input type="datetime-local" id="name_packaging-field" className="form-control" placeholder="Enter Date" value={editedDate} onChange={(e) => setEditedDate(e.target.value)} required />
                             {errors.date_paiement && <div className="text-danger">{errors.date_paiement}</div>}
 
                         </div>
@@ -607,7 +610,7 @@ return(
 
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail </ModalHeader>
                 <ModalBody>
   {selectedChargeFixe && (
     <form className="tablelist-form">
@@ -655,8 +658,9 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Charge ajouté avec succès
-                </Alert>
+                Ajout effectué avec succés      
+                          </Alert>
+               
             </div>
         ) : null}
         {errorMessage  ? (
@@ -688,7 +692,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Charge modifié avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -720,7 +724,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Charge suprimé avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

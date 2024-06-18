@@ -284,7 +284,7 @@ return(
                         <Col lg={12}>
                             <Card>
                                 <CardHeader>
-                                    <h4 className="card-title mb-0">Gérer les Fournisseur</h4>
+                                    <h4 className="card-title mb-0">Gérer les Fournisseurs</h4>
                                 </CardHeader>
 
                                 <CardBody>
@@ -461,7 +461,7 @@ return(
             </div>
             {/* Add Packaging Modal */}
             <Modal isOpen={modalAddFournisseur} toggle={toggleAddFournisseurModal} centered>
-                <ModalHeader className="bg-light p-3" toggle={toggleAddFournisseurModal}>Ajout Fournisseur</ModalHeader>
+                <ModalHeader className="bg-light p-3" toggle={toggleAddFournisseurModal}>Ajout </ModalHeader>
                 <ModalBody>
                     <form className="tablelist-form">
                         <div className="mb-3">
@@ -498,7 +498,7 @@ return(
                 </ModalBody>
                 <ModalFooter>
                     <Button color="light" onClick={toggleAddFournisseurModal}>Close</Button>
-                    <Button color="primary" onClick={handleAddPackaging}>Add Fournisseur</Button>
+                    <Button color="primary" onClick={handleAddPackaging}>Ajouter</Button>
                 </ModalFooter>
             </Modal>
 
@@ -511,7 +511,7 @@ return(
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered>
       <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}>
-        Modifier Fournisseur
+        Modification 
       </ModalHeader>
       <form className="tablelist-form">
         <ModalBody>
@@ -581,7 +581,7 @@ return(
         </ModalBody>
         <ModalFooter>
           <div className="hstack gap-2 justify-content-end">
-            <Button type="button" className="btn btn-light" onClick={toggleListModal}>Fermer</Button>
+            <Button type="button"color="light"  className="btn btn-light" onClick={toggleListModal}>Fermer</Button>
             <Button type="button" color="primary" className="btn btn" onClick={handleUpdate}>Mettre à jour</Button>
           </div>
         </ModalFooter>
@@ -593,7 +593,7 @@ return(
 
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Packaging</ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail </ModalHeader>
                 <ModalBody>
   {selectedFournisseur && (
     <form className="tablelist-form">
@@ -655,7 +655,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Fournisseur ajouté avec succès
+                Ajout effectué avec succés      
                 </Alert>
             </div>
         ) : null}
@@ -688,7 +688,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Fournisseur modifié avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -720,7 +720,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Fournisseur suprimé avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

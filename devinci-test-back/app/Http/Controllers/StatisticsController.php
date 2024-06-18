@@ -237,22 +237,39 @@ class StatisticsController extends Controller
 // }
 public function UserStatistics($id)
 {
-    $totalPerte = Perte::where('id_creator', $id)->sum('montant');
-    $totalCout = Cout::where('id_creator', $id)->sum('montant');
-    $totalMarchandise = Marchandise::where('id_creator', $id)->sum('prix');
+    // Calculate current month totals
+    $currentMonth = date('m');
+    $currentYear = date('Y');
+    $dateStart = "$currentYear-$currentMonth-01";
+    $dateEnd = date('Y-m-t', strtotime($dateStart));
+
+    // Calculating the total for the current month for Marchandise, Perte, and Cout
+    $totalMarchandise = Marchandise::where('id_creator', $id)
+        ->whereBetween('date_achat', [$dateStart, $dateEnd])
+        ->select(DB::raw('SUM(prix * quantite_achetee) as total'))
+        ->pluck('total')
+        ->first();
+
+    $totalPerte = Perte::where('id_creator', $id)
+        ->whereBetween('created_at', [$dateStart, $dateEnd])
+        ->sum('montant');
+
+    $totalCout = Cout::where('id_creator', $id)
+        ->whereBetween('date', [$dateStart, $dateEnd])
+        ->sum('montant');
 
     $totalAchat = Ventes::where('id_creator', $id)->sum('prixTTc');
     $totalVentes = Ventes::where('id_creator', $id)->sum('quantite');
 
-    // Ventes pour ce créateur
+    // Ventes for this creator
     $ventes = Ventes::with('produit', 'ingredient_composee')
         ->where('id_creator', $id)
         ->get();
 
-    // Informations détaillées sur chaque vente
+    // Detailed information about each sale
     $ventesDetails = [];
 
-    // Tableau associatif pour stocker les données agrégées
+    // Associative array to store aggregated data
     $aggregatedData = [];
 
     foreach ($ventes as $vente) {
@@ -270,7 +287,7 @@ public function UserStatistics($id)
         }
     }
 
-    // Convertir les données agrégées en format souhaité
+    // Convert aggregated data into desired format
     foreach ($aggregatedData as $nom => $data) {
         $ventesDetails[] = [
             'nom' => $nom,
@@ -280,7 +297,7 @@ public function UserStatistics($id)
         ];
     }
 
-    // Calcul des quantités vendues pour chaque produit et ingrédient composé
+    // Calculate sold quantities for each product and composed ingredient
     $produitQuantites = [];
     $ingredientQuantites = [];
 
@@ -301,7 +318,7 @@ public function UserStatistics($id)
         }
     }
 
-    // Trouver le meilleur produit en termes de quantité vendue
+    // Find the best-selling product in terms of quantity sold
     $meilleurProduit = null;
     $maxProduitQuantite = 0;
     $maxProduitPrix = 0;
@@ -309,14 +326,13 @@ public function UserStatistics($id)
         if ($quantite > $maxProduitQuantite) {
             $meilleurProduit = $produit;
             $maxProduitQuantite = $quantite;
-            $maxProduitPrix = $aggregatedData[$produit]['prixTTc'];
             if (isset($aggregatedData[$produit]['prixTTc'])) {
                 $maxProduitPrix = $aggregatedData[$produit]['prixTTc'];
             }
         }
     }
 
-    // Trouver le meilleur ingrédient composé en termes de quantité vendue
+    // Find the best-selling composed ingredient in terms of quantity sold
     $meilleurIngredient = null;
     $maxIngredientQuantite = 0;
     $maxIngredientPrix = 0;
@@ -330,7 +346,7 @@ public function UserStatistics($id)
         }
     }
 
-    // Comparer entre le meilleur produit et le meilleur ingrédient composé
+    // Compare the best product and best composed ingredient
     if ($maxProduitQuantite > $maxIngredientQuantite) {
         $meilleurVenteIngProduit = $meilleurProduit;
         $meilleurtQuantiteIngProduit = $maxProduitQuantite;
@@ -361,7 +377,7 @@ public function UserStatistics($id)
         ],
         'meilleur_nom' => $meilleurVenteIngProduit,
         'meilleur_quantite' => $meilleurtQuantiteIngProduit,
-        'meilleur_prixTtc' => $meilleurtPrixIngProduit,
+        'meilleur_prixTtc' => $meilleurtPrixIngProduit
     ]);
 }
 

@@ -12,7 +12,7 @@ const SocialSource = () => {
   useEffect(() => {
     // Dispatchez l'action pour charger les données initiales
     dispatch(getAllChiffreDaffaireData(id)); // Remplacez yourUserId par l'ID approprié
-  }, [dispatch,id]); // Utilisez dispatch comme dépendance pour éviter les avertissements du linter
+  }, [dispatch, id]); // Utilisez dispatch comme dépendance pour éviter les avertissements du linter
 
   const {
     montant_total,
@@ -25,10 +25,10 @@ const SocialSource = () => {
   } = useSelector((state) => state.gitChiffreDaffaire);
 
   const SocialSourceData = [
-    { title: " Charges Fixes", count: totalchargefix, bgcolor: "info", icon: "bx bx-money" },
-    { title: " Charges Variables", count: totalchargevariable, bgcolor: "success", icon: "bx bx-money" },
-    { title: " Total des ventes", count: chiffre_total, bgcolor: "warning", icon: "bx bx-line-chart" },
-    { title: "Bénéfice", count: benefice, bgcolor: "dark", icon: "bx bx-dollar" },
+    { title: " Charges Fixes", count: totalchargefix.toFixed(2), bgcolor: "info", icon: "bx bx-money" },
+    { title: " Charges Variables", count: totalchargevariable.toFixed(2), bgcolor: "success", icon: "bx bx-money" },
+    { title: " Total des ventes", count: chiffre_total.toFixed(2), bgcolor: "warning", icon: "bx bx-line-chart" },
+    { title: "Bénéfice", count: benefice.toFixed(2), bgcolor: "dark", icon: "bx bx-dollar" },
   ];
 
   return (
@@ -40,7 +40,6 @@ const SocialSource = () => {
               <div className="flex-grow-1">
               </div>
               <div className="flex-shrink-0">
-                
               </div>
             </div>
             {/* Pass data to RadialChart */}

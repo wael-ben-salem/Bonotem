@@ -25,7 +25,7 @@ const OverView = () => {
                             <Col md={6} className="border-end">
                                 <div>
                                     <p className="mb-2 text-danger">Total des ventes</p>
-                                    <h5 className="font-size-16 mb-0">{(totalAchat || 0).toFixed(2)} £</h5>
+                                    <h5 className="font-size-16 mb-0">{(totalAchat || 0).toFixed(2)} TND</h5>
 
                                 </div>
                             </Col>

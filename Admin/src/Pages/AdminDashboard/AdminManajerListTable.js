@@ -304,7 +304,7 @@ const handleAddUser = () => {
         <React.Fragment>
             <div className="page-content">
                 <Container fluid>
-                    <Breadcrumbs title="Tables" breadcrumbItem="Utilisateur" />
+                    <Breadcrumbs title="Tables" breadcrumbItem="Manager" />
 
                     <Row>
                         <Col lg={12}>
@@ -463,7 +463,7 @@ const handleAddUser = () => {
             </div>
             {/* Add User Modal */}
             <Modal isOpen={modalAddUser} toggle={toggleAddUserModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddUserModal}>Ajout restaurateur</ModalHeader>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddUserModal}>Ajout</ModalHeader>
                                         <ModalBody>
                                             <form className="tablelist-form">
                                                 <div className="mb-3">
@@ -535,7 +535,7 @@ const handleAddUser = () => {
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier restaurateur </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 <form className="tablelist-form">
                     <ModalBody>
                         <div className="mb-3">
@@ -622,8 +622,7 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Manager ajoutée avec succès
-                </Alert>
+                Ajout effectué avec succés                </Alert>
             </div>
         ) : null}
         {errorMessage  ? (
@@ -653,7 +652,7 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Manager modifiée avec succès
+                    Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -677,7 +676,7 @@ const handleAddUser = () => {
 
              {/* Show Modal */}
              <Modal isOpen={modal_show} toggle={toggleShowModal} centered>
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail Restaurateur</ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleShowModal}>Detail</ModalHeader>
                 <ModalBody>
                 {selectedUser && (
                         <form className="tablelist-form">
@@ -755,7 +754,9 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Manager suprimée avec succès
+                    Suppression effectué avec succés
+
+                    
                 </Alert>
             </div>
         ) : null}

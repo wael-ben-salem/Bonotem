@@ -20,13 +20,18 @@ const LineColumnArea = () => {
     return <div>Error: {error}</div>;
   }
 
-  // Générer une liste de dates pour le mois en cours
-  const startOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-  const endOfMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
-  const dateList = [];
-  for (let d = startOfMonth; d <= endOfMonth; d.setDate(d.getDate() + 1)) {
-    dateList.push(new Date(d).toLocaleDateString());
-  }
+  // Générer une liste de dates pour les 30 derniers jours
+  const generateDateList = (days) => {
+    const dateList = [];
+    for (let i = days; i >= 0; i--) {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      dateList.push(date.toISOString().split("T")[0]);
+    }
+    return dateList;
+  };
+
+  const dateList = generateDateList(30); // Les 30 derniers jours
 
   // Extraire les noms des produits
   const labelsData = [...new Set(ventesDetails.map((vente) => vente.nom))];
@@ -35,7 +40,7 @@ const LineColumnArea = () => {
   const datasets = labelsData.map((nom) => {
     const quantiteData = dateList.map((date) => {
       const totalQuantite = ventesDetails
-        .filter((vente) => vente.nom === nom && new Date(vente.date).toLocaleDateString() === date)
+        .filter((vente) => vente.nom === nom && new Date(vente.date).toISOString().split("T")[0] === date)
         .reduce((sum, vente) => sum + vente.quantite, 0);
       return totalQuantite;
     });
@@ -64,7 +69,7 @@ const LineColumnArea = () => {
           ticks: {
             max: Math.max(...datasets.flatMap(dataset => dataset.data)) + 10,
             min: 0,
-            stepSize: 10,
+            stepSize: 1,
             zeroLineColor: "#7b919e",
             borderDash: [3, 3],
           },

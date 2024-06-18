@@ -445,7 +445,9 @@ return(
                                                                     <td onClick={() => openShowModal(carte)}>
                                                                     {carte.produit ? carte.produit.name_produit : carte.ingredient_compose ? carte.ingredient_compose.name_ingredient_compose : 'Nom non disponible'}
                                                                         </td>
-                                                                <td onClick={() => openShowModal(carte)}>{carte.prix }</td>
+                                                                <td onClick={() => openShowModal(carte)}>
+  {carte.prix.toFixed(2)} TND
+</td>
 
                                                                 
                                                                 
@@ -892,8 +894,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Produit Carte ajoutée avec succès
-                </Alert>
+                Ajout effectué avec succés                </Alert>
             </div>
         ) : null}
         {errorMessage  ? (
@@ -923,7 +924,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Produit Carte modifiée avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -953,7 +954,7 @@ return(
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Produit Carte suprimée avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}

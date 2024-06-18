@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 // import
 
 const Login = () => {
-  document.title = "Login | Upzet - React Admin & Dashboard Template";
+  document.title = "Login | Bonotem";
     useEffect(() => {
         document.body.className = "bg-pattern";
         // remove classname when component will unmount

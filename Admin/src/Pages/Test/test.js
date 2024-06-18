@@ -457,7 +457,7 @@ const handleAddUser = () => {
             </div>
             {/* Add User Modal */}
             <Modal isOpen={modalAddUser} toggle={toggleAddUserModal} centered>
-                                        <ModalHeader className="bg-light p-3" toggle={toggleAddUserModal}>Ajout restaurateur</ModalHeader>
+                                        <ModalHeader className="bg-light p-3" toggle={toggleAddUserModal}>Ajout </ModalHeader>
                                         <ModalBody>
                                             <form className="tablelist-form">
                                                 <div className="mb-3">
@@ -513,7 +513,7 @@ const handleAddUser = () => {
 
              {/* Edit Modal */}
              <Modal isOpen={modal_list} toggle={toggleListModal} centered >
-                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modifier restaurateur </ModalHeader>
+                <ModalHeader className="bg-light p-3" id="exampleModalLabel" toggle={toggleListModal}> Modification </ModalHeader>
                 <form className="tablelist-form">
                     <ModalBody>
                         <div className="mb-3">
@@ -590,7 +590,7 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Restaurateur ajoutée avec succès
+                Ajout effectué avec succés      
                 </Alert>
             </div>
         ) : null}
@@ -621,7 +621,7 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Restaurateur modifiée avec succès
+                Modification effectué avec succés
                 </Alert>
             </div>
         ) : null}
@@ -714,7 +714,7 @@ const handleAddUser = () => {
             <div className="text-center">
                 <FontAwesomeIcon icon={faCheckCircle} style={{ color: 'green', fontSize: '3em' }} />
                 <Alert color="success" style={{ width:'50%' , margin: '20px auto 0'}}>
-                    Restaurateur suprimée avec succès
+                Suppression effectué avec succés
                 </Alert>
             </div>
         ) : null}
