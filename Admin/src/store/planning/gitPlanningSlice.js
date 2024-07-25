@@ -54,7 +54,11 @@ export const deleteAllPlanningsForPersonnel = createAsyncThunk(
     try {
       const response = await axios.delete(`/planning/personnel/${personnelId}`);
       console.log("API response:", response);
+<<<<<<< HEAD
       return personnelId;
+=======
+      return personnelId; 
+>>>>>>> c8559ea7b3de527091fce5f2dcd1f7b6b5499a11
   } catch (error) {
       console.error('API error:', error);
       throw error;
@@ -160,4 +164,7 @@ export const gitPlanningSlice = createSlice({
 });
 export default gitPlanningSlice.reducer;
  
+<<<<<<< HEAD
  
+=======
+>>>>>>> c8559ea7b3de527091fce5f2dcd1f7b6b5499a11

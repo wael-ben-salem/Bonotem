@@ -83,7 +83,7 @@ class ChargeVariableController extends Controller
         }
 
         return response()->json($charges, 200);
-    }
+    }q
 
 
 
@@ -194,7 +194,7 @@ class ChargeVariableController extends Controller
             'validation_errors' => $validator->messages(),
         ]);
     } else {
-      
+
         $charge->nom = $request->input('nom');
         $charge->date = $request->input('date');
         $charge->chiffre = $request->input('chiffre');

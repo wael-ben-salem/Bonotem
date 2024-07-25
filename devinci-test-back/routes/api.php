@@ -207,11 +207,16 @@ Route::put('/updatecouts/{id}', [CoutController::class, 'updateCout']);
 
 
 //planning
+<<<<<<< HEAD
 //Route::get('/planning/{id}', [PlanningController::class, 'planning']);
 Route::get('/showplanning', [PlanningController::class, 'show']);
 Route::post('/addplanning', [PlanningController::class, 'addPlanning']);
 
 
+=======
+Route::get('/showplanning', [PlanningController::class, 'show']);
+Route::post('/addplanning', [PlanningController::class, 'addPlanning']);
+>>>>>>> c8559ea7b3de527091fce5f2dcd1f7b6b5499a11
 Route::get('/planning', [PlanningController::class, 'planning']);
 
 

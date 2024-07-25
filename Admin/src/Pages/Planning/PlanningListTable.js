@@ -117,6 +117,10 @@ const PlanningTables = () => {
     taux_heure:"",
   });
   const id = useSelector(state => state.login.user.id);
+<<<<<<< HEAD
+=======
+
+>>>>>>> c8559ea7b3de527091fce5f2dcd1f7b6b5499a11
   useEffect(() => {
     dispatch(getAllData());
     dispatch(getAllPersonnel(id));

@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('pertes', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('id_marchandise');
-            $table->unsignedBigInteger('id_packaging');
-            $table->unsignedBigInteger('id_ingredient');
+            $table->unsignedBigInteger('id_packaging')->nullable();
+            $table->unsignedBigInteger('id_ingredient')->nullable();
             $table->integer('id_creator')->nullable();
 
 
