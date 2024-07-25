@@ -52,9 +52,9 @@ const MarchandiseIngredientListTable = () => {
     const [editedPrixMarchandise, setEditedPrixMarchandise] = useState(null);
     const [editedDateMarchandise, setEditedDateMarchandise] = useState(null);
     
-    const [modal_show, setModalShow] = useState(false); // State for Show Modal
+    const [modal_show, setModalShow] = useState(false); 
     const [selectedIngredientMarchandise, setSelectedIngredientMarchandise] = useState(null); // State to store selected 
-    const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
+    const [modal_delete, setModalDelete] = useState(false); 
     const [modalAddIngredientMarchandise, setModalAddIngredientMarchandise] = useState(false);
     const [errors, setErrors] = useState({});
 
@@ -101,20 +101,20 @@ const MarchandiseIngredientListTable = () => {
         return filteredMarchandises.slice(startIndex, startIndex + pageSize);
       };
       
-      // Définition de la taille de la page
+      
       const pageSize = 4;
       
-      // Calcul du nombre total de pages en fonction de la taille de la page
+     
       const totalPages = Math.ceil(filteredMarchandises.length / pageSize);
       
-      // Obtention des éléments de la page actuelle
+     
       const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, pageSize);
       
           
 
 
 
-    // Fonction pour changer de page
+  
     const changePage = (page) => {
         setCurrentPage(page);
     };
@@ -141,7 +141,7 @@ useEffect(() => {
     setTimeout(() => {
         window.location.reload()
 
-    }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }, 2000); 
     }
 }, [errorMessage]);
 

@@ -11,7 +11,7 @@ import { facebook, google } from "../../config";
 import logodark from "../../assets/images/Group 2.png";
 
 const Login = ({ login, user }) => {
-  document.title = "Login | Bonotem";
+  document.title = "Login | Devinci Analytics";
   const dispatch = useDispatch();
   const history = useNavigate();
 

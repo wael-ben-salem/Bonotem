@@ -81,50 +81,20 @@ class AuthController extends Controller
 
 
     public function user (Request $request)   {
-        $users = User::with('role')->get(); // Load the role information
+        $users = User::with('role')->get();
         return response()->json($users);
     }
     public function usertoken (Request $request)   {
-        $users = person::with('role')->get(); // Load the role information
+        $users = person::with('role')->get();
         return response()->json($users);
     }
-    // public function register(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'name' => 'required',
-    //         'email'=>'required|max:191|unique:users,email',
-    //         'password'=> 'required|min:8',
-    //     ]);
-    //     if( $validator->fails() ){
-    //         return response() ->json([
-    //             'validation_errors' => $validator->messages(),
 
-
-    //         ]);
-    //     }else{
-    //         $user = User::create([
-    //                 'name' => $request->name,
-    //                 'email'=> $request->email,
-    //                 'password'=> Hash::make($request->password),
-
-    //             ]);
-    //             $token = $user->createToken($user-> email.'_Token') -> plainTextToken;
-    //             return response() ->json([
-    //                     'status' => 200,
-    //                     'username' => $user->name,
-    //                     'token' => $token ,
-    //                     'message' => 'Registered Success',
-
-    //             ],200);
-    //     }
-
-    // }
 
 
 
     public function addManagerUser(Request $request, $id)
     {
-        $existingRole = Role::where('name_role', 'restaurateur')->first(); // Trouver le rôle restaurateur
+        $existingRole = Role::where('name_role', 'restaurateur')->first();
 
         $validator = Validator::make($request->all(), [
             'name' => 'required',

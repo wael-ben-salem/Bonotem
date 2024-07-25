@@ -26,11 +26,12 @@ export const addTypePersonnel = createAsyncThunk(
   }
 );
 
+
 export const updateTypePersonnel = createAsyncThunk(
   "gitTypePersonnel/updateTypePersonnel",
   async ({ id, personnelData }, { rejectWithValue }) => {
     try {
-      const response = await axios.put(`/updatetype_Personnel/${id}`, personnelData);
+      const response = await axios.put(`/updatetype_personnel/${id}`, personnelData);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);

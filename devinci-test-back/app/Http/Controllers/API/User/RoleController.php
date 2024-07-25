@@ -68,7 +68,7 @@ class RoleController extends Controller
 
     public function showRole($id)
     {
-       // Role Detail
+     
        $roles = Role::find($id);
 
        if(!$roles){
@@ -77,7 +77,7 @@ class RoleController extends Controller
          ],404);
        }
 
-       // Return Json Response
+
        return response()->json([
           'roles' => $roles
        ],200);
@@ -101,7 +101,7 @@ class RoleController extends Controller
                 'message' => "Role successfully updated."
             ],200);
         } catch (\Exception $e) {
-            // Return Json Response
+
             return response()->json([
                 'message' => "Something went really wrong!"
             ],500);
@@ -110,7 +110,7 @@ class RoleController extends Controller
 
     public function deleteRole($id)
     {
-        // Detail
+
         $roles = Role::find($id);
         if(!$roles){
           return response()->json([
@@ -118,7 +118,7 @@ class RoleController extends Controller
           ],404);
         }
 
-        // Delete Role
+
         $roles->delete();
 
         // Return Json Response

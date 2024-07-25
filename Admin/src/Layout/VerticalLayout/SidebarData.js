@@ -14,10 +14,9 @@ const SidebarData = [
         style: { fontSize: "10px" },
         icon: "mdi mdi-calendar-outline",
         subItem: [
-            { sublabel: "Planning", link: "/planning" },
             { sublabel: "Type de Personnels", link: "/typepersonnel" },
             { sublabel: "Personnels", link: "/personnel" },
-
+            { sublabel: "Planning", link: "/planning" },
 
             
         ],
@@ -135,32 +134,6 @@ const SidebarData = [
         ],
     },
 
-   /* {
-        label: "Forms",
-        icon: "ri-eraser-fill",
-        issubMenubadge: true,
-        bgcolor: "bg-danger",
-        badgeValue: "8",
-        subItem: [
-            { sublabel: "Form Elements", link: "/form-elements" },
-            { sublabel: "Form Validation", link: "/form-validation" },
-            { sublabel: "Form Advanced Plugins", link: "/form-advanced" },
-            { sublabel: "Form Editor", link: "/form-editor" },
-            { sublabel: "Form File Upload", link: "/form-uploads" },
-            { sublabel: "Form X-editable", link: "/form-editors" },
-            { sublabel: "Form Wizard", link: "/form-wizard" },
-            { sublabel: "Form Mask", link: "/form-mask" },
-        ],
-    },*/
-   /* {
-        label: "Tables",
-        icon: "ri-table-2",
-        subItem: [
-            { sublabel: "Basic Tables", link: "/tables-basic" },
-            { sublabel: "List Js", link: "/tables-listjs" },
-            { sublabel: "React Datatables", link: "/table-datatables" },
-        ],
-    },*/
      {
                 label: "Vente",
 

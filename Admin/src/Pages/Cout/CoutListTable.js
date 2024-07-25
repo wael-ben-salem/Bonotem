@@ -22,9 +22,9 @@ const CoutListTable = () => {
     const [errors, setErrors] = useState({});
 
 
-    const [hoverShow, setHoverShow] = useState(false); // Changer setHoverShow à useState
-    const [hoverEdit, setHoverEdit] = useState(false); // Changer setHoverEdit à useState
-    const [hoverRemove, setHoverRemove] = useState(false); // Changer setHoverRemove à useState
+    const [hoverShow, setHoverShow] = useState(false); 
+    const [hoverEdit, setHoverEdit] = useState(false); 
+    const [hoverRemove, setHoverRemove] = useState(false); 
     const [hover, setHover] = useState(false);
 
 
@@ -35,7 +35,7 @@ const CoutListTable = () => {
       errorMessage: state.gitCout.errorMessage,
       
     }));
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false); 
 
 
 
@@ -62,9 +62,9 @@ const CoutListTable = () => {
 
 
 
-    const [modal_show, setModalShow] = useState(false); // State for Show Modal
-    const [selectedCout, setSelectedCout] = useState(null); // State to store selected 
-    const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
+    const [modal_show, setModalShow] = useState(false); 
+    const [selectedCout, setSelectedCout] = useState(null); 
+    const [modal_delete, setModalDelete] = useState(false); 
     const [modalAddCout, setModalAddCout] = useState(false);
     
     
@@ -85,9 +85,9 @@ const CoutListTable = () => {
         // Calcul du nombre total de pages
         const totalPages = Math.ceil(couts.length / itemsPerPage);
     
-        // Fonction pour diviser les éléments en pages
+       
        const paginateCouts = () => {
-    // Check if couts is an array
+    
     if (!Array.isArray(couts)) {
         return [];
     }
@@ -98,7 +98,7 @@ const CoutListTable = () => {
 };
 
     
-        // Fonction pour changer de page
+       
         const changePage = (page) => {
             setCurrentPage(page);
         };
@@ -171,7 +171,7 @@ const id = useSelector(state => state.login.user.id);
         setShowSuccessMessage(false);
         window.location.reload()
 
-    }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }, 2000); 
     }
 }, [Success]);
 
@@ -214,11 +214,11 @@ const id = useSelector(state => state.login.user.id);
     
     const openDeleteModal = (cout) => {
         setSelectedCout(cout);
-    toggleDeleteModal(); // Open the delete modal
+    toggleDeleteModal(); 
     }
 
     const handleRemove = () => {
-        dispatch(deleteCout(selectedCout.id)); // Dispatch deleteUser action with the selected user's ID
+        dispatch(deleteCout(selectedCout.id)); 
         setTimeout(() => {
             toggleDeleteModal();
     
@@ -232,7 +232,7 @@ const id = useSelector(state => state.login.user.id);
 
 
     const openEditModal = (couts) => {
-        // Définir les données de Cout à éditer dans l'état
+        
         setEditedCout(couts);
         setEditedDateCout(couts.date)
         setEditedDetailCout(couts.detail)
@@ -263,8 +263,7 @@ const id = useSelector(state => state.login.user.id);
         };
         dispatch(updateCout({ id: editedCout.id,  updatedCout }))
         .then(() => {
-            // Réinitialiser l'état
-           // Reset the state
+          
         setEditedCout({
             detail: '',
             montant: null,
@@ -273,18 +272,18 @@ const id = useSelector(state => state.login.user.id);
             
         });
 
-            // Fermer le modal
+           
             toggleListModal();
 
-            // Ouvrir le modal de confirmation
+          
             toggleConfirmEdit(true);
         })
         .catch(error => {
-            // Gérer l'erreur
+          
             console.error("Error updating Cout:", error);
         })
         .finally(() => {
-            // Désactiver le chargement après l'achèvement de l'action
+            
         });
         
         
@@ -296,7 +295,7 @@ const id = useSelector(state => state.login.user.id);
    
 const openShowModal = (cout) => {
     setSelectedCout(cout);
-    dispatch(getCoutDetails(cout.id)); // Fetch user details when the Show button is clicked
+    dispatch(getCoutDetails(cout.id)); 
     toggleShowModal();
 }
 
@@ -324,7 +323,7 @@ const handleAdd = () => {
     .then(() => {
         
     
-        // Réinitialiser l'état
+       
         setNewCoutDate({
             detail: '',
             montant: null,
@@ -333,20 +332,20 @@ const handleAdd = () => {
         });
         
     
-            // Fermer le modal
+           
             toggleAddCoutModal();
     
-            // Ouvrir le modal de confirmation
+            
             toggleConfirmAdd(true);
         })
         .catch(error => {
-            // Gérer l'erreur
+           
             console.error("Error updating Cout:", error);
         })
         .finally(() => {
-            // Désactiver le chargement après l'achèvement de l'action
+            
         });
-    // Réinitialiser l'état
+  
     
     
 };

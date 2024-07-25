@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 // import
 
 const Login = () => {
-  document.title = "Login | Bonotem";
+  document.title = "Login | Devinci Analytics";
     useEffect(() => {
         document.body.className = "bg-pattern";
         // remove classname when component will unmount
@@ -128,8 +128,8 @@ const Login = () => {
                   </Link>{" "}
                 </p>
                 <p className="text-white-50">
-                  © {new Date().getFullYear()} Upzet. Crafted with{" "}
-                  <i className="mdi mdi-heart text-danger"></i> by Themesdesign
+                  © {new Date().getFullYear()} SITEM PARIS{" "}
+                  <i className="mdi mdi-heart text-danger"></i> by SITEM PARIS
                 </p>
               </div>
             </Col>

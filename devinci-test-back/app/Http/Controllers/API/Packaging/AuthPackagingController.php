@@ -27,7 +27,7 @@ class AuthPackagingController extends Controller
         }
     ],
         'dimension' => 'nullable|string|max:255',
-        'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+        'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', 
     ], [
         'name_packaging.required' => 'Le champ nom de l\'emballage est requis.',
         'name_packaging.regex' => 'Le champ nom de l\'emballage doit contenir uniquement des lettres et des espaces.',

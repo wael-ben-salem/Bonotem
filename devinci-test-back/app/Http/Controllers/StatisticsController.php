@@ -274,27 +274,30 @@ public function UserStatistics($id)
 
     foreach ($ventes as $vente) {
         $nom = $vente->produit ? $vente->produit->name_produit : ($vente->ingredient_composee ? $vente->ingredient_composee->name_ingredient_compose : '');
+        $date = $vente->created_at->format('Y-m-d');
 
-        if (!isset($aggregatedData[$nom])) {
-            $aggregatedData[$nom] = [
+        if (!isset($aggregatedData[$nom][$date])) {
+            $aggregatedData[$nom][$date] = [
                 'quantite' => $vente->quantite,
                 'prixTTc' => $vente->prixTTc,
                 'date' => $vente->created_at
             ];
         } else {
-            $aggregatedData[$nom]['quantite'] += $vente->quantite;
-            $aggregatedData[$nom]['prixTTc'] += $vente->prixTTc;
+            $aggregatedData[$nom][$date]['quantite'] += $vente->quantite;
+            $aggregatedData[$nom][$date]['prixTTc'] += $vente->prixTTc;
         }
     }
 
     // Convert aggregated data into desired format
-    foreach ($aggregatedData as $nom => $data) {
-        $ventesDetails[] = [
-            'nom' => $nom,
-            'quantite' => $data['quantite'],
-            'prixTTc' => $data['prixTTc'],
-            'date' => $data['date']
-        ];
+    foreach ($aggregatedData as $nom => $dates) {
+        foreach ($dates as $date => $data) {
+            $ventesDetails[] = [
+                'nom' => $nom,
+                'quantite' => $data['quantite'],
+                'prixTTc' => $data['prixTTc'],
+                'date' => $data['date']
+            ];
+        }
     }
 
     // Calculate sold quantities for each product and composed ingredient
@@ -317,6 +320,7 @@ public function UserStatistics($id)
             }
         }
     }
+
 
     // Find the best-selling product in terms of quantity sold
     $meilleurProduit = null;
@@ -380,6 +384,7 @@ public function UserStatistics($id)
         'meilleur_prixTtc' => $meilleurtPrixIngProduit
     ]);
 }
+ 
 
 public function CarteStatistics($id)
 {

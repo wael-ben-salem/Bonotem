@@ -123,7 +123,7 @@ const Sidebar = (props) => {
   return (
     <React.Fragment>
       
-      <div className="vertical-menu" style={{  backgroundColor: '#bc762e', color: '#343a40' }} >
+      <div className="vertical-menu" style={{  color: '#343a40' }} >
 
         <SimpleBar className="h-100" ref={ref}>
 
@@ -132,7 +132,7 @@ const Sidebar = (props) => {
               {(ManagersidebarData || []).map((item, key) => (
                 <React.Fragment key={key}>
                   {item.isMainMenu ? (
-                    <li className="menu-title" style={{ color: 'black' , fontSize: '14px'}}>{props.t(item.label)}</li>
+                    <li className="menu-title" style={{ color: 'white' , fontSize: '14px'}}>{props.t(item.label)}</li>
                   ) : (
                     <li key={key}>
                       <Link
@@ -157,7 +157,7 @@ const Sidebar = (props) => {
                             {item.badgeValue}{" "}
                           </span>
                         )}
-                        <span   style={{ color: 'black'}}>{props.t(item.label)}</span>
+                        <span   style={{ color: 'white'}}>{props.t(item.label)}</span>
                       </Link>
                       {item.subItem && (
                         <ul className="sub-menu">

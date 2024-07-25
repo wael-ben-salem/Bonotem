@@ -8,9 +8,9 @@ export const getAllUserStatiqueData = createAsyncThunk(
     try {
       const response = await axios.get("/user-statistics");
       console.log("API response:", response);
-      return response; // Retourner uniquement les données de la réponse
+      return response;
     } catch (error) {
-      console.error("API error:", error); // Log any errors
+      console.error("API error:", error); 
       throw error;
     }
   }
@@ -22,32 +22,32 @@ export const gitUserStatiqueSlice = createSlice({
     totalRestaurateurs: 0,
     totalManagers: 0,
     totalAmountManagers: 0,
-    best_manager_name: "", // Modifier le nom de la clé pour correspondre à la nouvelle structure d'API
-    userStatistics: [], // Ajouter une clé pour stocker les données des utilisateurs
+    best_manager_name: "", 
+    userStatistics: [], 
     num_users_by_best_manager:0,
-    loading: false, // Ajouter loading state
-    error: null, // Ajouter error state
+    loading: false, 
+    error: null, 
   },
   extraReducers: (builder) => {
     builder
       .addCase(getAllUserStatiqueData.pending, (state) => {
-        state.loading = true; // Set loading to true while fetching data
-        state.error = null; // Reset error state
+        state.loading = true; 
+        state.error = null; 
       })
       .addCase(getAllUserStatiqueData.fulfilled, (state, action) => {
-        state.loading = false; // Set loading to false when data fetching is successful
-        state.totalRestaurateurs = action.payload.total_restaurateurs; // Update state with received data
+        state.loading = false; 
+        state.totalRestaurateurs = action.payload.total_restaurateurs; 
         state.totalManagers = action.payload.total_managers;
         state.totalAmountManagers = action.payload.total_amount_managers;
         
         state.best_manager_name = action.payload.best_manager_name;
 
         state.num_users_by_best_manager = action.payload.num_users_by_best_manager;
-        state.userStatistics = action.payload.user_statistics; // Update user statistics data
+        state.userStatistics = action.payload.user_statistics; 
       })
       .addCase(getAllUserStatiqueData.rejected, (state, action) => {
-        state.loading = false; // Set loading to false when data fetching is unsuccessful
-        state.error = action.error.message; // Update error state with error message
+        state.loading = false; 
+        state.error = action.error.message; 
       });
   },
 });

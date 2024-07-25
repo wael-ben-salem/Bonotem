@@ -32,7 +32,7 @@ const PersonnelTables = () => {
   const personnels = useSelector((state) => state.gitPersonnel.personnel);
   const typePersonnels = useSelector(
     (state) => state.gitTypePersonnel.typePersonnels
-  ); 
+  );
   const [modal_list, setModal_list] = useState(false);
   const [editPersonnel, setEditPersonnel] = useState(null);
   const [editedNamePersonnel, setEditedNamePersonnel] = useState("");
@@ -58,32 +58,32 @@ const PersonnelTables = () => {
     salaire: "",
   });
   const id = useSelector(state => state.login.user.id);
-
+ 
   useEffect(() => {
     dispatch(getAllPersonnel(id));
     dispatch(fetchTypePersonnel(id));
   }, [dispatch,id]);
-
+ 
   const toggleAddPersonnelModal = () => {
     setModalAddPersonnel(!modalAddPersonnel);
   };
-
+ 
   const toggleListModal = () => {
     setModal_list(!modal_list);
   };
-
+ 
   const toggleDeleteModal = () => {
     setModalDelete(!modal_delete);
   };
   const toggleShowModal = () => {
     setModalShow(!modal_show);
   };
-
+ 
   const openDeleteModal = (personnel) => {
     setSelectedPersonnel(personnel);
     toggleDeleteModal();
   };
-
+ 
   const handleRemove = () => {
     dispatch(deletePersonnel(selectedPersonnel.id));
     toggleDeleteModal();
@@ -109,10 +109,10 @@ const PersonnelTables = () => {
     setEditedNamePersonnel(personnel.name);
     setEditedNumberPersonnel(personnel.num_telephone);
     setEditedSalaire(personnel.salaire);
-    setEditedNom(typeInfo ? typeInfo.nom : "Type inconnu"); 
+    setEditedNom(typeInfo ? typeInfo.nom : "Type inconnu");
     toggleListModal();
   };
-
+ 
   const handleUpdate = () => {
     const updatedPersonnel = {
       name: editedNamePersonnel,
@@ -121,13 +121,13 @@ const PersonnelTables = () => {
       type_personnel_id: editPersonnel.type_personnel_id,
       nom: editedNom,
     };
-
+ 
     dispatch(
       updatePersonnel({ id: editPersonnel.id, personnelData: updatedPersonnel })
     );
     toggleListModal();
   };
-
+ 
   /* const openShowModal = (personnel) => {
        setSelectedPersonnel(personnel);
         dispatch(getPersonnelDetails(personnel.id));
@@ -144,16 +144,16 @@ const PersonnelTables = () => {
     });
     setModalShow(true);
   };
-
+ 
   const handleAddPersonnel = () => {
     const formData = new FormData();
     formData.append("name", newPersonnelData.name);
     formData.append("num_telephone", newPersonnelData.num_telephone);
-    formData.append("type_personnel_id", newPersonnelData.type_personnel_id); 
+    formData.append("type_personnel_id", newPersonnelData.type_personnel_id);
     formData.append("salaire", newPersonnelData.salaire);
-
+ 
     dispatch(addPersonnel({ id: id, newPersonnelData:formData}))
-
+ 
     setShowAddSuccessModal(true);
     setNewPersonnelData({
       name: "",
@@ -168,7 +168,7 @@ const PersonnelTables = () => {
     <div className="page-content">
       <Container fluid>
         <Breadcrumbs title="Tables" breadcrumbItem="Personnels" />
-
+ 
         <Row>
           <Col lg={12}>
             <Card>
@@ -274,7 +274,7 @@ const PersonnelTables = () => {
                                     ? personnel.type_personnel.nom
                                     : "Non défini"}
                                 </td>
-
+ 
                                 <td onClick={() => openShowModal(personnel)}>
   {parseFloat(personnel.salaire).toFixed(2)} TND
 </td>
@@ -302,7 +302,7 @@ const PersonnelTables = () => {
                                       <FontAwesomeIcon icon={faEdit} />
                                       {hoverEdit ? " Modifier" : ""}
                                     </Button>
-
+ 
                                     <Button
                                       color="soft-danger"
                                       size="sm"
@@ -335,7 +335,7 @@ const PersonnelTables = () => {
                                                     ))}
                                                 </ul>
                     </div>
-                  
+                 
                 </CardBody>
               </Card>
             </Col>
@@ -391,7 +391,7 @@ const PersonnelTables = () => {
                 required
               />
             </div>
-
+ 
             <div className="mb-3">
               <label htmlFor="id_founisseur-field" className="form-label">
                 Type de personnel :
@@ -408,7 +408,7 @@ const PersonnelTables = () => {
                 }
               >
                 <option value="">Sélectionner un type de personnel</option>
-
+ 
                 {typePersonnels.map((type) => (
                   <option key={type.id} value={type.id}>
                     {type.nom ? type.nom : "No"}
@@ -416,7 +416,7 @@ const PersonnelTables = () => {
                 ))}
               </select>
             </div>
-
+ 
             <div className="mb-3">
               <label htmlFor="description-field" className="form-label">
                 Salaire{" "}
@@ -644,5 +644,5 @@ const PersonnelTables = () => {
     </React.Fragment>
   );
 };
-
+ 
 export default PersonnelTables;

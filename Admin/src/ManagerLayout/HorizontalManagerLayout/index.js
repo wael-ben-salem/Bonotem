@@ -54,7 +54,7 @@ const Layout = (props) => {
       if (rightbar && rightbar.contains(event.target)) {
         return;
       } else {
-        //if clicked in outside of rightbar then fire action for hide rightbar
+        
         dispatch(showRightSidebarAction(false));
       }
     },

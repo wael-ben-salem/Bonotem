@@ -36,7 +36,7 @@ const ChargeVariableListTable = () => {
       errorMessage: state.gitChargeVariable.errorMessage,
       
     }));
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false); 
   
 
     const [modal_list, setmodal_list] = useState(false);
@@ -45,18 +45,18 @@ const ChargeVariableListTable = () => {
     const [editedNameChargeVariable, setEditedNameChargeVariable] = useState('');
     const [editedChiffreChargeVariable, setEditedChiffreChargeVariable] = useState('');
 
-    const [editedDate, setEditedDate] = useState(""); // Store the file itself, initialize as null
+    const [editedDate, setEditedDate] = useState(""); 
 
-    const [modal_show, setModalShow] = useState(false); // State for Show Modal
-    const [selectedChargeVariable, setSelectedChargeVariable] = useState(null); // State to store selected 
-    const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
+    const [modal_show, setModalShow] = useState(false); 
+    const [selectedChargeVariable, setSelectedChargeVariable] = useState(null); 
+    const [modal_delete, setModalDelete] = useState(false); 
     const [modalAddChargeVariable, setModalAddChargeVariable] = useState(false);
     
     
     const [newChargeVariableData, setNewChargeVariableData] = useState({
         nom: '',
         date: '',
-        chiffre: null, // Store the file itself, initialize as null
+        chiffre: null, 
         
        
     });
@@ -66,17 +66,17 @@ const ChargeVariableListTable = () => {
         const [currentPage, setCurrentPage] = useState(0);
         const itemsPerPage = 4;
     
-        // Calcul du nombre total de pages
+      
         const totalPages = Math.ceil(chargesvariables.length / itemsPerPage);
     
-        // Fonction pour diviser les éléments en pages
+        
         const paginateFournisseur = () => {
             const startIndex = currentPage * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             return chargesvariables.slice(startIndex, endIndex);
         };
     
-        // Fonction pour changer de page
+        
         const changePage = (page) => {
             setCurrentPage(page);
         };
@@ -108,12 +108,12 @@ useEffect(() => {
     setTimeout(() => {
         window.location.reload()
 
-    }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }, 2000); 
     }
 }, [errorMessage]);
 
 useEffect(() => {
-    if (chargesvariables.length > 0) { // Vérifiez si la liste contient des éléments
+    if (chargesvariables.length > 0) { 
         new List('pagination-list', {
             valueNames: ['pagi-list'],
         });
@@ -126,14 +126,14 @@ const validate = (data) => {
     const errors = {};
 const today = new Date();
 const year = today.getFullYear();
-const month = today.getMonth(); // Mois actuel (0-indexed)
+const month = today.getMonth(); 
 
-// Début du mois en cours
+
 const startOfMonth = new Date(year, month, 1);
-// Fin du mois en cours
+
 const endOfMonth = new Date(year, month + 1, 0);
 
-// Vérifier que la date est fournie et est valide
+
 if (!data.date) {
     errors.date = "La date est requise.";
 } else {
@@ -196,11 +196,11 @@ const toggleConfirmEdit = (isOpen) => {
     
     const openDeleteModal = (chargevariable) => {
         setSelectedChargeVariable(chargevariable);
-    toggleDeleteModal(); // Open the delete modal
+    toggleDeleteModal(); 
     }
 
     const handleRemove = () => {
-        dispatch(deleteChargeVariable(selectedChargeVariable.id)); // Dispatch deleteUser action with the selected user's ID
+        dispatch(deleteChargeVariable(selectedChargeVariable.id)); 
         setTimeout(() => {
             toggleDeleteModal();
     
@@ -242,22 +242,22 @@ const toggleConfirmEdit = (isOpen) => {
     }
 
     dispatch(updateChargeVariable({ id: editChargeVariable.id,  ChargeVarialble })).then(() => {
-        // Réinitialiser l'état
+       
      setEditChargeVariable({
         nom: '',
         chiffre: null,
-        date: '', // Store the file itself, initialize as null
+        date: '',
         
     });
 
-        // Fermer le modal
+       
         toggleListModal();
 
-        // Ouvrir le modal de confirmation
+       
         toggleConfirmEdit(true);
     })
     .catch(error => {
-        // Gérer l'erreur
+      
         console.error("Error updating Fournisseur:", error);
     })
     .finally(() => {
@@ -271,7 +271,7 @@ const toggleConfirmEdit = (isOpen) => {
    
 const openShowModal = (chargevariable) => {
     setSelectedChargeVariable(chargevariable);
-    dispatch(getChargeVariableDetails(chargevariable.id)); // Fetch user details when the Show button is clicked
+    dispatch(getChargeVariableDetails(chargevariable.id)); 
     toggleShowModal();
 }
 
@@ -298,7 +298,7 @@ const handleAddPackaging = () => {
     .then(() => {
         
     
-        // Réinitialiser l'état
+       
         setNewChargeVariableData({
             nom: '',
             date: '',
@@ -307,15 +307,15 @@ const handleAddPackaging = () => {
     
         toggleAddChargeVariableModal();
     
-            // Ouvrir le modal de confirmation
+           
             toggleConfirmAdd(true);
         })
         .catch(error => {
-            // Gérer l'erreur
+           
             console.error("Error updating Fournisseur:", error);
         })
         .finally(() => {
-            // Désactiver le chargement après l'achèvement de l'action
+            
         });
 
 
@@ -422,7 +422,7 @@ return(
             <FontAwesomeIcon icon={faEye} />
             {/* {hoverShow ? " Consulter" : ""} */}
         </Button>
-        {chargevariable.nom !== "Marchandise" && (
+        {(chargevariable.nom !== "Marchandise" && chargevariable.nom !=="Perte"&& chargevariable.nom !=="Cout" )&&  (
             <>
                 <Button
                     color="soft-success"

@@ -54,9 +54,9 @@ const MarchandisePackagingListTable = () => {
     const [editedPrixMarchandise, setEditedPrixMarchandise] = useState(null);
     const [editedDateMarchandise, setEditedDateMarchandise] = useState(null);
     
-    const [modal_show, setModalShow] = useState(false); // State for Show Modal
-    const [selectedPackagingMarchandise, setSelectedPackagingMarchandise] = useState(null); // State to store selected 
-    const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
+    const [modal_show, setModalShow] = useState(false)
+    const [selectedPackagingMarchandise, setSelectedPackagingMarchandise] = useState(null); 
+    const [modal_delete, setModalDelete] = useState(false); 
     const [modalAddPackagingMarchandise, setModalAddPackagingMarchandise] = useState(false);
 
 
@@ -109,7 +109,7 @@ const MarchandisePackagingListTable = () => {
         setTimeout(() => {
             window.location.reload()
     
-        }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+        }, 2000); 
         }
     }, [errorMessage]);
     
@@ -135,7 +135,7 @@ const MarchandisePackagingListTable = () => {
                 setShowSuccessMessage(false);
                 window.location.reload()
         
-            }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+            }, 2000); 
             }
         }, [Success]);
 
@@ -175,7 +175,7 @@ const MarchandisePackagingListTable = () => {
             const errors = {};
         const today = new Date();
         const year = today.getFullYear();
-        const month = today.getMonth(); // Mois actuel (0-indexed)
+        const month = today.getMonth(); 
         
         // Début du mois en cours
         const startOfMonth = new Date(year, month, 1);
@@ -240,7 +240,7 @@ const MarchandisePackagingListTable = () => {
         
         const openDeleteModal = (marchandisepackaging) => {
             setSelectedPackagingMarchandise(marchandisepackaging);
-        toggleDeleteModal(); // Open the delete modal
+        toggleDeleteModal(); 
         }
 
         const handleRemove = () => {
@@ -335,27 +335,27 @@ const MarchandisePackagingListTable = () => {
 
     
         const openShowModal = (marchandisepackaging) => {
-            setSelectedPackagingMarchandise(marchandisepackaging); // Set the selected product
+            setSelectedPackagingMarchandise(marchandisepackaging); 
            
-            setModalShow(true); // Open the show modal
+            setModalShow(true); 
         }
 
         // Calcul du nombre total d'éléments de marchandises
 
-// Filtrage des éléments non nuls
+
 const filteredMarchandises = marchandisespackaging
   .filter(marchandise => marchandise.packaging !== null);
 
-// Fonction de pagination pour obtenir les éléments de la page actuelle
+
 const paginateMarchandise = (marchandisespackaging, page, pageSize) => {
   const startIndex = page * pageSize;
   return filteredMarchandises.slice(startIndex, startIndex + pageSize);
 };
 
-// Définition de la taille de la page
+
 const pageSize = 4;
 
-// Calcul du nombre total de pages en fonction de la taille de la page
+
 const totalPages = Math.ceil(filteredMarchandises.length / pageSize);
 
 // Obtention des éléments de la page actuelle
@@ -398,7 +398,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                     setNewIngredientMarchandiseData({
                         nom: '',
                         reference: '',
-                        id_packaging: '', // Utiliser id_ingredient au lieu de name_packaging
+                        id_packaging: '', 
     
                         unite_id: '',
                         id_fournisseur: '',
@@ -410,21 +410,21 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                     });
                 
                 
-                        // Fermer le modal
+                       
                         toggleAddPackagingMarchandiseModal();
                 
-                        // Ouvrir le modal de confirmation
+                      
                         toggleConfirmAddMarchandise(true);
                     })
                     .catch(error => {
-                        // Gérer l'erreur
+                       
                         console.error("Error updating Marchandise:", error);
                     })
                     .finally(() => {
-                        // Désactiver le chargement après l'achèvement de l'action
+                       
                     });
                 
-                // Réinitialiser l'état
+               
                
                
             };
@@ -446,7 +446,7 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                             <Col lg={12}>
                                 <Card>
                                     <CardHeader>
-                                        <h4 className="card-title mb-0">Gérer des Marchaandises</h4>
+                                        <h4 className="card-title mb-0">Gérer des Marchandises</h4>
                                     </CardHeader>
 
                                     <CardBody>
@@ -494,12 +494,12 @@ const currentPageData = paginateMarchandise(filteredMarchandises, currentPage, p
                                                             {/* <th className="sort" data-sort="Marchandise-Id">ID</th> */}
                             <th className="sort" data-sort="Marchandise-name_marchandise">Nom Marchandise</th>
                             <th className="sort" data-sort="Marchandise-ref">Referance</th>
-                            <th className="sort" data-sort="Marchandise-name_ingredient">Name packaging</th>
+                            <th className="sort" data-sort="Marchandise-name_ingredient">Nom packaging</th>
                             <th className="sort" data-sort="Marchandise-dimension">Dimension</th>
 
                             <th className="sort" data-sort="Marchandise-unite_id">Unite de mesure </th>
 
-                            <th className="sort" data-sort="Marchandise-name_fournisseur">Name fournisseur</th>
+                            <th className="sort" data-sort="Marchandise-name_fournisseur">Nom fournisseur</th>
                             <th className="sort" data-sort="Marchandise-quantite">Nombre de package Achetee</th>
                             <th className="sort" data-sort="Marchandise-quantite">Nombre de package En Stock</th>
                             <th className="sort" data-sort="Marchandise-quantite">Nombre de package Utilisés</th>

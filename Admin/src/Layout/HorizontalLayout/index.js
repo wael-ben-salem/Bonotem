@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import withRouter from "../../components/Common/withRouter";
 
-//actions
+
 import {
   changeLayout,
   changeTopbarTheme,
@@ -10,10 +10,10 @@ import {
   showRightSidebarAction,
 } from "../../store/actions";
 
-//redux
+
 import { useSelector, useDispatch } from "react-redux";
 
-//components
+
 import Navbar from "./NavBar";
 import Header from "./Header";
 import Footer from "./Footer";

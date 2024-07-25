@@ -207,10 +207,12 @@ Route::put('/updatecouts/{id}', [CoutController::class, 'updateCout']);
 
 
 //planning
-Route::get('/planning/{id}', [PlanningController::class, 'planning']);
+//Route::get('/planning/{id}', [PlanningController::class, 'planning']);
 Route::get('/showplanning', [PlanningController::class, 'show']);
-Route::post('/addplanning/{id}', [PlanningController::class, 'addPlanning']);
-Route::get('/planning', [PlanningController::class, 'index']);
+Route::post('/addplanning', [PlanningController::class, 'addPlanning']);
+
+
+Route::get('/planning', [PlanningController::class, 'planning']);
 
 
 Route::delete('/planning/personnel/{id}', [PlanningController::class, 'deleteAllPlanningsForPersonnel']);
@@ -226,7 +228,7 @@ Route::put('/updateplanning/{id}', [PlanningController::class, 'updatePlanning']
 //Personnel
 Route::get('/personnel/{id}', [PersonnelController::class, 'personnel']);
 Route::get('/showpersonnel/{id}', [PersonnelController::class, 'showPersonnel']);
-Route::delete('/deletepersonnel/{id}', [PersonnelController::class, 'destroy']);
+Route::delete('/deletepersonnel/{id}', [PersonnelController::class, 'deletePersonnel']);
 Route::post('/addpersonnel/{id}', [PersonnelController::class, 'addPersonnel']);
 Route::put('/updatepersonnel/{id}', [PersonnelController::class, 'updatePersonnel']);
 
@@ -235,7 +237,7 @@ Route::get('/type_personnel/{id}', [TypePersonnelController::class, 'TypePersonn
 Route::get('/showpersonnel/{id}', [TypePersonnelController::class, 'showTypePersonnel']);
 Route::delete('/deletetype_personnel/{id}', [TypePersonnelController::class, 'deleteTypePersonnel']);
 Route::post('/addtype_personnel/{id}', [TypePersonnelController::class, 'addTypePersonnel']);
-Route::put('/updatetype_Personnel/{id}', [TypePersonnelController::class, 'updateTypePersonnel']);
+Route::put('updatetype_personnel/{id}', [TypePersonnelController::class, 'updateTypePersonnel']);
 
 //Personnel
 Route::get('/jour', [JourController::class, 'jour']);

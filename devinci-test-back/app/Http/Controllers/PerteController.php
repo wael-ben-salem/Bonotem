@@ -111,12 +111,30 @@ class PerteController extends Controller
 public function addPerte(Request $request,$id)
 {
     // Valider les données de la requête
-    $request->validate([
+    $validator = Validator::make($request->all(), [
         'id_ingredient' => 'nullable|required_without:id_packaging|exists:ingredients,id',
         'id_packaging' => 'nullable|required_without:id_ingredient|exists:packagings,id',
         'quantiteIngredient' => 'nullable|integer|min:1',
         'quantitePackaging' => 'nullable|integer|min:1',
+
+    ],[
+        'id_ingredient.nullable' => 'Cet ingrédient ne doit pas être nullable.',
+        'id_packaging.nullable' => 'Cet emballage ne doit pas être nullable.',
+        'id_ingredient.required_without' => 'Le champ id_ingredient est requis quand id_packaging n\'est pas présent.',
+        'id_packaging.required_without' => 'Le champ id_packaging est requis quand id_ingredient n\'est pas présent.',
+        'id_ingredient.exists' => 'L\'ingrédient spécifié n\'existe pas.',
+        'id_packaging.exists' => 'L\'emballage spécifié n\'existe pas.',
+        'quantiteIngredient.integer' => 'La quantité de l\'ingrédient doit être un entier.',
+        'quantiteIngredient.min' => 'La quantité de l\'ingrédient doit être au moins 1.',
+        'quantitePackaging.integer' => 'La quantité de l\'emballage doit être un entier.',
+        'quantitePackaging.min' => 'La quantité de l\'emballage doit être au moins 1.',
     ]);
+
+    if ($validator->fails()) {
+        return response()->json([
+            'validation_errors' => $validator->messages(),
+        ]);
+    } else {
 
     // Initialisation des variables pour stocker les marchandises
     $marchandiseIngredient = null;
@@ -144,7 +162,19 @@ public function addPerte(Request $request,$id)
         $quantiteIngredient = $request->quantiteIngredient;
         $montantIngredient = $quantiteIngredient * $marchandiseIngredient->prix;
 
-        // Vérifier s'il existe déjà une perte pour cet ingrédient
+
+        $validator->after(function ($validator) use ( $marchandiseIngredient, $quantiteIngredient) {
+            if ( $marchandiseIngredient->quantite_en_stock - $quantiteIngredient < 0) {
+                $validator->errors()->add('quantite', 'Pas de stock d ingredient');
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json([
+                'validation_errors' => $validator->messages(),
+            ]);
+        }else{
+            // Vérifier s'il existe déjà une perte pour cet ingrédient
         $existingPerteIngredient = Perte::where('id_marchandise', $marchandiseIngredient->id)->first();
 
         if ($existingPerteIngredient) {
@@ -164,9 +194,14 @@ public function addPerte(Request $request,$id)
             $perteIngredient->save();
         }
 
-        // Mettre à jour la quantité en stock de l'ingrédient
+
+            // Mettre à jour la quantité en stock de l'ingrédient
         $marchandiseIngredient->quantite_en_stock -= $quantiteIngredient;
         $marchandiseIngredient->save();
+
+        }
+
+
     }
 
     // Traitement de la quantité d'emballage
@@ -174,7 +209,19 @@ public function addPerte(Request $request,$id)
         $quantitePackaging = $request->quantitePackaging;
         $montantPackaging = $quantitePackaging * $marchandisePackaging->prix;
 
-        // Vérifier s'il existe déjà une perte pour cet emballage
+
+        $validator->after(function ($validator) use ( $marchandisePackaging, $quantitePackaging) {
+            if ( $marchandisePackaging->quantite_en_stock - $quantitePackaging < 0) {
+                $validator->errors()->add('quantite', 'Pas de stock d ingredient');
+            }
+        });
+
+        if ($validator->fails()) {
+            return response()->json([
+                'validation_errors' => $validator->messages(),
+            ]);
+        }else{
+            // Vérifier s'il existe déjà une perte pour cet emballage
         $existingPertePackaging = Perte::where('id_marchandise', $marchandisePackaging->id)->first();
 
         if ($existingPertePackaging) {
@@ -193,14 +240,21 @@ public function addPerte(Request $request,$id)
 
             $pertePackaging->save();
         }
+            // Mettre à jour la quantité en stock de l'ingrédient
+          // Mettre à jour la quantité en stock de l'emballage
+          $marchandisePackaging->quantite_en_stock -= $quantitePackaging;
+          $marchandisePackaging->save();
 
-        // Mettre à jour la quantité en stock de l'emballage
-        $marchandisePackaging->quantite_en_stock -= $quantitePackaging;
-        $marchandisePackaging->save();
+        }
+
+
     }
 
     return response()->json(['message' => 'Perte ajoutée avec succès.']);
 }
+}
+ 
+
 
 
      public function updatePerte(Request $request, $id)

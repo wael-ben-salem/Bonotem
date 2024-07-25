@@ -1,17 +1,18 @@
+
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from 'axios';
-
+ 
 // Fetch all personnel
 export const getAllPersonnel = createAsyncThunk('gitPersonnel/getAllData', async (id) => {
     try {
         const response = await axios.get(`/personnel/${id}`);
-        return response; 
+        return response;
     } catch (error) {
         console.error('API error:', error);
         throw error;
     }
 });
-
+ 
 // Update personnel details
 export const updatePersonnel = createAsyncThunk(
     'gitPersonnel/updatePersonnel',
@@ -25,7 +26,7 @@ export const updatePersonnel = createAsyncThunk(
         }
     }
 );
-
+ 
 // Fetch personnel details
 export const getPersonnelDetails = createAsyncThunk(
     'gitPersonnel/getPersonnelDetails',
@@ -39,7 +40,7 @@ export const getPersonnelDetails = createAsyncThunk(
         }
     }
 );
-
+ 
 // Delete personnel
 export const deletePersonnel = createAsyncThunk(
     'gitPersonnel/deletePersonnel',
@@ -63,7 +64,7 @@ export const OverViewData = createAsyncThunk('gitPersonnel/fetchSalaries', async
         throw error;
     }
 });
-
+ 
 // Add new personnel
 export const addPersonnel = createAsyncThunk(
     'gitPersonnel/addPersonnel',
@@ -78,8 +79,8 @@ export const addPersonnel = createAsyncThunk(
       }
     }
   );
-  
-
+ 
+ 
 // Personnel slice definition
 export const gitPersonnelSlice = createSlice({
     name: 'gitPersonnel',
@@ -119,7 +120,7 @@ export const gitPersonnelSlice = createSlice({
             })
             .addCase(updatePersonnel.fulfilled, (state, action) => {
                 state.loading = false;
-                const index = state.personnel.findIndex(p => p.peronnel_id === action.payload.personnel_id);
+                const index = state.personnel.findIndex(p => p.personnel_id === action.payload.personnel_id);
                 if (index !== -1) {
                     state.personnel[index] = action.payload;
                 }
@@ -146,7 +147,7 @@ export const gitPersonnelSlice = createSlice({
             .addCase(addPersonnel.fulfilled, (state, action) => {
                 state.loading = false;
                 state.error = null;
-
+ 
                 console.log("Personnel added:", action.payload);
             })
             .addCase(addPersonnel.rejected, (state, action) => {
@@ -155,5 +156,6 @@ export const gitPersonnelSlice = createSlice({
             });
     },
 });
-
+ 
 export default gitPersonnelSlice.reducer;
+ 

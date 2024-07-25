@@ -10,56 +10,10 @@ use Illuminate\Support\Facades\Validator;
 
 class CartesController extends Controller
 {
-    // public function store(Request $request, $id)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'id_produit' => [
-    //             'required',
-    //             'exists:produits,id',
-    //             function ($attribute, $value, $fail) use ($id) {
-    //                 $existingCategory = Cartes::where('id_produit', $value)
-    //                     ->where('id_creator', $id)
-    //                     ->first();
 
-    //                 if ($existingCategory) {
-    //                     $fail('Ce produit est déjà associé à une carte pour cet utilisateur.');
-    //                 }
-    //             }
-    //         ],
-    //         'prix' => 'required|numeric',
-
-    //     ], [
-    //         'id_produit.required' => 'Le champ produit est requis.',
-    //         'id_produit.exists' => 'Le produit sélectionné n\'existe pas.',
-    //         'prix.required' => 'Le champ prix est requis.',
-    //         'prix.numeric' => 'Le champ prix doit être un nombre.',
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'validation_errors' => $validator->messages(),
-    //         ]);
-    //     } else {
-    //         // Récupérer le produit associé à la carte
-    //         $produit = Produit::findOrFail($request->id_produit);
-
-    //         // Créer une nouvelle carte
-    //         $carte = new Cartes();
-    //         $carte->id_produit = $request->id_produit;
-    //         $carte->id_categorie = $produit->id_categorie; // Récupérer l'ID de la catégorie du produit
-    //         $carte->prix = $request->prix;
-    //         $carte->id_creator = $id;
-
-    //         $carte->save();
-
-    //         return response()->json([
-    //             'message' => "Carte ajoutée avec succès."
-    //         ], 200);
-    //     }
-    // }
     public function store(Request $request, $id)
     {
-        // Validation des données de la requête
+
         $validator = Validator::make($request->all(), [
             'id_produit' => [
                 'nullable',
@@ -101,7 +55,7 @@ class CartesController extends Controller
             ]);
         }
 
-        // Création des cartes en fonction des données fournies dans la requête
+
         $prix = $request->prix;
         $id_creator = $id;
         $produit = null;
@@ -116,11 +70,11 @@ class CartesController extends Controller
         }
 
         if ($produit !== null && $ingredient_compose === null) {
-            // Créer une carte avec un produit uniquement
+
             $carteProduit = new Cartes();
             $carteProduit->id_produit = $request->id_produit;
             $carteProduit->prix = $prix;
-            $carteProduit->id_categorie = $produit->id_categorie; // Récupérer l'ID de la catégorie du produit
+            $carteProduit->id_categorie = $produit->id_categorie;
             $carteProduit->id_creator = $id_creator;
             $carteProduit->save();
 
@@ -130,12 +84,12 @@ class CartesController extends Controller
         }
 
         if ($ingredient_compose !== null && $produit === null) {
-            // Créer une carte avec un ingrédient composé uniquement
+
             $carteIngredientCompose = new Cartes();
             $carteIngredientCompose->id_ingredient_compose = $request->id_ingredient_compose;
             $carteIngredientCompose->prix = $prix;
             $carteIngredientCompose->id_creator = $id_creator;
-            $carteIngredientCompose->id_categorie = $ingredient_compose->id_categorie; // Récupérer l'ID de la catégorie de l'ingrédient composé
+            $carteIngredientCompose->id_categorie = $ingredient_compose->id_categorie;
             $carteIngredientCompose->save();
 
             return response()->json([
@@ -144,19 +98,19 @@ class CartesController extends Controller
         }
 
         if ($produit !== null && $ingredient_compose !== null) {
-            // Créer deux cartes, une pour le produit et une pour l'ingrédient composé
+
             $carteProduit = new Cartes();
             $carteProduit->id_produit = $request->id_produit;
             $carteProduit->prix = $prix;
             $carteProduit->id_creator = $id_creator;
-            $carteProduit->id_categorie = $produit->id_categorie; // Récupérer l'ID de la catégorie du produit
+            $carteProduit->id_categorie = $produit->id_categorie;
             $carteProduit->save();
 
             $carteIngredientCompose = new Cartes();
             $carteIngredientCompose->id_ingredient_compose = $request->id_ingredient_compose;
             $carteIngredientCompose->prix = $prix;
             $carteIngredientCompose->id_creator = $id_creator;
-            $carteIngredientCompose->id_categorie = $ingredient_compose->id_categorie; // Récupérer l'ID de la catégorie de l'ingrédient composé
+            $carteIngredientCompose->id_categorie = $ingredient_compose->id_categorie;
             $carteIngredientCompose->save();
 
             return response()->json([
@@ -164,7 +118,7 @@ class CartesController extends Controller
             ], 200);
         }
 
-        // Si aucun des deux id_produit et id_ingredient_compose n'est présent
+
         return response()->json([
             'message' => 'Veuillez fournir un produit, un ingrédient composé ou les deux.'
         ], 400);
@@ -173,7 +127,7 @@ class CartesController extends Controller
 
         public function cartes(Request $request,$id)
         {
-            // Eager load the products with each category
+
             $cartes = Cartes::with('produit','categorie','ingredient_compose')
             ->where('id_creator', $id)
                             ->get();
@@ -201,16 +155,16 @@ class CartesController extends Controller
             }
             else {
 
-                // Récupérer la carte à mettre à jour
+
                 $carte = Cartes::findOrFail($id);
                 $produit = Produit::findOrFail($request->id_produit);
 
-                // Vérifier si le produit associé existe
+
                 Produit::findOrFail($request->id_produit);
 
-                // Mettre à jour les attributs de la carte
+
                 $carte->id_produit = $request->id_produit;
-                $carte->id_categorie = $produit->id_categorie; // Récupérer l'ID de la catégorie du produit
+                $carte->id_categorie = $produit->id_categorie;
 
                 $carte->prix = $request->prix;
                 $carte->save();
@@ -233,10 +187,10 @@ class CartesController extends Controller
     public function destroy($id)
     {
 
-            // Trouver la carte à supprimer
+
             $carte = Cartes::findOrFail($id);
 
-            // Supprimer la carte
+            
             $carte->delete();
 
             return response()->json(['message' => 'Carte successfully deleted.'], 200);

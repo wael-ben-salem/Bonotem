@@ -34,7 +34,7 @@ const ChargeFixeTables = () => {
       errorMessage: state.gitChargeFixe.errorMessage,
       
     }));
-    const [showSuccessMessage, setShowSuccessMessage] = useState(false); // Define showSuccessMessage state
+    const [showSuccessMessage, setShowSuccessMessage] = useState(false); 
   
 
     const [modal_list, setmodal_list] = useState(false);
@@ -43,12 +43,12 @@ const ChargeFixeTables = () => {
     const [editedNameChargeFixe, setEditedNameChargeFixe] = useState('');
     const [editedMontantChargeFixe, setEditedMontantChargeFixe] = useState('');
 
-    const [editedDate, setEditedDate] = useState(""); // Store the file itself, initialize as null
-    const [editedFrequence, setEditedFrequence] = useState(""); // Store the file itself, initialize as null
+    const [editedDate, setEditedDate] = useState(""); 
+    const [editedFrequence, setEditedFrequence] = useState(""); 
 
-    const [modal_show, setModalShow] = useState(false); // State for Show Modal
-    const [selectedChargeFixe, setSelectedChargeFixe] = useState(null); // State to store selected 
-    const [modal_delete, setModalDelete] = useState(false); // State for Delete Modal
+    const [modal_show, setModalShow] = useState(false); 
+    const [selectedChargeFixe, setSelectedChargeFixe] = useState(null); 
+    const [modal_delete, setModalDelete] = useState(false); 
     const [modalAddChargeFixe, setModalAddChargeFixe] = useState(false);
     
     const [errors, setErrors] = useState({});
@@ -56,7 +56,7 @@ const ChargeFixeTables = () => {
     const [newChargeFixeData, setNewChargeFixeData] = useState({
         nom: '',
         date_paiement: '',
-        montant: null, // Store the file itself, initialize as null
+        montant: null, 
         frequence:'',
        
     });
@@ -66,17 +66,17 @@ const ChargeFixeTables = () => {
         const [currentPage, setCurrentPage] = useState(0);
         const itemsPerPage = 4;
     
-        // Calcul du nombre total de pages
+       
         const totalPages = Math.ceil(chargesfixes.length / itemsPerPage);
     
-        // Fonction pour diviser les éléments en pages
+        
         const paginateFournisseur = () => {
             const startIndex = currentPage * itemsPerPage;
             const endIndex = startIndex + itemsPerPage;
             return chargesfixes.slice(startIndex, endIndex);
         };
     
-        // Fonction pour changer de page
+       
         const changePage = (page) => {
             setCurrentPage(page);
         };
@@ -99,7 +99,7 @@ const ChargeFixeTables = () => {
         setShowSuccessMessage(false);
         window.location.reload()
 
-    }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }, 2000); 
     }
 }, [Success]);
 useEffect(() => {
@@ -108,12 +108,12 @@ useEffect(() => {
     setTimeout(() => {
         window.location.reload()
 
-    }, 2000); // Adjust the delay time as needed (3000 milliseconds = 3 seconds)
+    }, 2000); 
     }
 }, [errorMessage]);
 
 useEffect(() => {
-    if (chargesfixes.length > 0) { // Vérifiez si la liste contient des éléments
+    if (chargesfixes.length > 0) { 
         new List('pagination-list', {
             valueNames: ['pagi-list'],
         });
@@ -125,14 +125,14 @@ const validate = (data) => {
     const errors = {};
 const today = new Date();
 const year = today.getFullYear();
-const month = today.getMonth(); // Mois actuel (0-indexed)
+const month = today.getMonth(); 
 
 // Début du mois en cours
 const startOfMonth = new Date(year, month, 1);
-// Fin du mois en cours
+
 const endOfMonth = new Date(year, month + 1, 0);
 
-// Vérifier que la date est fournie et est valide
+
 if (!data.date_paiement) {
     errors.date_paiement = "La date est requise.";
 } else {
@@ -194,11 +194,11 @@ const toggleConfirmEdit = (isOpen) => {
     
     const openDeleteModal = (chargefixe) => {
         setSelectedChargeFixe(chargefixe);
-    toggleDeleteModal(); // Open the delete modal
+    toggleDeleteModal(); 
     }
 
     const handleRemove = () => {
-        dispatch(deleteChargeFixe(selectedChargeFixe.id)); // Dispatch deleteUser action with the selected user's ID
+        dispatch(deleteChargeFixe(selectedChargeFixe.id)); 
         setTimeout(() => {
             toggleDeleteModal();
     
@@ -244,7 +244,7 @@ const toggleConfirmEdit = (isOpen) => {
     }
 
     dispatch(updateChargeFixe({ id: editChargeFixe.id,  ChargeFixe })).then(() => {
-        // Réinitialiser l'état
+       
      setEditChargeFixe({
         nom: '',
         montant: null,
@@ -253,18 +253,18 @@ const toggleConfirmEdit = (isOpen) => {
 
     });
 
-        // Fermer le modal
+       
         toggleListModal();
 
-        // Ouvrir le modal de confirmation
+        
         toggleConfirmEdit(true);
     })
     .catch(error => {
-        // Gérer l'erreur
+       
         console.error("Error updating Chargeù:", error);
     })
     .finally(() => {
-        // Désactiver le chargement après l'achèvement de l'action
+        
     });
 
      
@@ -274,7 +274,7 @@ const toggleConfirmEdit = (isOpen) => {
    
 const openShowModal = (chargefixe) => {
     setSelectedChargeFixe(chargefixe);
-    dispatch(getChargeFixeDetails(chargefixe.id)); // Fetch user details when the Show button is clicked
+    dispatch(getChargeFixeDetails(chargefixe.id));
     toggleShowModal();
 }
 
@@ -303,7 +303,7 @@ const handleAddPackaging = () => {
     .then(() => {
         
     
-        // Réinitialiser l'état
+       
         setNewChargeFixeData({
             nom: '',
             date_paiement: '',
@@ -313,15 +313,15 @@ const handleAddPackaging = () => {
     
         toggleAddChargeFixeModal();
     
-            // Ouvrir le modal de confirmation
+          
             toggleConfirmAdd(true);
         })
         .catch(error => {
-            // Gérer l'erreur
+           
             console.error("Error updating Charge:", error);
         })
         .finally(() => {
-            // Désactiver le chargement après l'achèvement de l'action
+           
         });
 
 

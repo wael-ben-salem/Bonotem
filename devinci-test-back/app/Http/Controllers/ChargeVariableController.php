@@ -16,11 +16,10 @@ class ChargeVariableController extends Controller
 {
     public function getAllCharges($id)
     {
-        // Récupérer les lignes de ChargeVariable pour le même id_creator
-        $chargeVariables = ChargeVariable::where('id_creator', $id)->get();
-        $charges = []; // Déclaration de $charges avant d'ajouter les résultats des autres tables
 
-        // Ajouter les lignes de ChargeVariable dans $charges
+        $chargeVariables = ChargeVariable::where('id_creator', $id)->get();
+        $charges = [];
+
         $chargeVariables->each(function ($chargeVariable) use (&$charges) {
             $charge = new stdClass();
             $charge->id = $chargeVariable->id;
@@ -33,30 +32,29 @@ class ChargeVariableController extends Controller
             $charges[] = $charge;
         });
 
-        // Obtenir le mois et l'année actuels
         $currentMonth = date('m');
         $currentYear = date('Y');
         $dateStart = "$currentYear-$currentMonth-01";
         $dateEnd = date('Y-m-t', strtotime($dateStart));
 
-        // Calculer le montant total des marchandises pour le mois en cours en multipliant prix par quantite_achetee
+
         $totalMarchandise = Marchandise::where('id_creator', $id)
             ->whereBetween('date_achat', [$dateStart, $dateEnd])
             ->select(DB::raw('SUM(prix * quantite_achetee) as total'))
             ->pluck('total')
             ->first();
 
-        // Calculer le montant total des pertes pour le mois en cours
+
         $totalPerte = Perte::where('id_creator', $id)
             ->whereBetween('created_at', [$dateStart, $dateEnd])
             ->sum('montant');
 
-        // Calculer le montant total des coûts pour le mois en cours
+
         $totalCout = Cout::where('id_creator', $id)
             ->whereBetween('date', [$dateStart, $dateEnd])
             ->sum('montant');
 
-        // Ajouter les charges de Marchandise, Perte et Cout si les totaux sont supérieurs à 0
+
         if ($totalMarchandise > 0) {
             $marchandiseCharge = new stdClass();
             $marchandiseCharge->nom = 'Marchandise';
@@ -88,7 +86,7 @@ class ChargeVariableController extends Controller
     }
 
 
-    // Afficher une ChargeVariable
+
     public function show($id)
     {
         $charge = ChargeVariable::findOrFail($id);
@@ -96,7 +94,7 @@ class ChargeVariableController extends Controller
         return response()->json($charge, 200);
     }
 
-    // Supprimer une ChargeVariable
+
     public function destroy($id)
     {
         $charge = ChargeVariable::findOrFail($id);
@@ -105,7 +103,7 @@ class ChargeVariableController extends Controller
         return response()->json(null, 204);
     }
 
-    // Récupérer toutes les charges
+
 
 
 
@@ -143,7 +141,7 @@ class ChargeVariableController extends Controller
                 'validation_errors' => $validator->messages(),
             ]);
         } else {
-            // Les données sont valides, on peut les utiliser directement
+
             $charge = new ChargeVariable();
             $charge->nom = $request->input('nom');
             $charge->date = $request->input('date');
@@ -196,7 +194,7 @@ class ChargeVariableController extends Controller
             'validation_errors' => $validator->messages(),
         ]);
     } else {
-        // Les données sont valides, on peut les utiliser directement
+      
         $charge->nom = $request->input('nom');
         $charge->date = $request->input('date');
         $charge->chiffre = $request->input('chiffre');

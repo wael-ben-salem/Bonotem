@@ -7,15 +7,15 @@ import { Link } from "react-router-dom";
 import LanguageDropdown from "../../components/Common/TopbarDropdown/LanguageDropdown";
 import NotificationDropdown from "../../components/Common/TopbarDropdown/NotificationDropdown";
 
-//i18n
+
 import { withTranslation } from "react-i18next";
 
-//import images
+
 import logoSm from "../../assets/images/Group 1.png";
 import logoDark from "../../assets/images/Group 1.png";
 import logoLight from "../../assets/images/Group 1.png";
 
-// Redux Store
+
 import {
   showRightSidebarAction,
   toggleLeftmenu,
@@ -33,7 +33,7 @@ const Header = (props) => {
       /* alternative standard method */ !document.mozFullScreenElement &&
       !document.webkitFullscreenElement
     ) {
-      // current working methods
+     
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen();
       } else if (document.documentElement.mozRequestFullScreen) {

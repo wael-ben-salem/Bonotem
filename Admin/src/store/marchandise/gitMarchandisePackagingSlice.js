@@ -1,17 +1,17 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import axios from "axios";// Action
+import axios from "axios";
 
 
 
 
-// Action
+
 export const getAllMarchandiseData = createAsyncThunk("gitMarchandisePackaging/getAllMarchandiseData", async (id) => {
     try {
       const response = await axios.get(`/marchandise/${id}`);
       console.log("API response:", response);
       return response;
     } catch (error) {
-      console.error("API error:", error); // Log any errors
+      console.error("API error:", error); 
       throw error;
     }
   });
@@ -23,7 +23,7 @@ export const getAllMarchandiseData = createAsyncThunk("gitMarchandisePackaging/g
         try {
             const response = await axios.put(`/updatemarchandisePackaging/${id}`, packagingMarchandiseData);
             console.log("API response:", response);
-            return response; // Assuming the API returns the updated user data
+            return response; 
         } catch (error) {
             console.error("API error:", error);
             throw error;

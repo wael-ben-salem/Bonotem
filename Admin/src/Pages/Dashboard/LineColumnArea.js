@@ -20,7 +20,7 @@ const LineColumnArea = () => {
     return <div>Error: {error}</div>;
   }
 
-  // Générer une liste de dates pour les 30 derniers jours
+ 
   const generateDateList = (days) => {
     const dateList = [];
     for (let i = days; i >= 0; i--) {
@@ -31,12 +31,12 @@ const LineColumnArea = () => {
     return dateList;
   };
 
-  const dateList = generateDateList(30); // Les 30 derniers jours
+  const dateList = generateDateList(30); 
 
-  // Extraire les noms des produits
+  
   const labelsData = [...new Set(ventesDetails.map((vente) => vente.nom))];
 
-  // Préparer les datasets pour le graphique
+  
   const datasets = labelsData.map((nom) => {
     const quantiteData = dateList.map((date) => {
       const totalQuantite = ventesDetails

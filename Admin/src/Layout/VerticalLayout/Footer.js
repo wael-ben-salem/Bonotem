@@ -3,10 +3,10 @@ import { Container, Row, Col } from "reactstrap";
 
 const Footer = () => {
   const iconStyle = {
-    fontSize: '16px', // Smaller size for more subtle icons
-    color: 'inherit', // Inherits the color from parent elements, or set specific color
-    marginRight: '15px', // Space between icons for better separation
-    textDecoration: 'none' // Removes underline from icons
+    fontSize: '16px', 
+    color: 'inherit', 
+    marginRight: '15px', 
+    textDecoration: 'none' 
   };
 
   return (

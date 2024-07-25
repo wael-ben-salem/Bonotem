@@ -37,7 +37,6 @@ const PlanningTables = () => {
   const dispatch = useDispatch();
   const plannings = useSelector((state) => state.gitPlanning.plannings);
   const personnels = useSelector((state) => state.gitPersonnel.personnel);
-  console.log(personnels);
   const jours = useSelector((state) => state.gitJours.jours);
   const semaine = [
     "Lundi",
@@ -117,9 +116,10 @@ const PlanningTables = () => {
     heure_fin: "",
     taux_heure:"",
   });
+  const id = useSelector(state => state.login.user.id);
   useEffect(() => {
     dispatch(getAllData());
-    dispatch(getAllPersonnel());
+    dispatch(getAllPersonnel(id));
     dispatch(getAllJours());
     console.log("Selected Planning:", selectedPlanning);
     console.log("Selected Day:", selectedDay);

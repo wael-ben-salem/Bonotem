@@ -16,7 +16,7 @@ class CategorieController extends Controller
      */
     public function categorie(Request $request ,$id)
 {
-    // Eager load the products with each category
+
     $categories = Categorie::with('produits')  ->where('id_creator', $id)
     ->get();
     return response()->json($categories);
@@ -44,7 +44,7 @@ class CategorieController extends Controller
                 }
             ],
             'description' => 'required|string',
-            'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999', // L'envoi de photo est facultatif
+            'photo' => 'required|nullable|file|mimes:jpeg,png,jpg,gif,svg|max:1999',
         ], [
             'name.required' => 'Le champ nom est requis.',
             'name.regex' => 'Le champ nom d\'ingrédient doit contenir uniquement des lettres et des espaces.',
@@ -71,7 +71,7 @@ class CategorieController extends Controller
         $categorie->id_creator = $id;
 
 
-        // Handle the photo upload if it's present in the request
+
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo');
             $filename = time() . '.' . $photo->getClientOriginalExtension();
@@ -96,7 +96,7 @@ class CategorieController extends Controller
      */
     public function showCategorie($id)
     {
-       // Role Detail
+
        $categories = Categorie::find($id);
 
        if(!$categories){
@@ -105,7 +105,7 @@ class CategorieController extends Controller
          ],404);
        }
 
-       // Return Json Response
+
        return response()->json([
           'categories' => $categories
        ],200);
@@ -147,7 +147,7 @@ class CategorieController extends Controller
             $categorie->name = $request->name;
             $categorie->description = $request->description;
 
-            // Check if 'photo_url' exists in the request and update the photo attribute
+
             if ($request->hasFile('photo')) {
                 $photo = $request->file('photo');
                 $filename = time() . '.' . $photo->getClientOriginalExtension();
@@ -169,7 +169,7 @@ class CategorieController extends Controller
      */
     public function deleteCategorie($id)
     {
-        // Detail
+
         $categories = Categorie::find($id);
         if(!$categories){
           return response()->json([
@@ -177,10 +177,10 @@ class CategorieController extends Controller
           ],404);
         }
 
-        // Delete Role
+
         $categories->delete();
 
-        // Return Json Response
+       
         return response()->json([
             'message' => "Category successfully deleted."
         ],200);

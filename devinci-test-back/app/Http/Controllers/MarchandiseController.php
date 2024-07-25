@@ -71,8 +71,7 @@ class MarchandiseController extends Controller
              // Find the latest Marchandise with the same ingredient
         $latestMarchandise = Marchandise::where('id_ingredient', $request->id_ingredient)->where('id_creator', $id)->latest()->first();
 
-        // Calculate the stock quantity for the new Marchandise
-        // Calculate the stock quantity for the new Marchandise
+
     $stockQuantity = $request->quantite_achetee;
     if ($latestMarchandise) {
         $stockQuantity = ($latestMarchandise->quantite_achetee +$stockQuantity )-$latestMarchandise->quantite_consomee;

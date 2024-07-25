@@ -37,7 +37,7 @@ const Packagings = () => {
     const [editPackaging, setEditPackaging] = useState(null);
     const [editedNamePackaging, setEditedNamePackaging] = useState('');
     const [editedDimension, setEditedDimension] = useState('');
-    const [editedPhoto, setEditedPhoto] = useState(""); // Store the file itself, initialize as null
+    const [editedPhoto, setEditedPhoto] = useState(""); 
     const [errors, setErrors] = useState({});
 
     const [modal_show, setModalShow] = useState(false); // State for Show Modal

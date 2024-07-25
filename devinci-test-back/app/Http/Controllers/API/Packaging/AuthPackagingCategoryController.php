@@ -12,15 +12,15 @@ class AuthPackagingCategoryController extends Controller
 {
     public function createPackagingCategory(Request $request)
     {
-        // Vérifier si l'ID de l'emballage existe dans la table packagings
+
         $existingPackaging = Packaging::find($request->id_packaging);
 
 
 
-        // Si l'ID de l'emballage existe, valider et créer la catégorie d'emballage
+
         $validator = Validator::make($request->all(), [
             'id_packaging' => 'required|int|unique:packaging_categories,id_packaging',
-            // Ajoutez d'autres règles de validation si nécessaire
+
         ]);
 
         if ($validator->fails()) {
@@ -44,7 +44,7 @@ class AuthPackagingCategoryController extends Controller
                     'message' => 'Packaging Category Added Successfully',
                 ], 200);
             } catch (\Exception $e) {
-                // Gérer les erreurs d'insertion dans la base de données
+                
                 return response()->json([
                     'status' => 500,
                     'message' => 'Error adding packaging category: ' . $e->getMessage(),

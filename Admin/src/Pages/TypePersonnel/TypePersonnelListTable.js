@@ -157,7 +157,7 @@ const TypePersonnelTables = () => {
                           />
                         </div>
                       </th>
-                      <th>ID</th>
+                      
                       <th>Nom</th>
                       <th>Prix par Heure</th>
                       <th>Actions</th>
@@ -178,7 +178,7 @@ const TypePersonnelTables = () => {
             />
           </div>
         </td>
-        <td>{type.id}</td>
+       
         <td>{type.nom}</td>
         <td>{`${type.prix_heure} TND/h`}</td>
         <td>
@@ -255,7 +255,7 @@ const TypePersonnelTables = () => {
             <Input type="text" id="nom"  placeholder="Enter Nom" value={newTypePersonnelData.nom} onChange={(e) => setNewTypePersonnelData({ ...newTypePersonnelData, nom: e.target.value })} />
           </FormGroup>
           <FormGroup>
-            <Label for="prix_heure">Prix par Heure (€):</Label>
+            <Label for="prix_heure">Prix par Heure :</Label>
             <Input type="number" id="prix_heure"  placeholder="Enter Prix per heure" value={newTypePersonnelData.prix_heure} onChange={(e) => setNewTypePersonnelData({ ...newTypePersonnelData, prix_heure: e.target.value })} />
           </FormGroup>
         </ModalBody>

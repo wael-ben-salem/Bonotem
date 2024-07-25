@@ -617,7 +617,7 @@ return(
 
             <div className="mb-3">
                 <label htmlFor="name-field" className="form-label">Quantite</label>
-                <input type="number" id="naem-field" className="form-control" placeholder="Proposez le prix " value={newVenteData.quantite} onChange={(e) => setNewVenteData({ ...newVenteData, quantite: e.target.value })} required />
+                <input type="number" id="naem-field" className="form-control" placeholder="Ajouter quantité " value={newVenteData.quantite} onChange={(e) => setNewVenteData({ ...newVenteData, quantite: e.target.value })} required />
                 {errors.quantite && <div className="text-danger">{errors.quantite}</div>}
 
             </div>

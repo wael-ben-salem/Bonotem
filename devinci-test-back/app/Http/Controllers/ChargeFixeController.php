@@ -14,37 +14,31 @@ class ChargeFixeController extends Controller
 {
     public function getAllChargeFix($id)
     {
-        // Récupérer les personnels pour le même id_creator
+
         $personnels = Personnel::where('id_creator', $id)->get();
 
-        // Calculer le salaire total des personnels
         $totalSalaire = $personnels->sum('salaire');
 
-        // Ajouter une seule entrée pour les salaires de tous les personnels
         $personnelCharge = null;
         if ($totalSalaire > 0) {
             $personnelCharge = new stdClass();
             $personnelCharge->nom = 'Personnel';
             $personnelCharge->id_creator = $id;
 
-            // Obtenir le mois et l'année actuels
             $currentMonth = date('m');
             $currentYear = date('Y');
 
-            // Construire la date de paiement pour le personnel
             $personnelCharge->date_paiement = "01/$currentMonth/$currentYear au " . date("t/$currentMonth/$currentYear");
 
             $personnelCharge->montant = $totalSalaire;
             $personnelCharge->frequence = 'hebdomadaire';
         }
 
-        // Récupérer les lignes de ChargeFixe pour le même id_creator
+
         $chargeFixes = ChargeFixe::where('id_creator', $id)->get();
 
-        // Créer une liste pour les charges fixes
         $charges = [];
 
-        // Ajouter les lignes de ChargeFixe dans la réponse
         $chargeFixes->each(function ($chargeFixe) use (&$charges) {
             $charge = new stdClass();
             $charge->id = $chargeFixe->id;
@@ -57,7 +51,6 @@ class ChargeFixeController extends Controller
             $charges[] = $charge;
         });
 
-        // Ajouter les charges de personnel à la fin
         if ($personnelCharge) {
             $charges[] = $personnelCharge;
         }
@@ -103,7 +96,7 @@ class ChargeFixeController extends Controller
                 'validation_errors' => $validator->messages(),
             ]);
         } else {
-            // Les données sont valides, on peut les utiliser directement
+
             $charge = new ChargeFixe();
             $charge->nom = $request->input('nom');
             $charge->frequence = $request->input('frequence');
@@ -152,7 +145,7 @@ class ChargeFixeController extends Controller
 
         $montant = $request->input('montant', $chargeFixe->montant);
 
-        // Update the montant to the total of all salaries if the charge is "Charge de Personnels"
+        
         if ($request->nom == 'Charge de Personnels') {
             $montant = Personnel::sum('salaire');
         }

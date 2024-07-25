@@ -16,34 +16,34 @@ class ChiffreAffaireController extends Controller
 {
     public function getChiffreAffaireEtBeneficeParCreator($id)
     {
-        // Calcul de la somme des charges fixes (y compris le personnel)
+
         $totalchargefix = ChargeFixe::where('id_creator', $id)->sum('montant');
 
-        // Calcul du salaire total des personnels pour le même id_creator
+
         $totalSalairePersonnel = Personnel::where('id_creator', $id)->sum('salaire');
 
-        // Ajouter le salaire total des personnels aux charges fixes
+
         $totalchargefix += $totalSalairePersonnel;
 
-        // Date de début et de fin du mois en cours
+
         $currentMonth = date('m');
         $currentYear = date('Y');
         $dateStart = "$currentYear-$currentMonth-01";
         $dateEnd = date('Y-m-t', strtotime($dateStart));
 
-        // Calcul de la somme des marchandises pour le mois en cours (prix * quantite_achetee)
+
         $totalMarchandise = Marchandise::where('id_creator', $id)
             ->whereBetween('date_achat', [$dateStart, $dateEnd])
             ->select(DB::raw('SUM(prix * quantite_achetee) as total'))
             ->pluck('total')
             ->first();
 
-        // Calcul de la somme des pertes pour le mois en cours
+
         $totalPerte = Perte::where('id_creator', $id)
             ->whereBetween('created_at', [$dateStart, $dateEnd])
             ->sum('montant');
 
-        // Calcul de la somme des coûts pour le mois en cours
+       
         $totalCout = Cout::where('id_creator', $id)
             ->whereBetween('date', [$dateStart, $dateEnd])
             ->sum('montant');
