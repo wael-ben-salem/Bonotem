@@ -1,3 +1,7 @@
+### Logo de l'application
+![Logo](./Group%201.png)
+
+
 # Bonotem – Système de gestion des ressources et de la finance pour restaurateurs
 
 Ce projet a été réalisé dans le cadre d’une expérience académique entre **février 2024 et mai 2024**. Il propose une plateforme complète de **gestion des ressources**, de **gestion des ventes ** et d’**analyse financière** destinée aux **Restaurateurs** et aux **Managers**.
@@ -50,10 +54,26 @@ Gestion et suivi des différentes entités opérationnelles :
 
 ## 📸 Captures d’écran
 
+### Interface d’authentification
+![Authentification](./auth.png)
+
+### Tableau de bord – Admin
+![Dashboard Admin](./dashboardAdmin.png)
+
+### Ajouter un manager
+![Ajouter Manager](./Ajouter%20Manager.png)
+
+### Gestion des produits
+![Gérer Produit](./GererProduit.png)
+
+### Visualisation du chiffre d’affaires
+![Chiffre d'Affaire](./ChiffreAffaire.png)
+
+### Gestion des charges fixes
+![Charges fixes](./chargeFix.png)
 
 
 ## 📂 Structure du projet
-![Dashboard](./dashboardAdmin.png)
 
 ```
 /Admin/src                 → Code source du frontend React avec Redux
