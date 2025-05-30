@@ -1,5 +1,7 @@
-### Logo de l'application
-![Logo](./Group%201.png)
+<p align="center">
+  <img src="./Admin/Group%201.png" alt="Logo" width="200"/>
+</p>
+
 
 
 # Bonotem – Système de gestion des ressources et de la finance pour restaurateurs
